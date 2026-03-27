@@ -1,0 +1,115 @@
+.manifesto-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 40px 16px;
+}
+
+.manifesto-card {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 40px;
+}
+
+.manifesto-kicker {
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin: 0 0 12px;
+}
+
+.manifesto-title {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin: 0 0 14px;
+}
+
+.manifesto-lede {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  opacity: 0.92;
+  margin: 0 0 28px;
+  max-width: 70ch;
+}
+
+.manifesto-lede--flush {
+  margin-bottom: 0;
+}
+
+.manifesto-section {
+  margin-top: 34px;
+}
+
+.manifesto-section h3 {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.manifesto-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.manifesto-pillar {
+  border: 1px solid var(--border-color);
+  background: var(--bg-main);
+  padding: 18px 18px;
+}
+
+.manifesto-pillar__name {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.manifesto-pillar__desc {
+  margin: 0;
+  line-height: 1.7;
+  opacity: 0.92;
+}
+
+.manifesto-quote {
+  margin: 18px 0 0;
+  padding: 16px 18px;
+  border-left: 4px solid var(--accent-orange);
+  background: var(--bg-main);
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  line-height: 1.8;
+}
+
+.manifesto-quote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  opacity: 0.9;
+  font-family: var(--font-family-main);
+  letter-spacing: 0.02em;
+}
+
+.manifesto-footlink {
+  margin-top: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+}
+
+.manifesto-footlink:hover,
+.manifesto-footlink:focus-visible {
+  border-color: var(--border-color);
+  background: var(--bg-main);
+  color: var(--text-main);
+}

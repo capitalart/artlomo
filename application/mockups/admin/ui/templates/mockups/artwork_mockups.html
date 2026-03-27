@@ -1,0 +1,36 @@
+{% extends 'admin_base.html' %}
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/mockups_admin.css') }}">
+{% endblock %}
+{% block admin_content %}
+<h1 class="h4 mb-2">Artwork mockups for {{ sku }}</h1>
+<p class="text-body-secondary">Read-only view of slot assignments from assets.json{% if slug %}; slug {{ slug }}{% endif %}.</p>
+
+{% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+{% elif not entries %}
+  <p class="text-body-secondary mb-0">No mockups recorded for this artwork.</p>
+{% else %}
+  <div class="artwork-grid">
+    {% for item in entries %}
+      <div class="mockup-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="fw-semibold">Slot {{ item.slot }}</div>
+            <div class="small text-body-secondary">Template {{ item.template_slug or 'n/a' }}</div>
+          </div>
+          {% if item.updated_at %}<span class="badge bg-light text-dark">Updated {{ item.updated_at }}</span>{% endif %}
+        </div>
+        <div class="small text-body-secondary mb-2">Aspect {{ item.aspect_ratio or 'n/a' }} · Category {{ item.category or 'n/a' }} · Regions {{ item.regions | length }}</div>
+        {% if item.thumb_url %}
+          <img class="mockup-thumb" src="{{ item.thumb_url }}" alt="Mockup thumb slot {{ item.slot }}" loading="lazy">
+        {% else %}
+          <div class="mockup-thumb d-flex align-items-center justify-content-center text-body-secondary">No thumbnail</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<a class="btn btn-link mt-3" href="{{ url_for('mockups_admin.bases') }}">Back to bases</a>
+{% endblock %}

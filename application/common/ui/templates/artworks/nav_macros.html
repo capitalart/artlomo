@@ -1,0 +1,16 @@
+{% macro artworks_top_nav(active_path='') %}
+  {% set p = active_path or request.path or '' %}
+  {% set items = [
+    {'label':'UPLOAD','href': url_for('upload.upload_page'), 'key':'/artworks/upload'},
+    {'label':'UNPROCESSED','href': url_for('upload.unprocessed'), 'key':'/artworks/unprocessed'},
+    {'label':'PROCESSED','href': url_for('upload.processed'), 'key':'/artworks/processed'},
+    {'label':'LOCKED','href': url_for('upload.locked'), 'key':'/artworks/locked'},
+    {'label':'TRASH','href': url_for('upload.trash'), 'key':'/artworks/trash'},
+  ] %}
+  <nav class="artworks-top-nav" aria-label="Artwork dashboard navigation">
+    {% for it in items %}
+      {% set is_active = p.startswith(it.key) %}
+      <a class="artworks-top-nav__btn{% if is_active %} is-active{% endif %}" href="{{ it.href }}">{{ it.label }}</a>
+    {% endfor %}
+  </nav>
+{% endmacro %}

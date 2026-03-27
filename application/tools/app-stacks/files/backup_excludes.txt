@@ -1,0 +1,58 @@
+# Workspace-root exclude list
+
+# VCS/IDE/environment
+.git
+.git/**
+.venv
+.venv/**
+.pytest_cache
+.pytest_cache/**
+.mypy_cache
+.mypy_cache/**
+.ruff_cache
+.ruff_cache/**
+.trae
+.trae/**
+.vscode-server
+.vscode-server/**
+
+# Runtime/output/cache
+logs
+logs/**
+var
+var/**
+outputs
+outputs/**
+__pycache__
+**/__pycache__
+**/__pycache__/**
+node_modules
+**/node_modules
+**/node_modules/**
+
+# App generated artwork payloads (large/volatile)
+application/lab/locked
+application/lab/locked/**
+application/lab/processed
+application/lab/processed/**
+application/lab/unprocessed
+application/lab/unprocessed/**
+
+# Stack/backup outputs (avoid recursion)
+application/tools/app-stacks/backups
+application/tools/app-stacks/backups/**
+application/tools/app-stacks/stacks
+application/tools/app-stacks/stacks/**
+
+# Bulky/generated media internals
+application/mockups/catalog/assets
+application/mockups/catalog/assets/**
+application/mockups/tmp
+application/mockups/tmp/**
+
+# Temporary and binary noise
+*.pyc
+*.pyo
+*.tmp
+*.swp
+*.swo

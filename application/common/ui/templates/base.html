@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en" data-theme="light" id="app-root">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {% set _csrf_token = csrf_token() if (csrf_token is defined and csrf_token
+  is callable) else (csrf_token if csrf_token is defined else '') %}
+  <meta name="csrf-token" content="{{ _csrf_token }}" />
+  <title>{{ title or 'ArtLomo Uploads' }}</title>
+  
+  <!-- Favicons -->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicons/favicon.ico') }}" />
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicons/favicon-16x16.png') }}" />
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicons/favicon-32x32.png') }}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicons/apple-touch-icon.png') }}" />
+  <link rel="manifest" href="{{ url_for('static', filename='favicons/site.webmanifest') }}" />
+  
+  <!-- Early theme initialization (runs before stylesheets to prevent flash) -->
+  <script src="{{ url_for('static', filename='js/early_theme_init.js') }}"></script>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}?v=1.2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1.2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}?v=1.3" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}?v=1.0" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}?v=1.0" />
+  <!-- Style Editor Generated Styles (can be disabled via data-style-editor-enabled="false") -->
+  <link rel="stylesheet" id="darkroom-stylesheet" href="{{ url_for('static', filename='css/darkroom.css') }}?v=1.0" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=1.2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/overlays.css') }}?v=1.2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/modals.css') }}?v=1.2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}?v=1.2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/utility.css') }}?v=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/presets/' ~ active_preset_name ~ '.css') }}?v={{ active_preset_version }}" />
+  <!-- Tooltip System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/tooltip.css') }}?v=1.0" />
+  {% block workflow_css %}{% endblock %}
+</head>
+
+<body class="app-body">
+  {% set _path = request.path if request is defined and request.path is
+  defined else '' %} {% set _page_title = page_title if page_title is defined
+  and page_title else (title if title is defined and title else 'Dashboard')
+  %}
+
+  <!-- Mobile Logo Bar (visible only on mobile) -->
+  <div class="mobile-logo-bar">
+    <a href="https://artlomo.com/" class="mobile-logo-bar__link" aria-label="ArtLomo Home">
+      <img src="{{ url_for('static', filename='logo/artlomo-logo-white.svg') }}" alt="ArtLomo"
+        class="mobile-logo-bar__logo" />
+    </a>
+    <button class="mobile-sidebar-toggle" type="button" data-sidebar-mobile-toggle aria-label="Open sidebar">
+      <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div class="app-shell">
+    <aside class="app-sidebar" aria-label="Workspace navigation">
+      <!-- Sidebar Logo -->
+      <div class="sidebar-logo">
+        <a href="https://artlomo.com/" class="sidebar-logo__link" aria-label="ArtLomo Home">
+          <img src="{{ url_for('static', filename='logo/artlomo-logo-white.svg') }}" alt="ArtLomo"
+            class="sidebar-logo__img" />
+        </a>
+        <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar">
+          <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="sidebar-profile">
+        <div class="sidebar-profile__avatar" aria-hidden="true">
+          {% if artist_profile_image_path %}
+          <img
+            src="{{ artist_profile_image_path }}{% if artist_profile.get('profile_image_mtime') %}?v={{ artist_profile.get('profile_image_mtime') }}{% endif %}"
+            alt="" />
+          {% else %}
+          <span class="sidebar-profile__initials">{{ artist_profile_initials or 'RC' }}</span>
+          {% endif %}
+        </div>
+        <div class="sidebar-profile__meta">
+          <div class="sidebar-profile__name">
+            {{ artist_profile_name or 'Artist' }}
+          </div>
+          <div class="sidebar-profile__sub">Darkroom</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Workspace navigation">
+        <div class="sidebar-nav__section-title">Artwork</div>
+        <a class="sidebar-nav__link{% if _path.startswith('/artworks/upload') %} is-active{% endif %}"
+          href="{{ url_for('upload.upload_page') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+          <span class="sidebar-nav__label">Upload</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/artworks/unprocessed') %} is-active{% endif %}"
+          href="{{ url_for('upload.unprocessed') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-regular fa-hourglass"></i></span>
+          <span class="sidebar-nav__label">Unprocessed</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/artworks/processed') %} is-active{% endif %}"
+          href="{{ url_for('upload.processed') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-regular fa-circle-check"></i></span>
+          <span class="sidebar-nav__label">Processed</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/artworks/locked') %} is-active{% endif %}"
+          href="{{ url_for('upload.locked') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>
+          <span class="sidebar-nav__label">Locked</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/artworks/trash') %} is-active{% endif %}"
+          href="{{ url_for('upload.trash') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-trash-can"></i></span>
+          <span class="sidebar-nav__label">Trash</span>
+        </a>
+
+        <div class="sidebar-nav__divider"></div>
+
+        <div class="sidebar-nav__section-title">Mockups</div>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/bases') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.bases') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-regular fa-images"></i></span>
+          <span class="sidebar-nav__label">Base Catalog</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/templates/upload') or _path.startswith('/admin/mockups/bases/upload') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.upload_bases') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-upload"></i></span>
+          <span class="sidebar-nav__label">Upload Bases</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/gemini-studio') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.gemini_studio') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+          <span class="sidebar-nav__label">Gemini Mockup Studio</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/basic-mockups') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.basic_mockups') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-images"></i></span>
+          <span class="sidebar-nav__label">Basic Mockups</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/ezy-mockups') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.ezy_mockups') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
+          <span class="sidebar-nav__label">Ezy Mockups (Alpha)</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/mockup-generator') %} is-active{% endif %}"
+          href="{{ url_for('mockup_generator.mockup_generator_dashboard') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-cubes"></i></span>
+          <span class="sidebar-nav__label">Mockup Generator</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/mockup-generator/queue-admin') %} is-active{% endif %}"
+          href="{{ url_for('mockup_generator.mockup_generator_queue_admin_page') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-server"></i></span>
+          <span class="sidebar-nav__label">Mockup Queue Admin</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/precision-mockups') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.precision_mockups') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i></span>
+          <span class="sidebar-nav__label">Precision Mockups</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/aspects') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.aspect_manager') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-expand"></i></span>
+          <span class="sidebar-nav__label">Aspect Manager</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/categories-manager') %} is-active{% endif %}"
+          href="{{ url_for('mockups_admin.category_manager') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
+          <span class="sidebar-nav__label">Category Manager</span>
+        </a>
+
+        <div class="sidebar-nav__divider"></div>
+
+        <div class="sidebar-nav__section-title">Analysis</div>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/analysis-management') and not _path.startswith('/admin/analysis-management/jobs') %} is-active{% endif %}"
+          href="{{ url_for('analysis_management.analysis_management_hub') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-brain"></i></span>
+          <span class="sidebar-nav__label">Analysis Presets</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/analysis-management/jobs') %} is-active{% endif %}"
+          href="{{ url_for('analysis_management.analysis_jobs_admin_page') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-list-check"></i></span>
+          <span class="sidebar-nav__label">Analysis Jobs</span>
+        </a>
+
+        <div class="sidebar-nav__divider"></div>
+
+        <div class="sidebar-nav__section-title">Admin</div>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/hub') %} is-active{% endif %}"
+          href="{{ url_for('hub.home') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+          <span class="sidebar-nav__label">Admin Hub</span>
+        </a>
+
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/profile') %} is-active{% endif %}"
+          href="{{ url_for('admin_profile.profile_page') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-regular fa-id-badge"></i></span>
+          <span class="sidebar-nav__label">Artist Profile</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/users') %} is-active{% endif %}"
+          href="{{ url_for('admin_users.users_page') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span>
+          <span class="sidebar-nav__label">Users</span>
+        </a>
+        <a class="sidebar-nav__link{% if _path.startswith('/admin/settings') %} is-active{% endif %}"
+          href="{{ url_for('admin_settings.settings_page') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-gear"></i></span>
+          <span class="sidebar-nav__label">Settings</span>
+        </a>
+
+        <div class="sidebar-nav__divider"></div>
+
+        <a class="sidebar-nav__link{% if _path == '/about' %} is-active{% endif %}" href="{{ url_for('site.about') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
+          <span class="sidebar-nav__label">About ArtLomo</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        {% if session.get('username') %}
+        <a class="sidebar-nav__link" href="{{ url_for('auth.logout') }}">
+          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-right-from-bracket"></i></span>
+          <span class="sidebar-nav__label">Logout</span>
+        </a>
+        {% endif %}
+      </div>
+    </aside>
+
+    <div class="mobile-sidebar-backdrop" data-sidebar-backdrop aria-hidden="true"></div>
+
+    <!-- Thin Utility Header -->
+    <header class="app-header" role="banner">
+      <div class="app-header__left">
+        <button class="header-sidebar-toggle" type="button" data-sidebar-mobile-toggle aria-label="Open menu">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+        <h1 class="artlomo-header-title">
+          <a href="https://artlomo.com/" class="breadcrumb-link">Dashboard</a>
+          <span class="breadcrumb-separator">/</span>
+          <span class="breadcrumb-current">{{ _page_title }}</span>
+        </h1>
+      </div>
+      <div class="app-header__right">
+        <!-- Job Queue Notification -->
+        <button type="button" 
+                class="header-job-indicator" 
+                id="jobIndicator" 
+                aria-label="Analysis jobs" 
+          hidden
+                title="Analysis queue">
+          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+          <span class="job-count" id="jobCount">0</span>
+        </button>
+        
+        <button type="button" class="header-menu-toggle" data-overlay-toggle="admin" aria-label="Open menu"
+          aria-expanded="false">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" aria-pressed="false">
+          <span class="theme-toggle-shell">
+            <img class="theme-icon" src="{{ url_for('static', filename='icons/dark.svg') }}" alt=""
+              aria-hidden="true" />
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <main class="container app-main">
+        {% include 'components/flash.html' %} {% block content %}{% endblock
+        %}
+      </main>
+      {% include 'components/footer.html' %} {% include
+      'overlays/menu_overlay.html' %} {% include
+      'components/delete_modal.html' %} {% include
+      'components/export_confirmation_modal.html' %}
+      <script src="{{ url_for('static', filename='js/base.js') }}?v=20260308-03"></script>
+      <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/generate_mockups.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/overlay-menus.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/delete-modal.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/export_async.js') }}"></script>
+      <!-- Tooltip System -->
+      <script src="{{ url_for('static', filename='js/tooltip-system.js') }}?v=1.0"></script>
+      <script src="{{ url_for('static', filename='js/style_editor_toggle_global.js') }}"></script>
+      
+      {% block extra_js %}{% endblock %}
+    </div>
+  </div>
+</body>
+
+</html>

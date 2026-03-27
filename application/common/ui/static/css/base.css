@@ -1,0 +1,363 @@
+* {
+  box-shadow: none !important;
+}
+
+/* Style contract: use html[data-theme="light|dark"] as the only theme switch.
+  Canonical variables: --color-bg-primary, --color-card-bg, --color-text-primary,
+  --color-border-primary, --color-action-danger, --text-secondary.
+  Legacy aliases are mapped in style.css. */
+:root {
+  --bs-body-font-family: var(--font-family-main);
+  --bs-font-sans-serif: var(--font-family-main);
+
+  --content-max-width: 2400px;
+  --card-total-width: 780px;
+  --artwork-size: 370px;
+  --artwork-margin: 10px;
+  --text-panel-width: 410px;
+  --panel-padding: 10px;
+  --button-height: 42px;
+  --header-height: 20px;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-family-main) !important;
+}
+
+/* Thin Utility Header (offset by sidebar) */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width, 250px);
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 65px;
+  padding: 0 24px;
+  background: var(--bg-body);
+  border-bottom: 1px solid var(--color-border-primary, rgba(0, 0, 0, 0.1));
+}
+
+.app-header__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.app-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.artlomo-header-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumb-current,
+.breadcrumb-link {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+/* THEME TOGGLE & MENU TOGGLE 
+   Forcing 150x50 transparent layout to prevent reverting
+*/
+.app-header__right .theme-toggle,
+.app-header__right .header-menu-toggle {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 150px !important;
+  height: 50px !important;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer;
+  transition: none !important;
+  outline: none !important;
+}
+
+.app-header__right .theme-toggle-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px !important;
+  height: 50px !important;
+}
+
+.app-header__right .theme-toggle .theme-icon {
+  width: 150px !important;
+  height: 50px !important;
+  display: block;
+}
+
+/* Kill all hover/focus backgrounds and borders */
+.app-header__right .theme-toggle:hover,
+.app-header__right .header-menu-toggle:hover,
+.app-header__right .theme-toggle:focus,
+.app-header__right .header-menu-toggle:focus {
+  background: transparent !important;
+  color: inherit !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.header-sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.main-header {
+  display: flex;
+  padding: 18px 18px 16px;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Breadcrumb Header Styles */
+.breadcrumb-link {
+  color: var(--color-text);
+  opacity: 0.6;
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.breadcrumb-link:hover {
+  opacity: 1.0;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: var(--color-text);
+  opacity: 0.4;
+}
+
+.breadcrumb-current {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Logout button styling (navbar) */
+.btn-logout {
+  border: 1px solid var(--color-border-primary, #0A0A0A) !important;
+}
+
+/* Responsive Header Adjustments */
+@media (max-width: 768px) {
+  .app-header {
+    left: 0;
+    padding: 0 16px;
+  }
+
+  .app-header__right {
+    gap: 8px;
+  }
+
+  .app-header__right .theme-toggle,
+  .app-header__right .header-menu-toggle {
+    width: 108px !important;
+    height: 44px !important;
+  }
+
+  .app-header__right .theme-toggle-shell {
+    width: 108px !important;
+    height: 44px !important;
+  }
+
+  .app-header__right .theme-toggle .theme-icon {
+    width: 108px !important;
+    height: 44px !important;
+  }
+
+  /* REMOVED: Old 36px overrides that were shrinking the toggle.
+     The 150px style from above will now persist on mobile.
+  */
+}
+
+@media (max-width: 430px) {
+  .app-header {
+    padding: 0 10px;
+  }
+
+  .app-header__left {
+    gap: 8px;
+    max-width: calc(100% - 136px);
+  }
+
+  .app-header__right {
+    gap: 4px;
+  }
+
+  .app-header__right .theme-toggle,
+  .app-header__right .header-menu-toggle {
+    width: 64px !important;
+    height: 36px !important;
+  }
+
+  .app-header__right .theme-toggle-shell,
+  .app-header__right .theme-toggle .theme-icon {
+    width: 64px !important;
+    height: 36px !important;
+  }
+
+  .header-job-indicator {
+    width: 32px;
+    height: 32px;
+  }
+
+  .breadcrumb-link,
+  .breadcrumb-separator {
+    display: none;
+  }
+}
+
+/* Ensure app-content has proper spacing from header */
+.app-content {
+  padding-top: calc(var(--header-height) + 24px);
+}
+
+/* Action Header Standardization */
+.action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-primary, rgba(0,0,0,0.1));
+}
+
+.action-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.action-header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.action-header__meta {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+}
+
+.action-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-primary-action {
+  height: 42px;
+  padding: 0 20px;
+  background: var(--color-text-primary, #000);
+  color: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-text-primary, #000);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary-action:hover {
+  opacity: 0.8;
+  color: var(--color-bg-primary, #fff);
+}
+
+.btn-primary-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary-action--secondary {
+  background: transparent;
+  color: var(--color-text-primary, #000);
+}
+
+.btn-primary-action--secondary:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--color-text-primary, #000);
+}
+
+/* Job Queue Notification Indicator */
+.header-job-indicator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--color-text-primary, #000);
+}
+
+.header-job-indicator:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.header-job-indicator .fa-spinner {
+  font-size: 18px;
+  color: var(--color-action-primary, #007bff);
+}
+
+.header-job-indicator .job-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: var(--color-action-danger, #dc3545);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
+  line-height: 1;
+}
+
+.header-job-indicator.has-failures .fa-spinner {
+  color: var(--color-action-danger, #dc3545);
+}
+
+.header-job-indicator.has-completions .fa-spinner {
+  color: var(--color-action-success, #28a745);
+  animation: none;
+}

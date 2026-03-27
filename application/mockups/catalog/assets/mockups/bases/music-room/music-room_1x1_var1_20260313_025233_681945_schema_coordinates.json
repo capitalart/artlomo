@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/music-room/music-room_1x1_var1_20260313_025233_681945.png",
+  "generated_at": "2026-03-13T02:52:33.779066Z",
+  "points": [
+    {
+      "x": 801,
+      "y": 613
+    },
+    {
+      "x": 1276,
+      "y": 613
+    },
+    {
+      "x": 1270,
+      "y": 1508
+    },
+    {
+      "x": 799,
+      "y": 1502
+    }
+  ]
+}

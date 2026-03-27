@@ -1,0 +1,214 @@
+/* ========================================================
+   style.css – Strict Gallery Theme Foundation
+   100% coverage with CSS variables. No hardcoded colors.
+   ======================================================== */
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/static/fonts/Urbanist-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/static/fonts/Urbanist-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+/* === [ STRICT THEME FOUNDATION ] === */
+:root {
+  /* Font System */
+  --font-family-main: 'Urbanist', sans-serif;
+  --font-primary: var(--font-family-main, 'Urbanist', sans-serif);
+
+  /* Canonical theme variables (defined by presets) */
+  --bg-main: var(--color-bg-primary);
+  --bg-card: var(--color-card-bg);
+  --bg-body: var(--color-background, var(--color-bg-primary));
+  --text-main: var(--color-text-primary);
+  --text-primary: var(--color-text-primary);
+  --text-muted: var(--text-secondary);
+  --border-color: var(--color-border-primary);
+  --accent-orange: var(--accent-color);
+  --danger-red: var(--color-action-danger);
+  --border-radius: 0;
+  --shadow: var(--color-card-shadow, none);
+
+  /* Compatibility aliases used across modules */
+  --color-text: var(--color-text-primary);
+  --color-bg-secondary: var(--color-card-bg);
+  --color-overlay-bg: var(--color-bg-primary);
+  --color-input-bg: var(--color-bg-primary);
+  --color-input-text: var(--color-text-primary);
+  --color-input-border: var(--color-border-primary);
+}
+
+/* === [ UNIFIED GLOBAL BODY ] === */
+html, body, body.app-body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: var(--font-primary, 'Outfit', sans-serif) !important;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* Global Enforcer */
+* {
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* Remove all hardcoded utility classes */
+.bg-white, .bg-black, .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-gray-300,
+.bg-gray-400, .bg-gray-500, .bg-gray-600, .bg-gray-700, .bg-gray-800, .bg-gray-900,
+.text-white, .text-black, .text-gray-50, .text-gray-100, .text-gray-200, .text-gray-300,
+.text-gray-400, .text-gray-500, .text-gray-600, .text-gray-700, .text-gray-800, .text-gray-900,
+.border-gray-100, .border-gray-200, .border-gray-300, .border-gray-400, .border-gray-500,
+.shadow, .shadow-sm, .shadow-md, .shadow-lg, .drop-shadow, .bg-gradient {
+  background-color: unset !important;
+  color: unset !important;
+  border-color: unset !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+input, select, textarea {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+button {
+  border-radius: var(--border-radius);
+}
+
+a {
+  color: var(--accent-orange);
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* === [ UNIVERSAL BASE & RESET ] === */
+*, *::before, *::after { box-sizing: border-box; }
+
+a, button, input, h1, h2, h3, h4, p, div { 
+  font-family: var(--font-primary); 
+  font-weight: 400; 
+}
+
+ul { list-style: none; padding: 0; margin: 0; }
+button { background: none; border: none; cursor: pointer; padding: 0; color: inherit; }
+main { flex-grow: 1; }
+
+.card, .modal, .modal-dialog, .upload-modal-dialog, .gallery-card, .template-card {
+  border-radius: 0 !important;
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+
+.btn.is-loading, button.is-loading {
+  cursor: progress;
+  pointer-events: none;
+}
+
+.btn.is-loading::after, button.is-loading::after {
+  content: "";
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  margin-left: 0.6em;
+  vertical-align: -0.25em;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 24px 24px;
+  background-image: url('/static/icons/arrows-clockwise-light.svg');
+  animation: spin 1s linear infinite;
+}
+
+[data-theme="dark"] .btn.is-loading::after,
+[data-theme="dark"] button.is-loading::after,
+.theme-dark .btn.is-loading::after,
+.theme-dark button.is-loading::after {
+  background-image: url('/static/icons/arrows-clockwise-dark.svg');
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* === [ CONTAINER ] === */
+.container {
+  max-width: 2400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.25rem 2rem 2rem 2rem;
+  box-sizing: border-box;
+}
+
+/* === [ UTILITIES ] === */
+.mt-4 { margin-top: 2rem; }
+.muted { opacity: 0.8; }
+
+/* === [ FLASH MESSAGES ] === */
+.flash-stack { margin: 0.5rem 0 1rem; }
+
+.flash {
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--border-radius);
+  margin: 0.25rem 0;
+  border: 1px solid var(--border-color);
+  font-weight: 600;
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+.flash.success { border-color: var(--border-color); }
+.flash.danger { 
+  background-color: var(--danger-red);
+  color: var(--bg-card);
+}
+.flash.warning { border-color: var(--border-color); }
+.flash.info { border-color: var(--border-color); }
+
+
+.stark-alert {
+  padding: .6rem .8rem;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+textarea, input[type="text"], input[type="email"], input[type="password"], select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1em;
+  font-family: var(--font-primary);
+  border: 1px solid var(--color-input-border);
+  box-sizing: border-box;
+  background-color: var(--color-input-bg);
+  color: var(--color-input-text);
+}
+
+@media (max-width: 1800px) { .container { max-width: 98vw; } }
+@media (max-width: 1400px) { .container { max-width: 99vw; } }
+@media (max-width: 1000px) { .container { padding: 1.8rem 1rem; } }
+@media (max-width: 700px)  { .container { padding: 1.2rem 0.5rem; } }

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/dining/dining_3x4_var1_20260321_000901_548315.png",
+  "generated_at": "2026-03-21T00:09:01.556177Z",
+  "points": [
+    {
+      "x": 289,
+      "y": 164
+    },
+    {
+      "x": 735,
+      "y": 164
+    },
+    {
+      "x": 735,
+      "y": 758
+    },
+    {
+      "x": 289,
+      "y": 758
+    }
+  ]
+}

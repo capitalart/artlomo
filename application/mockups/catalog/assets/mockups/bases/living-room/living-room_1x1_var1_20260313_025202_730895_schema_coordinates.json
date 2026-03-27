@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/living-room/living-room_1x1_var1_20260313_025202_730895.png",
+  "generated_at": "2026-03-13T02:52:02.855690Z",
+  "points": [
+    {
+      "x": 668,
+      "y": 281
+    },
+    {
+      "x": 1409,
+      "y": 361
+    },
+    {
+      "x": 1408,
+      "y": 1567
+    },
+    {
+      "x": 667,
+      "y": 1647
+    }
+  ]
+}

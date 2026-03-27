@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block workflow_css %}{{ super() }}{% endblock %}
+{% block extra_js %}{{ super() }}{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="artlomo-admin-surface">
+    {% block admin_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

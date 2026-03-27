@@ -1,0 +1,204 @@
+{% extends 'admin_base.html' %}
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/gemini_studio.css') }}">
+{% endblock %}
+
+{% block admin_content %}
+<section
+  class="gemini-studio"
+  data-basic-mockups
+  data-queue-endpoint="{{ url_for('mockups_admin.basic_mockups_generate') }}"
+  data-status-endpoint="{{ url_for('mockups_admin.gemini_studio_status') }}"
+  data-delete-endpoint-template="{{ url_for('mockups_admin.gemini_studio_delete', job_id=0) }}"
+  data-clear-pending-endpoint="{{ url_for('mockups_admin.gemini_studio_clear_all_pending') }}"
+  data-library-endpoint-template="{{ url_for('mockups_admin.gemini_studio_add_to_library', job_id=0) }}"
+  data-prompt-endpoint-template="{{ url_for('mockups_admin.gemini_studio_full_prompt', job_id=0) }}"
+  data-csrf-token="{{ csrf_token }}"
+>
+  <header class="gemini-studio__header">
+    <div>
+      <h1 class="h4 mb-1">Basic Mockups</h1>
+      <p class="text-body-secondary mb-0">
+        Upload artwork and select a room category. Simple, minimal prompts focus solely on placing your artwork on the wall.
+      </p>
+    </div>
+    <div class="gemini-studio__worker {{ 'is-online' if worker_running else 'is-offline' }}">
+      {{ 'Celery worker online' if worker_running else 'Celery worker offline' }}
+    </div>
+  </header>
+
+  <form class="gemini-studio__form" data-basic-mockups-form novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <div class="gemini-studio__field">
+      <label for="basic-category" class="form-label">Room Category</label>
+      <select id="basic-category" name="category" class="form-select" data-basic-category required>
+        <option value="kitchen">Kitchen</option>
+        <option value="living-room">Living Room</option>
+        <option value="bedroom">Bedroom</option>
+        <option value="office">Office</option>
+        <option value="dining-room">Dining Room</option>
+        <option value="gallery">Gallery</option>
+      </select>
+      <p class="text-body-secondary gemini-studio__hint mt-2 basic-mockups__description">
+        Selects a pre-written prompt optimized for each room type. The prompt focuses entirely on placing your artwork on the wall while preserving its original aspect ratio.
+      </p>
+    </div>
+
+    <div class="gemini-studio__field">
+      <label class="form-label" for="basic-prompt" data-basic-prompt-label>Prompt (Editable)</label>
+      <textarea
+        id="basic-prompt"
+        name="prompt"
+        class="basic-mockups__prompt-display form-control"
+        data-basic-prompt-display
+        rows="7"
+      ></textarea>
+      <p class="text-body-secondary gemini-studio__hint mt-2">
+        Auto-fills from category, then you can edit before Generate Mockups.
+      </p>
+    </div>
+
+    <div class="gemini-studio__grid">
+      <div class="gemini-studio__field">
+        <label for="basic-aspect" class="form-label">Artwork Aspect Ratio</label>
+        <select id="basic-aspect" name="aspect_ratio" class="form-select" data-basic-aspect required>
+          {% for aspect in aspects %}
+          <option value="{{ aspect }}" {% if aspect == '4x5' %}selected{% endif %}>{{ aspect }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="gemini-studio__field">
+        <label for="basic-variations" class="form-label">Variations</label>
+        <select id="basic-variations" name="variations" class="form-select" data-basic-variations>
+          {% for count in range(1, 6) %}
+          <option value="{{ count }}" {% if count == 2 %}selected{% endif %}>{{ count }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="gemini-studio__field">
+      <label class="form-label" for="basic-image-input">Artwork Upload</label>
+      <div
+        id="basic-dropzone"
+        class="upload-dropzone gemini-studio__dropzone"
+        role="button"
+        tabindex="0"
+        aria-label="Upload artwork by click or drag and drop"
+        data-basic-dropzone
+      >
+        <p class="upload-hint">Drag &amp; drop to upload your artwork</p>
+        <p class="upload-constraints">PNG, JPG, or WebP. Leave empty to use auto-selected placeholder for aspect ratio.</p>
+        <p class="upload-constraints" data-basic-file-name>Using auto-selected placeholder.</p>
+      </div>
+      <input
+        id="basic-image-input"
+        name="image"
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+        hidden
+        data-basic-image-input
+      >
+    </div>
+
+    <div class="gemini-studio__actions">
+      <button type="submit" class="btn btn-primary" data-basic-submit>Generate Mockups</button>
+      <span class="text-body-secondary" data-basic-status aria-live="polite"></span>
+    </div>
+  </form>
+
+  <section class="gemini-studio__results">
+    <div class="gemini-studio__results-header">
+      <div>
+        <h2 class="h5 mb-0">Completed Mockups</h2>
+        <p class="text-body-secondary mb-0">Your generated mockups appear here when ready.</p>
+      </div>
+      <div class="gemini-studio__header-actions">
+        <button class="gallery-btn gallery-btn--outline" type="button" data-basic-refresh>
+          Refresh Now
+        </button>
+        <button class="gallery-btn gallery-btn--danger" type="button" data-basic-clear-pending title="Permanently delete all pending jobs">
+          🛑 Stop & Clear Pending
+        </button>
+      </div>
+    </div>
+    <div class="gemini-studio__cards" data-basic-cards>
+      {% for job in recent_jobs %}
+      <article class="studio-card" data-basic-job-id="{{ job.id }}">
+        <div class="studio-card__top">
+          <div>
+            <div class="studio-card__title">{{ job.category }} · {{ job.aspect_ratio }} · v{{ job.variation_index }}</div>
+            <div class="studio-card__meta">{{ (job.prompt_text or '')[:60] }}{% if job.prompt_text and job.prompt_text|length > 60 %}…{% endif %}</div>
+          </div>
+          <div class="studio-card__badge studio-card__badge--{{ job.status|lower }}">{{ job.status }}</div>
+        </div>
+
+        {% if job.image_url %}
+        <button class="studio-card__image-button" type="button" data-basic-carousel-trigger data-basic-image-url="{{ job.image_url }}" data-basic-image-name="{{ job.category }} · {{ job.aspect_ratio }} · v{{ job.variation_index }}">
+          <img src="{{ job.image_url }}" alt="{{ job.category }} variation {{ job.variation_index }}" class="studio-card__image" loading="lazy">
+        </button>
+        {% endif %}
+
+        <div class="studio-card__actions">
+          {% if job.image_url %}
+          <button class="gallery-btn gallery-btn--sm gallery-btn--outline" type="button" data-basic-view-prompt="{{ job.id }}" title="View the exact prompt sent to Gemini">
+            📋 View Prompt
+          </button>
+          <button class="gallery-btn gallery-btn--sm gallery-btn--outline" type="button" data-basic-add-to-library="{{ job.id }}" title="Add this to the mockup library">
+            ➕ Add to Library
+          </button>
+          {% endif %}
+          <button class="gallery-btn gallery-btn--sm gallery-btn--outline gallery-btn--danger" type="button" data-basic-delete="{{ job.id }}" title="Delete this job and output">
+            🗑 Delete
+          </button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <div class="gemini-studio__empty" data-basic-empty-state>
+      <p class="text-body-secondary text-center">No mockups yet. Generate some above to see them here.</p>
+    </div>
+  </section>
+
+  <!-- Prompt overlay — must be inside .gemini-studio for CSS selector to match -->
+  <div class="modal-sheet" data-basic-text-modal aria-hidden="true">
+    <div class="modal-card gemini-studio__text-modal-card">
+      <div class="bases-header-row">
+        <h2 class="bases-title">View Prompt</h2>
+        <button class="gallery-btn gallery-btn--outline" type="button" data-basic-text-close>Close</button>
+      </div>
+      <textarea
+        class="form-control gemini-studio__text-modal-field"
+        data-basic-prompt-modal-content
+        rows="18"
+        readonly
+        spellcheck="false"
+      >Loading...</textarea>
+    </div>
+  </div>
+
+  <!-- Carousel overlay — must be inside .gemini-studio for CSS selector to match -->
+  <div class="modal-sheet" data-basic-carousel-modal aria-hidden="true">
+    <div class="modal-card mockup-carousel__card">
+      <div class="bases-header-row">
+        <h2 class="bases-title" data-basic-carousel-title>Mockup</h2>
+        <button class="gallery-btn gallery-btn--outline" type="button" data-basic-carousel-close>Close</button>
+      </div>
+      <div class="mockup-carousel__frame">
+        <img id="basicCarouselImage" data-basic-carousel-image class="mockup-carousel__image" alt="Mockup" />
+      </div>
+    </div>
+  </div>
+
+</section>
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('mockups_admin.static', filename='js/basic_mockups.js') }}"></script>
+{% endblock %}
+
+{% endblock %}

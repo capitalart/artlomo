@@ -1,0 +1,270 @@
+================================================================================
+ARTLOMO ANALYSIS SYSTEM V2.0 - DELIVERY PACKAGE
+================================================================================
+
+Delivered: March 1, 2026
+Package: V2.tar.gz (56KB)
+Report: Artwork-Analysis-Report-V2.md
+
+================================================================================
+PACKAGE CONTENTS
+================================================================================
+
+DOCUMENTATION:
+✓ Artwork-Analysis-Report-V2.md    - Complete system documentation (300+ lines)
+✓ README.md                         - Project overview and setup instructions
+✓ V2-DELIVERY-SUMMARY.txt          - This file
+
+CORE SYSTEM FILES:
+✓ application/utils/house_prompts.py                      - Boilerplate templates (197 lines)
+✓ application/analysis/prompts.py                         - System prompts (222 lines)
+✓ application/analysis/openai/service.py                  - OpenAI integration (828 lines)
+✓ application/analysis/openai/schema.py                   - OpenAI schema (27 lines)
+✓ application/analysis/gemini/service.py                  - Gemini integration (925 lines)
+✓ application/analysis/gemini/schema.py                   - Gemini schema (80 lines)
+✓ application/common/utilities/files.py                   - File utilities (80 lines)
+
+INSTRUCTION DOCUMENTS:
+✓ application/analysis/instructions/MASTER_ETSY_DESCRIPTION_ENGINE.md
+✓ application/analysis/instructions/MASTER-ARTWORK-ANALYSIS-LISTING-DESCRIPTION-EXAMPLE.md
+
+CONFIGURATION:
+✓ requirements.txt                  - Python dependencies
+✓ pytest.ini                        - Test configuration
+✓ application/config.py             - Application configuration
+
+================================================================================
+MAJOR CHANGES SUMMARY
+================================================================================
+
+1. HERITAGE & CULTURAL AUTHENTICITY
+   ✅ Removed all physical painting terminology
+   ✅ Added "People of the Reeds" translation (8 locations)
+   ✅ Updated to digital art terminology throughout
+   ✅ Regional context: Naracoorte - Mt Gambier Region
+
+2. SEO OPTIMIZATION ENGINE
+   ✅ Implemented functional hook system (160-250 chars)
+   ✅ Required phrases for Google Search Console
+   ✅ Dynamic subject integration
+   ✅ Prepended to all descriptions
+
+3. FILENAME SANITIZATION SYSTEM
+   ✅ Created sanitize_etsy_filename() utility function
+   ✅ 66-character limit enforcement (70 with .jpg)
+   ✅ Intelligent hyphen-based truncation
+   ✅ Eliminated code duplication across services
+
+4. TECHNICAL EXCELLENCE BLOCK
+   ✅ Added "labor of digital craft" messaging
+   ✅ Emphasizes custom upscaling process
+   ✅ Highlights manual quality control
+   ✅ References 14,400px / 300 DPI standard
+
+5. BUYER-FOCUSED OPTIMIZATION
+   ✅ Materials: Digital Download, High-Res JPG, 300 DPI, etc.
+   ✅ Tags: Large Office Decor, Aussie Housewarming, 48 Inch Wall Art
+   ✅ Focus on buyer intent vs. technical jargon
+   ✅ All tags ≤ 20 characters (Etsy compliance)
+
+================================================================================
+FILES MODIFIED (with line counts)
+================================================================================
+
+house_prompts.py          197 lines  (+TECHNICAL_EXCELLENCE_BLOCK, heritage updates)
+prompts.py                222 lines  (+buyer intent guidance, materials examples)
+openai/service.py         828 lines  (+functional hook, filename sanitization, materials)
+gemini/service.py         925 lines  (+filename sanitization, materials)
+files.py                   80 lines  (+sanitize_etsy_filename function)
+MASTER_ETSY_...md          61 lines  (+buyer intent tags, materials list)
+MASTER-ARTWORK...md        60 lines  (+example tags and materials)
+
+================================================================================
+TESTING & VALIDATION
+================================================================================
+
+✅ Functional Hook Tests         - 220 chars (within 160-250 range)
+✅ Filename Sanitization Tests   - All 4 test cases passed
+✅ Heritage Verification         - 8 locations confirmed
+✅ Pylance Type Checking         - No errors found (5 files checked)
+✅ Materials List                - 13 buyer-focused items
+✅ Tags List                     - All ≤ 20 characters
+
+================================================================================
+SYSTEM ARCHITECTURE
+================================================================================
+
+Layer 1: Core Utilities
+  └─ files.py, house_prompts.py
+
+Layer 2: Service Logic
+  └─ openai/service.py, gemini/service.py
+
+Layer 3: Routes & Orchestration
+  └─ analysis/routes/
+
+Layer 4: UI Templates & Frontend
+  └─ analysis/templates/, static/
+
+Data Flow:
+  Upload → Analysis Request → Prompt Assembly → AI Provider → 
+  Post-Processing → Listing JSON → User Review
+
+================================================================================
+PROMPT ASSEMBLY FLOW
+================================================================================
+
+1. Load house_prompts.py boilerplate
+   - LISTING_BOILERPLATE
+   - TECHNICAL_EXCELLENCE_BLOCK
+   - build_seed_context() if metadata exists
+
+2. Load prompts.py system instructions
+   - HERITAGE_FIRST_SYSTEM_PROMPT_TEMPLATE
+   - Output format requirements
+   - Cultural heritage protocol
+
+3. Load instructions/*.md examples
+   - MASTER_ETSY_DESCRIPTION_ENGINE.md
+   - MASTER-ARTWORK-ANALYSIS-LISTING-DESCRIPTION-EXAMPLE.md
+
+4. Send to AI Provider (OpenAI GPT-4o or Gemini Pro Vision)
+
+5. Parse structured JSON response
+
+6. Post-Processing Pipeline:
+   Step 1: _prepend_functional_hook() (160-250 chars)
+   Step 2: _inject_gold_standard_blocks()
+   Step 3: Normalize materials (13 buyer-focused items)
+   Step 4: Sanitize tags (max 20 chars, 13 items)
+   Step 5: Generate SEO filename (66-char limit)
+
+7. Save listing.json
+
+8. User review at /artwork/{slug}/review/{provider}
+
+================================================================================
+API CONFIGURATION
+================================================================================
+
+OpenAI GPT-4o:
+  model: gpt-4o
+  max_tokens: 4096
+  temperature: 0.7
+  response_format: {"type": "json_object"}
+
+Google Gemini:
+  model: gemini-1.5-pro-002
+  temperature: 0.7
+  max_output_tokens: 8192
+  response_mime_type: application/json
+
+================================================================================
+ETSY PLATFORM COMPLIANCE
+================================================================================
+
+✅ Filename Limit:     70 characters (66 + .jpg extension)
+✅ Tag Limit:          20 characters per tag
+✅ Tag Count:          Exactly 13 tags
+✅ Materials Count:    Exactly 13 materials
+✅ Title Limit:        140 characters
+✅ Description Format: Plain text with line breaks
+
+================================================================================
+HERITAGE ACKNOWLEDGEMENT FORMAT
+================================================================================
+
+Required Text:
+"Robin Custance is a descendant of the Boandik (Bunganditj) people, known as 
+the People of the Reeds, from the Naracoorte - Mt Gambier Region of South 
+Australia."
+
+Cultural Protocol:
+- Always lead with Boandik heritage in cultural sections
+- Weave "People of the Reeds" imagery when describing wetlands/water
+- Be respectful; never claim sacred/secret knowledge
+- Use "inspired by" or "honouring traditions"
+
+================================================================================
+MATERIALS LIST (BUYER-FOCUSED)
+================================================================================
+
+1. Digital Download
+2. High-Res JPG
+3. 300 DPI
+4. 14400px File
+5. Museum Quality Digital
+6. Instant Download
+7. Printable Art
+8. Large Scale Print
+9. RGB Colour Profile
+10. Wall Art File
+11. Digital Artwork
+12. Gallery Quality
+13. Professional File
+
+================================================================================
+TAGS STRATEGY (BUYER INTENT)
+================================================================================
+
+Focus Areas:
+✓ Room Type:      Large Office Decor, Living Room Art
+✓ Use Case:       Aussie Housewarming, Gift Art Lover
+✓ Size:           48 Inch Wall Art, Oversized Print, Large Format Print
+✓ Style:          Statement Wall Piece, Modern Home Decor
+✓ Subject:        Australian Landscape, Nature Wall Decor, Sunset Wall Art
+
+Avoid:
+✗ Artist names (robin custance)
+✗ Technical specs (high res digital, 14400px)
+✗ Generic categories (impressionist art, modern aboriginal)
+
+================================================================================
+EXTRACTION COMMANDS
+================================================================================
+
+Extract archive:
+  tar -xzf V2.tar.gz
+
+List contents:
+  tar -tzf V2.tar.gz
+
+View specific file:
+  tar -xzf V2.tar.gz -O Artwork-Analysis-Report-V2.md
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+Immediate Actions:
+✓ Review Artwork-Analysis-Report-V2.md for complete system documentation
+✓ Test SEO functional hook with live Etsy listings
+✓ Monitor Google Search Console rankings with new hook format
+
+Short-Term (Q2 2026):
+○ A/B test buyer-intent tags vs. technical tags
+○ Measure click-through rates on Etsy
+○ Optimize functional hook variants
+
+Medium-Term (Q3-Q4 2026):
+○ Multi-language support for international markets
+○ Performance analytics dashboard
+○ Enhanced seed context system
+
+Long-Term (2027+):
+○ Machine learning optimization for tag generation
+○ Real-time Etsy search trend monitoring
+○ Competitive analysis integration
+
+================================================================================
+CONTACT & SUPPORT
+================================================================================
+
+System Version:     ArtLomo Analysis Engine v2.0
+Report Date:        March 1, 2026
+Status:             Production Ready ✅
+Documentation:      Artwork-Analysis-Report-V2.md
+
+================================================================================
+END OF DELIVERY SUMMARY
+================================================================================

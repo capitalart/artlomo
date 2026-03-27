@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/bathroom/bathroom_5x7_var1_20260313_025423_920728.png",
+  "generated_at": "2026-03-13T02:54:24.028328Z",
+  "points": [
+    {
+      "x": 857,
+      "y": 472
+    },
+    {
+      "x": 1469,
+      "y": 473
+    },
+    {
+      "x": 1468,
+      "y": 1357
+    },
+    {
+      "x": 857,
+      "y": 1356
+    }
+  ]
+}

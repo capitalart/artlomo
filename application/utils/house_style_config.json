@@ -1,0 +1,135 @@
+{
+  "$schema": "./house_style.schema.json",
+  "version": "1.0.0",
+  "etsyShopUrl": "https://robincustance.etsy.com",
+  "etsyUrlLiteral": "https://robincustance.etsy.com",
+  "etsyUrlMustBeLiteral": true,
+  "literalEtsyUrlRegex": "https://robincustance\\.etsy\\.com(?=[\\\\s\\\\.,;!]|$)",
+  "forbidMarkdownLinks": true,
+  "allowedEmojis": ["🎨","✨","🙌","🖼","🚀","✅","👉","📩","❤️","🛒","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"],
+  "forbiddenUrlsRegex": "https?://(?!([a-z0-9-]+\\.)*etsy\\.com)([^\\s)]+)",
+  "forbiddenEmailRegex": "[\\\\w\\\\.-]+@[\\\\w\\\\.-]+\\\\.[a-zA-Z]{2,}",
+  "forbiddenPhoneRegex": "(?:\\+?\\d[\\s-]?){6,}",
+  "sections": [
+    {
+      "heading": "About the Artist – Robin Custance",
+      "minWords": 120,
+      "maxWords": 200,
+      "require": [
+        "G’day, I’m Robin Custance",
+        "Kaurna Country",
+        "Naracoorte",
+        "Boandik Country",
+        "storytelling",
+        "Country"
+      ],
+      "emojiPolicy": { "maxInSection": 1, "allowed": ["🎨","✨"] }
+    },
+    {
+      "heading": "Did You Know? Aboriginal Art & the Spirit of Dot Painting",
+      "minWords": 140,
+      "maxWords": 220,
+      "requireAny": [
+        "Papunya Tula",
+        "1970"
+      ],
+      "requireSomeOf": [
+        ["Kaapa Tjampitjinpa","Clifford Possum Tjapaltjarri","Emily Kame Kngwarreye"]
+      ],
+      "emojiPolicy": { "maxInSection": 1, "allowed": ["🎨","✨"] }
+    },
+    {
+      "heading": "4:5 (Vertical)",
+      "minWords": 120,
+      "maxWords": 220,
+      "numbers": {
+        "pixelWidth": 11520,
+        "pixelHeight": 14400,
+        "maxPrintInches": [38.4, 48.0],
+        "sizes": [
+          "10x12.5\" (25x32 cm)",
+            "16x20\" (40x50 cm)",
+            "24x30\" (60x76 cm)",
+            "32x40\" (81x102 cm)",
+            "38.4x48\" (97.5x122 cm)"
+        ]
+      },
+      "mustMention": [
+        "JPEG",
+        "300 DPI",
+        "Instant digital download",
+        "Etsy"
+      ],
+      "emojiPolicy": { "maxInSection": 0 }
+    },
+    {
+      "heading": "Printing Tips",
+      "minWords": 60,
+      "maxWords": 120,
+      "mustMention": [
+        "professional print lab",
+        "Avoid department-store kiosks"
+      ],
+      "emojiPolicy": { "maxInSection": 1, "allowed": ["✅"] }
+    },
+    {
+      "heading": "Top 10 Print-On-Demand Services for Wall Art & Art Prints",
+      "optional": true,
+      "minWords": 80,
+      "maxWords": 140,
+      "notes": "No external URLs; brand names only; include disclaimer: Examples only—please complete purchases on Etsy.",
+      "emojiPolicy": { "maxInSection": 0 }
+    },
+    {
+      "heading": "Important Notes",
+      "minWords": 50,
+      "maxWords": 110,
+      "mustMention": [
+        "Digital download only—no physical item will be shipped",
+        "Colours may vary",
+        "Personal use only"
+      ],
+      "optionalPhrase": "Limited to 25 copies",
+      "emojiPolicy": { "maxInSection": 0 }
+    },
+    {
+      "heading": "Frequently Asked Questions",
+      "alias": "❓ Frequently Asked Questions",
+      "faqRequired": [
+        "Is this a digital product?",
+        "Different size or format?",
+        "Is it for commercial use?",
+        "Refunds?",
+        "Is it really limited edition?"
+      ],
+      "emojiPolicy": { "maxInSection": 0 }
+    },
+    {
+      "heading": "🚀 Explore My Work",
+      "minLines": 2,
+      "etsyLinkRequired": true,
+      "emojiPolicy": { "maxInSection": 3, "allowed": ["🖼","👉","📩","🚀"] }
+    },
+    {
+      "heading": "💫 Why You’ll Love This Artwork",
+      "minBullets": 5,
+      "bulletStartsWith": "✅",
+      "emojiPolicy": { "maxInSection": 6, "allowed": ["✅"] }
+    },
+    {
+      "heading": "🛒 How To Buy & Print",
+      "stepsRequired": ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"],
+      "emojiPolicy": { "maxInSection": 5, "allowed": ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"] }
+    },
+    {
+      "heading": "🙌 Thank You",
+      "minWords": 60,
+      "maxWords": 120,
+      "mustMention": [
+        "supporting Aboriginal and Australian art",
+        "review"
+      ],
+      "emojiPolicy": { "maxInSection": 2, "allowed": ["🙌","🎨","✨"] }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/hallway/hallway_1x1_var1_20260313_025205_816449.png",
+  "generated_at": "2026-03-13T02:52:05.916638Z",
+  "points": [
+    {
+      "x": 763,
+      "y": 552
+    },
+    {
+      "x": 1302,
+      "y": 552
+    },
+    {
+      "x": 1301,
+      "y": 1315
+    },
+    {
+      "x": 762,
+      "y": 1314
+    }
+  ]
+}

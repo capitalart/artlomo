@@ -1,0 +1,495 @@
+{% extends 'base.html' %}
+{% set page_title = analysis_source ~ " Workspace" %}
+
+{% block content %}
+<div class="analysis-workspace-container">
+  {% set analysis_doc = analysis or {} %}
+  {% set listing_doc = listing or {} %}
+  {% set qc_doc = qc or {} %}
+
+  <!-- IMAGE RESOLUTION STRATEGY: Use THUMB for UI, full-res for modal only -->
+  {% set preview_thumb_url = thumb_url %}
+  {% set preview_full_url = analyse_url %}
+  {% set detail_thumb_url = detail_closeup_thumb_url or detail_closeup_url %}
+  {% set detail_full_url = detail_closeup_url %}
+
+  <!-- ACTION HEADER -->
+  <header class="action-header glass-bar">
+    <div class="action-header__left">
+      <h1 class="action-header__title">{{ analysis_source }} Workspace</h1>
+      <div class="action-header__meta">
+        <span>{{ slug }}</span>
+        {% if listing_doc.get("analysis_status", {}).get("updated_at") %}<span>|</span><span>Updated: {{
+          listing_doc.get("analysis_status", {}).get("updated_at")[:10] }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="action-header__right">
+    </div>
+  </header>
+
+  <!-- ERROR ALERT -->
+  {% set status_doc = listing_doc.get("analysis_status") if listing_doc else {} %}
+  {% if status_doc and status_doc.get("stage") == "error" %}
+  <div class="alert alert-danger" role="alert">
+    {{ status_doc.get("message") or "Analysis failed." }}
+    {% if status_doc.get("error") %}<div class="analysis-error-trace">{{
+      status_doc.get("error") }}</div>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- INTEGRITY QUALITY ALERT -->
+  {% set integrity_report = listing_doc.get("integrity_report", {}) %}
+  {% if integrity_report and (integrity_report.get("retry_triggered") or integrity_report.get("model_fallback")) %}
+  <div class="alert alert-warning analysis-quality-alert" role="alert">
+    <strong>⚠️ QUALITY ALERT:</strong> This listing required {% if integrity_report.get("retry_triggered") %}a length-retry{% endif %}{% if integrity_report.get("retry_triggered") and integrity_report.get("model_fallback") %} and {% endif %}{% if integrity_report.get("model_fallback") %}a model-fallback{% endif %}. Please review the Narrative Storytelling section for substance.
+    {% if integrity_report.get("rejection_reason") %}<div class="mt-2"><small>Reason: {{ integrity_report.get("rejection_reason") }}</small></div>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- MAIN WORKSPACE GRID: 45% LEFT (Imagery) | 55% RIGHT (Data) -->
+  <div class="workspace-grid">
+
+    <!-- LEFT COLUMN: STICKY IMAGERY PANEL -->
+    <div class="left-column panel-group">
+
+      <!-- TOP ROW: Artwork & Detail Side-by-Side (500px rule) -->
+      <div class="imagery-top-row">
+
+        <!-- Artwork Preview Card -->
+        <div class="imagery-card">
+          <h3 class="panel-header panel-header-tight">Artwork</h3>
+          <div class="preview-card" role="button" tabindex="0" data-open-gallery data-full-src="{{ preview_full_url }}">
+            {% if preview_thumb_url %}
+            <img src="{{ preview_thumb_url }}" alt="Artwork" class="preview-image preview-image-contain"
+              data-full-src="{{ preview_full_url }}" data-gallery-kind="artwork" data-title="Artwork">
+            {% else %}
+            <div class="preview-placeholder">No preview</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Detail Closeup Card or Spacer -->
+        {% set has_detail_closeup = has_detail_closeup or False %}
+        <div class="imagery-card">
+          <h3 class="panel-header panel-header-tight">Detail</h3>
+          {% if has_detail_closeup %}
+          <div class="preview-card" role="button" tabindex="0" data-open-gallery data-full-src="{{ detail_full_url }}">
+            <img src="{{ detail_thumb_url }}" alt="Detail Closeup" class="preview-image preview-image-contain"
+              data-full-src="{{ detail_full_url }}" data-gallery-kind="detail" data-title="Detail Closeup">
+          </div>
+          <a href="{{ url_for('artwork.detail_closeup_editor', slug=slug) }}?provider={% if 'OpenAI' in analysis_source %}openai{% else %}gemini{% endif %}"
+            class="btn btn-sm btn-outline-secondary detail-action-btn">Edit</a>
+          {% else %}
+          <div class="preview-placeholder-spacer">
+            <div class="detail-placeholder-copy">
+              <div class="detail-placeholder-line detail-placeholder-line-top">Detail Not</div>
+              <div class="detail-placeholder-line">Generated</div>
+            </div>
+          </div>
+          <a href="{{ url_for('artwork.detail_closeup_editor', slug=slug) }}?provider={% if 'OpenAI' in analysis_source %}openai{% else %}gemini{% endif %}"
+            class="btn btn-sm btn-outline-secondary detail-action-btn">Create</a>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Mockups Generation + Grid (THUMB versions with Controls) -->
+      {% set entries = mockup_entries or [] %}
+      <div class="panel-card">
+        <h3 class="panel-header">Mockups {% if entries %}({{ entries|length }}){% endif %}</h3>
+        <div class="control-group horizontal mockup-generate-row">
+          <form method="post" action="{{ url_for('mockups.generate_mockups', slug=slug) }}"
+            class="form-inline mockup-generate-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-primary mockup-generate-btn" type="submit" data-generate-mockups>Generate
+              Mockups</button>
+            <select name="mockup_count" class="form-select mockup-generate-count" title="Count">
+              {% for n in [1,2,3,4,5,10,15,20] %}<option value="{{ n }}" {% if n==10 %}selected{% endif %}>{{ n }}
+              </option>{% endfor %}
+            </select>
+          </form>
+        </div>
+
+        <div class="video-panel">
+          <a class="btn btn-primary panel-video-button"
+            href="{{ url_for('video_workspace.video_workspace', slug=slug) }}">
+            Open Video Suite
+          </a>
+          <small class="video-panel-note">Director controls and rendering now live in the dedicated
+            suite.</small>
+        </div>
+
+        {% if entries %}
+        <div class="mockup-grid" id="mockup-grid" data-slug="{{ slug }}">
+          {% for entry in entries %}
+          {% set slot = entry.slot %}
+          {% set thumb_src = url_for("mockups.mockup_thumb", slug=slug, slot=slot) %}
+          {% set comp_src = url_for("mockups.mockup_composite", slug=slug, slot=slot) %}
+          <div class="mockup-card" data-slot="{{ slot }}">
+            <div class="mockup-card__select">
+              <input type="checkbox" data-mockup-select data-slot="{{ slot }}" aria-label="Select mockup {{ slot }}"
+                class="mockup-select-checkbox">
+            </div>
+
+            <div class="mockup-image-wrap">
+              <img src="{{ thumb_src }}" alt="Mockup {{ slot }}" class="mockup-image" data-mockup-thumb loading="lazy"
+                data-open-gallery role="button" tabindex="0" data-full-src="{{ comp_src }}" data-gallery-kind="mockup"
+                data-title="Mockup {{ slot }}" data-full-image="{{ comp_src }}" data-mockup-name="Mockup {{ slot }}">
+              <div class="overlay" hidden>
+                <img class="processing-icon spinning" data-theme-spinner alt="Loading"
+                  src="{{ url_for('common.static', filename='icons/arrows-clockwise-dark.svg') }}">
+              </div>
+            </div>
+
+            <button class="mockup-preview-link" type="button" data-open-gallery data-full-src="{{ comp_src }}">Click to
+              preview
+              full-size</button>
+
+            <div class="mockup-controls">
+              <div class="mockup-control-row">
+                <select class="mockup-category" data-category id="mockup-category-{{ slot }}" title="Product category">
+                  {% if mockup_category_options %}
+                  {% for opt in mockup_category_options %}
+                  <option value="{{ opt.value }}" {% if opt.value==(entry.category or "" ) %}selected{% endif %}>{{
+                    opt.label }}</option>
+                  {% endfor %}
+                  {% endif %}
+                </select>
+              </div>
+              <div class="mockup-control-row">
+                <button class="btn-swap" data-swap type="button" title="Swap mockup">Swap</button>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="mockup-empty-note">No mockups generated yet.</p>
+        {% endif %}
+
+        <!-- Select All & Delete Buttons -->
+        <div class="control-group vertical mockup-bulk-actions">
+          <button class="btn btn-sm btn-outline-secondary" type="button" data-select-all-mockups
+            title="Select all mockups">Select All</button>
+          <button class="btn btn-sm btn-outline-danger mockup-bulk-delete" type="button" data-delete-selected
+            title="Delete selected mockups">Delete
+            Selected</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: SCROLLABLE TEXT DATA -->
+    <div class="right-column">
+
+      <!-- PRIMARY ACTION BAR (Sticky, top of right column) -->
+      <div class="action-bar-primary">
+        <div class="action-button-grid">
+          <button class="btn btn-primary" type="button" data-analysis-save title="Save all changes">Save</button>
+          <button class="btn btn-outline-secondary" type="button" data-analysis-lock title="Lock artwork">Lock</button>
+          <form method="post" action="{{ url_for('artwork.export_artwork', slug=slug) }}" class="action-inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-secondary" title="Download all assets as ZIP">
+              Export
+            </button>
+          </form>
+        </div>
+        <div class="action-title-row">
+          <h4 class="section-title">Reanalysis</h4>
+        </div>
+        <div class="action-button-grid">
+          <button class="btn btn-outline-secondary" type="button" data-reanalyse-provider="openai">OpenAI</button>
+          <button class="btn btn-outline-secondary" type="button" data-reanalyse-provider="gemini">Gemini</button>
+          <a href="{{ url_for('manual.workspace', slug=slug) }}" class="btn btn-outline-secondary">Manual</a>
+        </div>
+        <div class="action-button-grid single">
+          <button class="btn btn-outline-primary action-regenerate-images" type="button" data-regenerate-images
+            title="Regenerate THUMB, ANALYSE, CLOSEUP-PROXY, and SEO-named copy">Regenerate Images</button>
+        </div>
+        <div class="action-button-grid single">
+          <button class="btn btn-danger action-delete-full" type="button" data-analysis-delete
+            title="Delete artwork">Delete</button>
+        </div>
+      </div>
+
+      <!-- ANALYSIS FORM -->
+      <form id="analysis-form" data-slug="{{ slug }}" class="analysis-form">
+
+        {% set copy_etsy_doc = copy_etsy or {} %}
+        {% if copy_etsy_doc %}
+        <div class="form-section">
+          <h4 class="section-title">Etsy Output (Stage 2)</h4>
+
+          <div class="form-group">
+            <label for="stage2_title_view">Generated Title</label>
+            <textarea id="stage2_title_view" class="form-control" rows="2" readonly>{{ copy_etsy_doc.get('title') or '' }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="stage2_description_view">Generated Description</label>
+            <textarea id="stage2_description_view" class="form-control" rows="6" readonly>{{ copy_etsy_doc.get('description') or '' }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="stage2_keywords_view">SEO Keywords</label>
+            <textarea id="stage2_keywords_view" class="form-control" rows="2" readonly>{{ (copy_etsy_doc.get('seo_keywords') or [])|join(', ') }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="stage2_disclaimers_view">Disclaimers</label>
+            <textarea id="stage2_disclaimers_view" class="form-control" rows="3" readonly>{{ (copy_etsy_doc.get('disclaimers') or [])|join('\n') }}</textarea>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- SECTION: Title & Description -->
+        <div class="form-section">
+          <h4 class="section-title">Metadata</h4>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label for="title">Title <span class="mandatory-badge">Mandatory</span></label>
+            </div>
+            <div class="field-input">
+              <input type="text" id="title" name="title" class="form-control"
+                value="{{ listing_doc.get('title') or analysis_doc.get('etsy_title') or '' }}" maxlength="140">
+            </div>
+            <div class="field-actions-row field-actions-row--with-tip">
+              <div class="field-tip-stack">
+                <div class="field-help" id="title-counter" data-title-counter>
+                  0 / 140 chars
+                </div>
+                <small>Etsy Tip: Aim for ~13-14 words for best SEO balance - <a class="etsy-rules-link"
+                    href="/analysis/rules-reference#rule-title" target="_blank" rel="noopener">Etsy Rules</a>.</small>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary copy-action" data-copy-target="title"
+                title="Copy title">Copy</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label for="description">Description <span class="mandatory-badge">Mandatory</span></label>
+            </div>
+            <div class="field-input">
+              <textarea id="description" name="description" class="form-control"
+                rows="4">{{ listing_doc.get('description') or analysis_doc.get('description') or '' }}</textarea>
+            </div>
+            <div class="field-actions-row field-actions-row--with-tip">
+              <div class="field-tip-stack">
+                <div class="field-help" id="description-counter" data-description-counter>
+                  0 / 4500+ chars
+                </div>
+                <small>Comprehensive product description for the listing - <a class="etsy-rules-link"
+                    href="/analysis/rules-reference#rule-description" target="_blank" rel="noopener">Etsy
+                    Rules</a>.</small>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary copy-action" data-copy-target="description"
+                title="Copy description">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Keywords & Materials -->
+        <div class="form-section">
+          <h4 class="section-title">Keywords</h4>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label for="tags">Tags <span class="mandatory-badge">Mandatory</span></label>
+            </div>
+            <div class="field-input">
+              <textarea id="tags" name="tags" class="form-control"
+                rows="2">{{ (listing_doc.get('tags') or analysis_doc.get('tags') or [])|join(', ') }}</textarea>
+            </div>
+            <div class="field-actions-row field-actions-row--with-tip">
+              <div class="field-tip-stack">
+                <div class="field-help" id="tags-counter" data-tags-counter>0 / 13 tags</div>
+                <small>Comma-separated keywords. Hyphens auto-removed on save - <a class="etsy-rules-link"
+                    href="/analysis/rules-reference#rule-tags" target="_blank" rel="noopener">Etsy Rules</a>.</small>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary copy-action" data-copy-target="tags"
+                title="Copy tags">Copy</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label for="materials">Materials</label>
+            </div>
+            <div class="field-input">
+              <textarea id="materials" name="materials" class="form-control"
+                rows="2">{{ (listing_doc.get('materials') or analysis_doc.get('materials') or [])|join(', ') }}</textarea>
+            </div>
+            <div class="field-actions-row field-actions-row--with-tip">
+              <div class="field-tip-stack">
+                <div class="field-help" id="materials-counter" data-materials-counter>0 materials</div>
+                <small>Medium, canvas type, etc. Comma-separated - <a class="etsy-rules-link"
+                    href="/analysis/rules-reference#rule-materials" target="_blank" rel="noopener">Etsy
+                    Rules</a>.</small>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary copy-action" data-copy-target="materials"
+                title="Copy materials">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: Visual Analysis (Optional for non-Manual) -->
+        {% set va = listing_doc.get('visual_analysis') or analysis_doc.get('visual_analysis') or {} %}
+        <div class="form-section">
+          <h4 class="section-title">Visual Analysis</h4>
+
+          <div class="form-group">
+            <label for="va_subject">Subject</label>
+            <textarea id="va_subject" name="va_subject" class="form-control"
+              rows="2">{{ va.get('subject') or '' }}</textarea>
+            <small>Primary subject matter observed.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="va_palette">Palette</label>
+            <textarea id="va_palette" name="va_palette" class="form-control"
+              rows="2">{{ va.get('palette') or '' }}</textarea>
+            <small>Colour palette, dominant tones, contrasts.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="va_mood">Mood</label>
+            <textarea id="va_mood" name="va_mood" class="form-control" rows="2">{{ va.get('mood') or '' }}</textarea>
+            <small>Emotional resonance and atmospheric quality.</small>
+          </div>
+        </div>
+
+        <!-- SECTION: Custom Context -->
+        {% set seed_context = seed_context or {} %}
+        <div class="form-section">
+          <h4 class="section-title">Context</h4>
+
+          <div class="form-group">
+            <label for="location">Location / Inspiration</label>
+            <input type="text" id="location" name="location" class="form-control"
+              placeholder="e.g., Limestone Coast, SA" value="{{ seed_context.get('location') or '' }}">
+            <small>Artist-provided location or inspiration reference.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="sentiment">General Sentiment</label>
+            <textarea id="sentiment" name="sentiment" class="form-control" rows="2"
+              placeholder="e.g., Melancholy, Ethereal, Rhythmic">{{ seed_context.get('sentiment') or '' }}</textarea>
+            <small>Word or phrase to set mood context for analysis.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="original_prompt">Original Generation Prompt</label>
+            <textarea id="original_prompt" name="original_prompt" class="form-control" rows="3"
+              placeholder="Paste MJ/DALL-E prompt here">{{ seed_context.get('original_prompt') or '' }}</textarea>
+            <small>For AI context only — helps describe what the AI observes.</small>
+          </div>
+        </div>
+
+        <!-- SECTION: Additional Metadata -->
+        <div class="form-section">
+          <h4 class="section-title">Admin</h4>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label for="seo_filename">SEO Filename</label>
+            </div>
+            <input type="text" id="seo_filename" name="seo_filename" class="form-control"
+              value="{{ listing_doc.get('seo_filename') or '' }}" placeholder="e.g., Artwork-Title-RJC-0270.jpg">
+            <div class="field-actions-row field-actions-row--with-tip">
+              <div class="field-tip-stack">
+                <div class="field-help" id="seo_filename-counter" data-seo-filename-counter>
+                  0 / 70 chars
+                </div>
+                <small>SEO-friendly filename for Etsy/Google ranking. Format: Title-Description-SKU.jpg. <strong>Etsy recommends filename (excluding extension) be 70 characters or less.</strong></small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label for="quantity">Quantity <span class="mandatory-badge">Mandatory</span></label>
+            </div>
+            <input type="number" id="quantity" name="quantity" min="1" step="1" class="form-control"
+              value="{{ listing_doc.get('quantity') or '' }}" placeholder="e.g., 25">
+            <small>Available stock quantity for Etsy - <a class="etsy-rules-link"
+                href="/analysis/rules-reference#rule-quantity" target="_blank" rel="noopener">Etsy Rules</a>.</small>
+          </div>
+
+          <div class="form-group">
+            <div class="field-label-row">
+              <label for="price">Price <span class="mandatory-badge">Mandatory</span></label>
+            </div>
+            <input type="number" id="price" name="price" min="0" step="0.01" class="form-control"
+              value="{{ listing_doc.get('price') or '' }}" placeholder="e.g., 29.95">
+            <small>Listing price in your store currency - <a class="etsy-rules-link"
+                href="/analysis/rules-reference#rule-price" target="_blank" rel="noopener">Etsy Rules</a>.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="colours">Colours</label>
+            <input type="text" id="colours" name="colours" class="form-control"
+              value="{{ listing_doc.get('primary_colour') or analysis_doc.get('primary_colour') or '' }}{% if listing_doc.get('secondary_colour') or analysis_doc.get('secondary_colour') %}, {{ listing_doc.get('secondary_colour') or analysis_doc.get('secondary_colour') }}{% endif %}">
+            <small>Primary and secondary colours, comma-separated.</small>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- QC DATA PANEL (If available) -->
+      {% set palette = qc_doc.get('palette') if qc_doc else {} %}
+      {% set dominant_hex = palette.get('dominant_hex') if palette else [] %}
+      {% set luminance = (qc_doc.get('luminance') or {}) if qc_doc else {} %}
+      {% set luminance_cat = luminance.get('category') if luminance else None %}
+      {% set edge = (qc_doc.get('edge_safety') or {}) if qc_doc else {} %}
+      {% set edge_too_close = edge.get('too_close') if edge else False %}
+
+      {% if dominant_hex or luminance_cat or edge_too_close %}
+      <div class="info-panel">
+        <h4 class="section-title">Museum QC</h4>
+        {% if dominant_hex %}
+        <div class="info-item">
+          <strong>Dominant Colours:</strong> {{ dominant_hex|join(', ') }}
+        </div>
+        {% endif %}
+        {% if luminance_cat %}
+        <div class="info-item">
+          <strong>Luminance:</strong> {{ luminance_cat }}
+        </div>
+        {% endif %}
+        <div class="info-item">
+          <strong>Print Safety:</strong>
+          {% if edge_too_close %}
+          ⚠️ Details too close to edge
+          {% else %}
+          ✓ OK
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- GALLERY MODAL (uses FULL-RES images) - MUSEUM STYLE -->
+  <div id="artPreviewModal" class="modal-gallery hidden" data-gallery-modal>
+    <button class="modal-close" data-gallery-close></button>
+    <button class="modal-nav carousel-nav-btn carousel-prev" data-gallery-prev>&lsaquo;</button>
+    <img class="modal-image" id="modalImg" alt="Gallery Preview" data-gallery-stop-propagation>
+    <button class="modal-nav carousel-nav-btn carousel-next" data-gallery-next>&rsaquo;</button>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis_workspace.css') }}?v=20260311-01" />
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/analysis-loading.js') }}"></script>
+<script src="{{ url_for('common.static', filename='js/manual_mockups.js') }}"></script>
+<script src="{{ url_for('common.static', filename='js/analysis_validation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/analysis_workspace.js') }}?v=20260309-01"></script>
+{% endblock %}

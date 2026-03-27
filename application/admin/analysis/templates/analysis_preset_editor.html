@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Analysis Preset - Admin{% endblock %}
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis_preset_editor.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="preset-editor-container">
+  <div class="page-header">
+    <a href="/admin/analysis-management" class="back-link">← Back to Analysis Management</a>
+    <h1>
+      {% if preset.id %}Edit Preset{% else %}Default Preset{% endif %}
+      <span class="provider-badge">{{ provider.upper() }}</span>
+    </h1>
+    {% if is_default %}
+    <div class="alert alert-info">
+      ⚠️ This is the default preset. Changes will apply to all new analyses using {{ provider }}.
+    </div>
+    {% endif %}
+  </div>
+
+  <form id="presetForm" class="preset-form">
+    <input type="hidden" name="preset_id" value="{{ preset.id or 0 }}">
+    <input type="hidden" name="provider" value="{{ provider }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Preset Name Section -->
+    <div class="form-section form-section--header">
+      <div class="section-header">
+        <h2>Preset Information</h2>
+        <p class="section-desc">Name and save options for this preset</p>
+      </div>
+      
+      <!-- Original Preset Name -->
+      <div class="form-group">
+        <label for="name">Preset Name</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          required 
+          value="{{ preset.name }}"
+          maxlength="128"
+          placeholder="e.g., Pioneer Engine v1.0"
+        >
+        <p class="help-text">Name of the current preset</p>
+      </div>
+
+      <!-- Save as New Option -->
+      {% if not is_default %}
+      <div class="form-group form-group-save-option">
+        <label class="checkbox-label">
+          <input 
+            type="checkbox" 
+            id="saveAsNew" 
+            name="save_as_new"
+            class="checkbox-input"
+          >
+          <span>Save as New Preset (creates a copy)</span>
+        </label>
+        <p class="help-text">When checked, this will save the changes as a new preset instead of updating the current one</p>
+      </div>
+
+      <div id="newPresetNameGroup" class="form-group form-group-new-preset">
+        <input 
+          type="text" 
+          id="newPresetName" 
+          name="new_preset_name"
+          maxlength="128"
+          placeholder="e.g., Pioneer Engine v1.1"
+        >
+        <p class="help-text">Name for the new preset copy</p>
+      </div>
+      {% else %}
+      <input type="hidden" name="name" value="{{ preset.name }}">
+      <input type="hidden" name="is_default" value="true">
+      {% endif %}
+    </div>
+
+    <!-- Section 1: System Prompt -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>System Prompt</h2>
+        <p class="section-desc">The core instructions and role definition for the AI</p>
+      </div>
+      <div class="form-group">
+        <label for="system_prompt">System Prompt</label>
+        <textarea 
+          id="system_prompt" 
+          name="system_prompt" 
+          required 
+          rows="12"
+          placeholder="You are a Senior Art Curator..."
+        >{{ preset.system_prompt }}</textarea>
+        <p class="help-text">This section defines the AI's role and core behavior</p>
+      </div>
+    </div>
+
+    <!-- Section 2: User Full Prompt -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Full Analysis Prompt</h2>
+        <p class="section-desc">Complete prompt for full artwork analysis</p>
+      </div>
+      <div class="form-group">
+        <label for="user_full_prompt">User Full Prompt</label>
+        <textarea 
+          id="user_full_prompt" 
+          name="user_full_prompt" 
+          required 
+          rows="12"
+          placeholder="ARTWORK&#10;- Title: {title}..."
+        >{{ preset.user_full_prompt }}</textarea>
+        <p class="help-text">Variables like {title}, {slug}, {aspect} will be interpolated</p>
+      </div>
+    </div>
+
+    <!-- Section 3: Section Edit Prompt -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Section Edit Prompt</h2>
+        <p class="section-desc">Prompt for editing individual sections of analysis</p>
+      </div>
+      <div class="form-group">
+        <label for="user_section_prompt">User Section Prompt</label>
+        <textarea 
+          id="user_section_prompt" 
+          name="user_section_prompt" 
+          required 
+          rows="12"
+          placeholder="ARTWORK&#10;- Title: {title}..."
+        >{{ preset.user_section_prompt }}</textarea>
+        <p class="help-text">Used when editing specific sections of the description</p>
+      </div>
+    </div>
+
+    <!-- Section 4: Listing Boilerplate -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Listing Boilerplate</h2>
+        <p class="section-desc">Standard text appended to descriptions</p>
+      </div>
+      <div class="form-group">
+        <label for="listing_boilerplate">Listing Boilerplate</label>
+        <textarea 
+          id="listing_boilerplate" 
+          name="listing_boilerplate" 
+          required 
+          rows="8"
+          placeholder="---&#10;🏆 LIMITED EDITION..."
+        >{{ preset.listing_boilerplate }}</textarea>
+        <p class="help-text">Boilerplate text (specs, acknowledgements, etc) appended to all listings</p>
+      </div>
+    </div>
+
+    <!-- Section 5: Analysis Prompt -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Metadata Analysis Prompt</h2>
+        <p class="section-desc">Prompt for extracting structured metadata from artwork</p>
+      </div>
+      <div class="form-group">
+        <label for="analysis_prompt">Analysis Prompt</label>
+        <textarea 
+          id="analysis_prompt" 
+          name="analysis_prompt" 
+          required 
+          rows="12"
+          placeholder="You are a visual metadata extraction engine..."
+        >{{ preset.analysis_prompt }}</textarea>
+        <p class="help-text">Used for extracting JSON metadata (colors, mood, tags, etc)</p>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-lg">
+        {{ '💾 Save Preset' if preset.id else '💾 Save Default Preset' }}
+      </button>
+      <a href="/admin/analysis-management" class="btn btn-secondary btn-lg">Cancel</a>
+    </div>
+  </form>
+</div>
+
+
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/analysis_preset_editor.js') }}"></script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'admin_base.html' %}
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mockups_admin.css') }}">
+{% endblock %}
+{% block admin_content %}
+<h1 class="h4 mb-3">Mockup Categories</h1>
+<p class="text-body-secondary">Rename categories and see assigned templates. Renames slugify automatically via admin service.</p>
+
+<form method="get" class="row gy-2 gx-2 align-items-end mb-3">
+  <div class="col-md-4">
+    <label class="form-label" for="aspect-select">Aspect Ratio</label>
+    <select id="aspect-select" name="aspect" class="form-select" required data-auto-submit="form">
+      {% for aspect in aspects %}
+        <option value="{{ aspect }}" {% if selected_aspect == aspect %}selected{% endif %}>{{ aspect }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2 d-flex align-items-end">
+    <button class="btn btn-outline-secondary w-100" type="submit">Apply</button>
+  </div>
+</form>
+
+<form method="post" class="row gy-2 gx-2 align-items-end mb-4">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="aspect" value="{{ selected_aspect }}">
+  <div class="col-md-4">
+    <label class="form-label" for="old-category">Current category</label>
+    <select id="old-category" name="old_category" class="form-select" required>
+      <option value="" selected disabled>Choose category</option>
+      {% for cat in categories %}
+        <option value="{{ cat }}">{{ cat }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label" for="new-category">New category name</label>
+    <input id="new-category" name="new_category" type="text" class="form-control" required>
+  </div>
+  <div class="col-md-2 d-flex align-items-end">
+    <button class="btn btn-primary w-100" type="submit">Rename</button>
+  </div>
+  <div class="col-md-2 d-flex align-items-end">
+    <a class="btn btn-outline-secondary w-100" href="{{ url_for('mockups_admin.bases') }}">Back</a>
+  </div>
+</form>
+
+{% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+{% endif %}
+
+<div class="template-grid">
+    {%- for cat in categories %}
+      <div class="mockup-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="fw-semibold">{{ cat }}</span>
+          <span class="badge bg-light text-dark">{{ (categories_map.get(cat) or []) | length }} templates</span>
+        </div>
+        <ul class="list-unstyled small mb-0">
+          {%- for tpl in categories_map.get(cat, []) %}
+            <li class="text-body-secondary">{{ tpl.slug }} · {{ tpl.aspect_ratio }} · {{ tpl.roles | join(', ') }}</li>
+          {%- endfor %}
+          {%- if not categories_map.get(cat) %}
+            <li class="text-body-secondary">No templates yet.</li>
+          {%- endif %}
+        </ul>
+      </div>
+    {%- endfor %}
+</div>
+{% endblock %}

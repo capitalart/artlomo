@@ -1,0 +1,189 @@
+/**
+ * ArtLomo Tooltip System Styles
+ *
+ * Glass morphism design matching Clean-Room Workspace v2.0
+ * Supports light/dark themes via CSS variables
+ */
+
+/* Help Icon Button */
+.help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 6px;
+  padding: 0;
+  border: 1px solid var(--border-secondary, #dee2e6);
+  border-radius: 50%;
+  background: var(--bg-secondary, #f8f9fa);
+  color: var(--text-secondary, #6c757d);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.help-icon:hover {
+  background: var(--primary, #0d6efd);
+  border-color: var(--primary, #0d6efd);
+  color: white;
+  transform: scale(1.1);
+}
+
+.help-icon:focus {
+  outline: 2px solid var(--primary, #0d6efd);
+  outline-offset: 2px;
+}
+
+.help-icon svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+/* Tooltip Content Container */
+.tooltip-content {
+  position: fixed;
+  z-index: 10000;
+  max-width: 380px;
+  padding: 16px 20px;
+  background: var(--bg-elevated, #ffffff);
+  border: 1px solid var(--border-primary, #dee2e6);
+  
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  display: none;
+  animation: tooltipFadeIn 0.2s ease;
+}
+
+.tooltip-content.active {
+  display: block;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltip-content h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tooltip-content p {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+}
+
+.tooltip-content p:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-content strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tooltip-content code {
+  padding: 2px 6px;
+  background: var(--bg-code, #f8f9fa);
+  border: 1px solid var(--border-secondary, #e9ecef);
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+}
+
+.tooltip-content ul,
+.tooltip-content ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.tooltip-content li {
+  margin: 4px 0;
+}
+
+.tooltip-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.tooltip-close:hover {
+  color: var(--text-primary);
+}
+
+/* Dark mode support */
+[data-theme="dark"] .tooltip-content {
+  background: #2d2d2d;
+  border-color: #444;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .tooltip-content code {
+  background: #1a1a1a;
+  border-color: #444;
+}
+
+/* Field Input with Help Icon */
+.field-input {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.field-input .form-control {
+  flex: 1;
+}
+
+.field-input .btn-copy {
+  padding: 8px 12px;
+  background: var(--bg-secondary, #f8f9fa);
+  border: 1px solid var(--border-secondary, #dee2e6);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.field-input .btn-copy:hover {
+  background: var(--primary, #0d6efd);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Field Help Text */
+.field-help {
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.field-help .counter-value,
+.field-help .counter-chars {
+  font-weight: 600;
+  color: var(--text-primary);
+}

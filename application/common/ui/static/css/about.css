@@ -1,0 +1,250 @@
+.about-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.about-hero {
+  text-align: center;
+  padding: 60px 20px 50px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 50px;
+}
+
+.about-hero__title {
+  font-family: 'Outfit', 'Host Grotesk', var(--font-primary);
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 16px;
+}
+
+.about-hero__accent {
+  color: var(--accent-orange);
+}
+
+.about-hero__tagline {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.about-bio {
+  background: var(--bg-card);
+  border-left: 4px solid var(--accent-orange);
+  padding: 28px 32px;
+  margin-bottom: 50px;
+  border-radius: 0 8px 8px 0;
+}
+
+.about-bio__name {
+  font-family: 'Outfit', 'Host Grotesk', var(--font-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.about-bio__heritage {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.about-bio__text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.about-section {
+  margin-bottom: 50px;
+}
+
+.about-section__title {
+  font-family: 'Outfit', 'Host Grotesk', var(--font-primary);
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.about-feature {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 28px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.about-feature:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.about-feature__icon {
+  font-size: 2rem;
+  color: var(--accent-orange);
+  margin-bottom: 16px;
+}
+
+.about-feature__title {
+  font-family: 'Outfit', 'Host Grotesk', var(--font-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.about-feature__text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.about-pricing {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+}
+
+.pricing-card--featured {
+  border-color: var(--accent-orange);
+  position: relative;
+}
+
+.pricing-card--featured::before {
+  content: 'Most Popular';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-orange);
+  color: var(--bg-card);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 16px;
+  border-radius: 20px;
+}
+
+.pricing-card__name {
+  font-family: 'Outfit', 'Host Grotesk', var(--font-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pricing-card__price {
+  font-family: 'Outfit', 'Host Grotesk', var(--font-primary);
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.pricing-card__price-note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+.pricing-card__desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.pricing-card__list {
+  text-align: left;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricing-card__list li {
+  padding: 8px 0;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pricing-card__list li:last-child {
+  border-bottom: none;
+}
+
+.pricing-card__list i {
+  color: var(--accent-orange);
+  font-size: 0.85rem;
+}
+
+.about-policy {
+  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange) 100%);
+  color: var(--bg-card);
+  border-radius: 12px;
+  padding: 36px;
+  margin-bottom: 50px;
+}
+
+.about-policy__badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.about-policy__title {
+  font-family: 'Outfit', 'Host Grotesk', var(--font-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.about-policy__text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0;
+  opacity: 0.95;
+}
+
+[data-theme="dark"] .about-bio {
+  background: var(--bg-card);
+}
+
+[data-theme="dark"] .about-feature {
+  background: var(--bg-card);
+}
+
+[data-theme="dark"] .pricing-card {
+  background: var(--bg-card);
+}

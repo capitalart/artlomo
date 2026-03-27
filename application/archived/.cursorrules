@@ -1,0 +1,31 @@
+# ArtLomo Project Rules & AI Operating Contract
+
+## 1. Architectural Authority
+
+- **Single Source of Truth:** Refer to `application/docs/ARCHITECTURE_INDEX.md` and `README.md` before every task.
+- **Workflow Isolation:** NO cross-workflow imports. Workflows (upload, artwork, analysis, mockups) must remain isolated.
+- **Dependency Rule:** Workflows may only depend on `application/common`, `application/utils`, and shared configuration.
+- **Logic Placement:** Business logic lives in **Services**. Routes are for **Orchestration** only. UI must contain **Zero** business logic.
+
+## 2. File System Invariants
+
+- **Artwork Single-State:** A slug exists in only one stage (`unprocessed`, `processed`, or `locked`).
+- **Atomic Promotion:** Moving an artwork between stages must be a physical `shutil.move`, never a copy.
+- **Asset Integrity:** All processed assets (listing.json, closeup.jpg, promo_video.mp4) must stay inside `lab/processed/<slug>/`.
+
+## 3. UI & Styling Standards
+
+- **Bootstrap Forbidden:** Do NOT use Bootstrap classes or JS. Use the project's custom CSS variables and utility classes.
+- **Component Ownership:** Use specific CSS/JS scoping for components (e.g., `#uploadDeleteModal`, `.detail-viewport`).
+- **CSRF Security:** All `POST/PUT/DELETE` fetch requests must include the `X-CSRF-Token` header.
+
+## 4. Cursor Usage & Token Optimization
+
+- **Be Concise:** Provide code directly. Minimize conversational fluff.
+- **Targeted Context:** Use `@File` or `@Code` for specific edits. Avoid reading the entire project root unless necessary.
+- **Error Handling:** If an AI service fails, use the `GeminiAnalysisError` or `OpenAIAnalysisError` patterns with specific `error_code` constants.
+
+## 5. Feature-Specific Context
+
+- **Pioneer Engine:** Adhere to the 13-point story structure for all Etsy SEO generation.
+- **Robbie Mode™:** Maintain the "Aussie-IT" tone in internal logs and specific user-facing "Manual Workspace" guidance.

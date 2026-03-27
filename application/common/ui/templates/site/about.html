@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="about-page">
+
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <h1 class="about-hero__title">
+      <span class="about-hero__accent">Art</span>, Logic, and <span class="about-hero__accent">Motion</span>.
+    </h1>
+    <p class="about-hero__tagline">
+      ArtLomo is the AI-powered darkroom that helps independent artists transform their work into marketplace-ready listings—fast, fair, and on your terms.
+    </p>
+  </section>
+
+  <!-- Bio Callout -->
+  <section class="about-bio">
+    <h2 class="about-bio__name">Robin Custance</h2>
+    <p class="about-bio__heritage">Founder · Adelaide Based,Limestone Coast Heritage, South Australia</p>
+    <p class="about-bio__text">
+      Born on the traditional lands of the Boandik and Meintangk peoples—where the Limestone Coast meets endless sky—ArtLomo is built with deep respect for heritage, place, and the quiet persistence of creative work. We believe every artist deserves professional tools without the professional price tag.
+    </p>
+  </section>
+
+  <!-- The Edge: Features Grid -->
+  <section class="about-section">
+    <h2 class="about-section__title">The ArtLomo Edge</h2>
+    <div class="about-features">
+      <div class="about-feature">
+        <div class="about-feature__icon"><i class="fa-solid fa-eye"></i></div>
+        <h3 class="about-feature__title">Sees the Story</h3>
+        <p class="about-feature__text">
+          Our AI doesn't just describe what it sees—it understands composition, mood, and artistic intent. Each piece gets a narrative that connects with buyers on an emotional level.
+        </p>
+      </div>
+      <div class="about-feature">
+        <div class="about-feature__icon"><i class="fa-solid fa-pen-nib"></i></div>
+        <h3 class="about-feature__title">Writes the Words</h3>
+        <p class="about-feature__text">
+          SEO-optimized titles, compelling descriptions, and marketplace-tuned tags—all generated in seconds. Your art speaks; we help it be heard.
+        </p>
+      </div>
+      <div class="about-feature">
+        <div class="about-feature__icon"><i class="fa-solid fa-box-open"></i></div>
+        <h3 class="about-feature__title">Preps the Goods</h3>
+        <p class="about-feature__text">
+          Export bundles ready for Etsy, Society6, Redbubble, and more. Mockups, metadata, and files—organized exactly how each platform wants them.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fair Go Pricing -->
+  <section class="about-section">
+    <h2 class="about-section__title">Fair Go Pricing</h2>
+    <div class="about-pricing">
+      <div class="pricing-card pricing-card--featured">
+        <p class="pricing-card__name">Membership</p>
+        <p class="pricing-card__price">$9.50</p>
+        <p class="pricing-card__price-note">per month</p>
+        <p class="pricing-card__desc">Full access to the ArtLomo darkroom. Upload, analyse, export—unlimited.</p>
+        <ul class="pricing-card__list">
+          <li><i class="fa-solid fa-check"></i> Unlimited artwork uploads</li>
+          <li><i class="fa-solid fa-check"></i> AI-powered analysis &amp; listings</li>
+          <li><i class="fa-solid fa-check"></i> Mockup generation</li>
+          <li><i class="fa-solid fa-check"></i> Multi-platform exports</li>
+          <li><i class="fa-solid fa-check"></i> 1-month storage grace period</li>
+        </ul>
+      </div>
+      <div class="pricing-card">
+        <p class="pricing-card__name">No Nonsense Fee</p>
+        <p class="pricing-card__price">$2</p>
+        <p class="pricing-card__price-note">per sale (optional)</p>
+        <p class="pricing-card__desc">Only when you make money, we take a small cut. That's it. No hidden fees, no percentage of your artwork price.</p>
+        <ul class="pricing-card__list">
+          <li><i class="fa-solid fa-check"></i> Flat fee per transaction</li>
+          <li><i class="fa-solid fa-check"></i> No percentage cuts</li>
+          <li><i class="fa-solid fa-check"></i> Transparent &amp; predictable</li>
+          <li><i class="fa-solid fa-check"></i> You keep your margins</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Artist-First Data Policy -->
+  <section class="about-policy">
+    <span class="about-policy__badge">Artist-First</span>
+    <h2 class="about-policy__title">Your Art, Your Data</h2>
+    <p class="about-policy__text">
+      We keep your processed artwork and exports for <strong>one full month</strong> after your membership ends—no rush, no pressure. Download your files, migrate at your pace. After the grace period, everything is permanently deleted. Your creative work never becomes our training data.
+    </p>
+  </section>
+
+</div>
+{% endblock %}

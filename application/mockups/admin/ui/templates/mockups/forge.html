@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio Forge Engine</title>
+  <link rel="stylesheet" href="{{ url_for('forge_admin.static', filename='css/forge.css') }}">
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Studio Forge Engine</h1>
+    </header>
+
+    <main>
+      <section class="panel" aria-labelledby="controls-title">
+        <h2 id="controls-title">Controls</h2>
+
+        <form id="forge-form">
+          <div class="field">
+            <label for="shape_descriptor">Shape Descriptor</label>
+            <input
+              id="shape_descriptor"
+              name="shape_descriptor"
+              type="text"
+              required
+              maxlength="500"
+              placeholder="Tall slender vertical gallery frame"
+            >
+          </div>
+
+          <fieldset class="field fieldset-reset">
+            <legend class="field-title">Category</legend>
+            <div class="categories" role="group" aria-label="Forge categories">
+              <label class="category-option" for="cat-cafe">
+                <input id="cat-cafe" type="checkbox" name="category" value="Cafe">
+                <span>Cafe</span>
+              </label>
+              <label class="category-option" for="cat-living-room">
+                <input id="cat-living-room" type="checkbox" name="category" value="Living Room" checked>
+                <span>Living Room</span>
+              </label>
+              <label class="category-option" for="cat-bedroom">
+                <input id="cat-bedroom" type="checkbox" name="category" value="Bedroom">
+                <span>Bedroom</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="quantity">Quantity</label>
+            <input id="quantity" name="quantity" type="number" min="1" max="50" value="10" required>
+          </div>
+
+          <button type="submit">Queue Generation Tasks</button>
+          <p class="meta" id="form-feedback" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="queue-title">
+        <h2 id="queue-title">Live Queue</h2>
+
+        <div id="queue-status-container">
+          <div class="queue-header">
+            <span>Latest 50 Jobs</span>
+            <span id="last-updated">Last update: -</span>
+          </div>
+          <ul id="job-list" aria-live="polite"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="{{ url_for('forge_admin.static', filename='js/forge.js') }}" defer></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+.modal-layer[data-modal="delete-account"] {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-layer.modal-hidden {
+  display: none;
+}
+
+.modal-layer[data-modal="delete-account"] .modal-dialog {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+}
+
+.profile-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+}
+
+.divider-large {
+  margin: 40px 0;
+  border-color: var(--border-color);
+}
+
+.divider-danger {
+  margin: 40px 0;
+  border-color: var(--danger-red);
+}
+
+.section-title {
+  font-size: 1.4rem;
+}
+
+.section-subtitle {
+  margin-top: 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.settings-container {
+  max-width: 500px;
+}
+
+.input-disabled {
+  background: var(--bg-main);
+}
+
+.email-form-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.email-input {
+  flex: 1;
+}
+
+.btn-nowrap {
+  white-space: nowrap;
+}
+
+.danger-container {
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--danger-red);
+}
+
+.danger-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--danger-red);
+  margin-bottom: 8px;
+}
+
+.danger-text {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+}
+
+.danger-btn {
+  background: var(--danger-red);
+  color: var(--bg-card);
+}

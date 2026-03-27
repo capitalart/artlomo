@@ -1,0 +1,658 @@
+/* application/common/ui/static/css/gallery.css */
+
+/* =========================================
+   1. Layout & Grid
+   ========================================= */
+
+.artwork-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin-top: 20px;
+  padding-bottom: 40px;
+}
+
+/* =========================================
+   2. Hub Controls / Toolbar
+   ========================================= */
+
+.hub-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: transparent;
+  
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.hub-controls > div[style*="flex: 1"] {
+  flex: 1;
+  min-width: 20px;
+}
+
+/* =========================================
+   3. Upload Panel
+   ========================================= */
+
+.upload-panel {
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-card-bg);
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  margin: 0 auto 30px;
+  width: 100%;
+  max-width: var(--content-max-width);
+  
+}
+
+.upload-panel h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.upload-panel > p {
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
+.upload-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.upload-field {
+  display: grid;
+  gap: 8px;
+}
+
+.upload-fields label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.upload-fields input[type="text"] {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  padding: 0 12px;
+  border-radius: 0;
+  font-size: 0.95rem;
+}
+
+/* =========================================
+   4. Drag & Drop Zone
+   ========================================= */
+
+.upload-dropzone {
+  border: 2px dashed var(--color-input-border);
+  background: var(--color-card-bg);
+  padding: 20px;
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.upload-dropzone:hover {
+  background: var(--color-background);
+  border-color: #00bcd4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.upload-dropzone.drag-over {
+  background: var(--color-background);
+  border-color: #00e5ff;
+}
+
+.upload-hint {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.upload-constraints {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  opacity: 0.6;
+}
+
+/* =========================================
+   5. Artwork Card
+   ========================================= */
+
+.gallery-card {
+  position: relative;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--color-card-shadow);
+}
+
+.gallery-card:hover {
+  border-color: var(--color-border-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Top Right Badge (Provider Label) */
+.gallery-card .badge,
+.provider-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom-left-radius: 4px;
+  pointer-events: none;
+}
+
+.gallery-card .badge-failed {
+  background: var(--color-danger);
+  color: var(--color-bg-primary);
+}
+
+.analysis-failure-text {
+  color: var(--color-danger);
+}
+
+/* Artwork Visual Container */
+.artwork-visual {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: var(--color-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-card-divider);
+  position: relative;
+}
+
+.artwork-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.thumb-placeholder {
+  color: var(--color-text);
+  opacity: 0.5;
+  font-size: 0.9rem;
+}
+
+/* Checkbox Styling - High-Visibility Red Cross Selection */
+.card-select {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;  /* Slightly larger for visibility */
+  height: 24px;
+  background: rgba(255, 255, 255, 0.9); /* Light mode: more opaque white */
+  border: 2px solid var(--checkbox-border) !important;
+  cursor: pointer;
+  position: relative; /* Essential for the cross position */
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+}
+
+html[data-theme="dark"] .card-checkbox,
+.theme-dark .card-checkbox {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid var(--checkbox-border) !important;
+}
+
+/* THE BOLD RED CROSS */
+.card-checkbox:checked::after {
+  content: "✕"; /* Bold Unicode Cross */
+  color: #ff4444 !important; /* High-visibility Red */
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Card border highlight when checked */
+.gallery-card:has(.card-checkbox:checked) {
+  outline: 2px solid #ff4444;
+  outline-offset: -2px;
+}
+
+/* =========================================
+   6. Artwork Info & Meta
+   ========================================= */
+
+.gallery-card .artwork-info {
+  padding: 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.artwork-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 4px 0;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.artwork-subtext {
+  color: var(--color-text);
+  opacity: 0.6;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.artwork-meta {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: grid;
+  gap: 4px;
+}
+
+.artwork-meta li {
+  font-size: 0.8rem;
+  color: var(--color-text);
+  opacity: 0.5;
+  font-family: "SF Mono", monospace;
+}
+
+/* =========================================
+   7. Action Buttons
+   ========================================= */
+
+.artwork-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.artlomo-btn {
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 0;
+}
+
+.artlomo-btn:hover {
+  background: var(--color-border-primary);
+  color: var(--color-bg-primary);
+  border-color: var(--color-border-primary);
+}
+
+.artlomo-btn--primary {
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  border-color: var(--color-text-primary);
+}
+
+.artlomo-btn--primary:hover {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+}
+
+.artlomo-btn--danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.artlomo-btn--danger:hover {
+  background: var(--color-danger);
+  color: var(--color-white);
+}
+
+.artlomo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* =========================================
+   8. Modal System
+   ========================================= */
+
+.hidden { display: none !important; }
+
+.modal, .upload-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop, .upload-modal-backdrop {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+}
+
+.modal-dialog, .upload-modal-dialog {
+  position: relative;
+  z-index: 2001;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  max-width: 90vw;
+  padding: 30px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.modal-image {
+  max-height: 80vh;
+  width: auto;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.modal-close, .upload-modal-close {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* =========================================
+   9. Theme Toggle Fix
+   ========================================= */
+.theme-toggle, 
+#theme-toggle-btn,
+[aria-label="Toggle theme"] {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* =========================================
+   10. Shared Artwork Carousel Modal (Partial Template)
+   ========================================= */
+
+/* Museum Minimalist Carousel Layout */
+#artPreviewModal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#artPreviewModal:not(.hidden) {
+  display: flex;
+}
+
+#artPreviewModal.hidden {
+  display: none;
+}
+
+/* Close Button - Red Pill Design */
+.carousel-close-btn {
+  position: fixed;
+  top: 30px;
+  right: 40px;
+  background: rgba(255, 44, 44, 0.9);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 0;
+  border: none;
+  cursor: pointer;
+  z-index: 10100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, background 0.2s ease;
+  font-size: 0;
+}
+
+.carousel-close-btn:hover {
+  transform: scale(1.1);
+  background: #ff0000;
+}
+
+.carousel-close-btn::before {
+  content: "✕";
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.carousel-close-btn::after {
+  content: "CLOSE";
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* Modal Dialog Container - Transparent */
+.modal-dialog {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Gallery Layout - Center Image, Left-Align Text */
+.modal-gallery-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+  max-width: 90vw;
+  padding: 40px 20px;
+}
+
+/* Image Container */
+.modal-body-gallery {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  margin-bottom: 40px;
+}
+
+/* Centered Image - No Borders */
+.modal-image {
+  max-width: 90vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: none !important;
+  border-radius: 0 !important;
+  cursor: default;
+}
+
+/* Navigation Buttons - At Bottom Corners */
+.modal-nav.carousel-nav-btn {
+  position: absolute;
+  bottom: -60px;
+  width: 50px;
+  height: 50px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 10050;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-nav.carousel-nav-btn img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.modal-nav.carousel-nav-btn:hover {
+  transform: scale(1.1);
+}
+
+.modal-prev {
+  left: 10px;
+}
+
+.modal-next {
+  right: 10px;
+}
+
+/* Responsive Navigation Buttons for tablets and phones */
+@media (max-width: 768px) {
+  .modal-nav.carousel-nav-btn {
+    width: 80px;
+    height: 80px;
+  }
+
+  .modal-nav.carousel-nav-btn img {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-nav.carousel-nav-btn {
+    width: 60px;
+    height: 60px;
+  }
+
+  .modal-nav.carousel-nav-btn img {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Metadata Panel - Left-Aligned Below Image and Navigation */
+.modal-meta-panel {
+  width: 100%;
+  max-width: 1000px;
+  text-align: left;
+  padding: 0 20px;
+  margin-top: 10px;
+}
+
+/* Metadata Text Styling */
+.meta-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.meta-artist {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.meta-details {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.meta-notice {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* Light Theme - Dark text for readability on light backgrounds */
+html[data-theme="light"] .meta-title {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="light"] .meta-artist {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="light"] .meta-details,
+html[data-theme="light"] .meta-notice {
+  color: var(--text-muted);
+}
+
+/* Dark Theme - Light text for readability on dark backgrounds */
+html[data-theme="dark"] .meta-title {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .meta-artist {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .meta-details,
+html[data-theme="dark"] .meta-notice {
+  color: var(--text-muted);
+}
+
+/* Hide old backdrop element */
+.modal-backdrop {
+  display: none;
+}
+

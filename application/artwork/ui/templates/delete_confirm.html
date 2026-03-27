@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-2">Delete confirmation</h1>
+  <p class="mb-1">Artwork slug: {{ slug }}</p>
+  <p>This is a placeholder delete confirmation. Nothing will be deleted.</p>
+  <div class="d-flex gap-2 mt-3">
+    <a class="btn btn-secondary disabled" aria-disabled="true" href="#">Confirm delete</a>
+    <a class="btn btn-primary" href="{{ url_for('upload.processed') }}">Cancel</a>
+  </div>
+</div>
+{% endblock %}

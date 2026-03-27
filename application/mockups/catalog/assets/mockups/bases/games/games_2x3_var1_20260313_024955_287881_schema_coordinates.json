@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/games/games_2x3_var1_20260313_024955_287881.png",
+  "generated_at": "2026-03-13T02:49:55.404195Z",
+  "points": [
+    {
+      "x": 734,
+      "y": 318
+    },
+    {
+      "x": 1413,
+      "y": 264
+    },
+    {
+      "x": 1414,
+      "y": 1305
+    },
+    {
+      "x": 736,
+      "y": 1287
+    }
+  ]
+}

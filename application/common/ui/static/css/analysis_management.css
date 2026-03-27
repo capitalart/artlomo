@@ -1,0 +1,494 @@
+/* analysis_management.css - Analysis Management Hub styles */
+
+.analysis-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+[data-theme="dark"] .page-header h1 {
+  color: #e0e0e0;
+}
+
+[data-theme="light"] .page-header h1 {
+  color: #222;
+}
+
+.page-subtitle {
+  color: var(--text-secondary, #666);
+  font-size: 1rem;
+}
+
+[data-theme="light"] .page-subtitle {
+  color: #666;
+}
+
+[data-theme="dark"] .page-subtitle {
+  color: #999;
+}
+
+.upload-section {
+  background: var(--bg-accent-light, rgba(0, 188, 212, 0.05));
+  border: 2px dashed var(--artlomo-accent, #00bcd4);
+  border-radius: 0;
+  padding: 2rem;
+  margin-bottom: 3rem;
+}
+
+[data-theme="light"] .upload-section {
+  background: #f5f5f5;
+  border-color: #00838f;
+}
+
+[data-theme="dark"] .upload-section {
+  background: rgba(0, 188, 212, 0.05);
+  border-color: #00bcd4;
+}
+
+.upload-section h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+[data-theme="dark"] .upload-section h2 {
+  color: #e0e0e0;
+}
+
+[data-theme="light"] .upload-section h2 {
+  color: #222;
+}
+
+.upload-subtitle {
+  color: var(--text-secondary, #666);
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="light"] .upload-subtitle {
+  color: #666;
+}
+
+[data-theme="dark"] .upload-subtitle {
+  color: #999;
+}
+
+.upload-area {
+  border: 2px dashed var(--artlomo-accent, #00bcd4);
+  border-radius: 0;
+  padding: 2rem;
+  text-align: center;
+  background: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+[data-theme="light"] .upload-area {
+  background: #fff;
+  border-color: #00838f;
+}
+
+[data-theme="dark"] .upload-area {
+  background: #1a1a1a;
+  border-color: #00bcd4;
+}
+
+.upload-area:hover {
+  background: #252525;
+}
+
+[data-theme="light"] .upload-area:hover {
+  background: #e0f7fa;
+}
+
+[data-theme="dark"] .upload-area:hover {
+  background: #252525;
+}
+
+.upload-area.dragover {
+  background: rgba(0, 188, 212, 0.15);
+  border-color: var(--artlomo-accent, #00bcd4);
+}
+
+[data-theme="light"] .upload-area.dragover {
+  background: #b2dfdb;
+  border-color: #00838f;
+}
+
+[data-theme="dark"] .upload-area.dragover {
+  background: rgba(0, 188, 212, 0.15);
+  border-color: #00bcd4;
+}
+
+.upload-content {
+  pointer-events: none;
+}
+
+.upload-content .link-btn {
+  pointer-events: auto;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.upload-text {
+  margin: 0.5rem 0;
+  color: #e0e0e0;
+}
+
+[data-theme="light"] .upload-text {
+  color: #333;
+}
+
+[data-theme="dark"] .upload-text {
+  color: #e0e0e0;
+}
+
+.upload-hint {
+  margin: 0.5rem 0 0 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+[data-theme="light"] .upload-hint {
+  color: #006064;
+}
+
+[data-theme="dark"] .upload-hint {
+  color: #888;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #00e5ff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+  font-weight: 600;
+  pointer-events: auto;
+  transition: color 0.2s ease;
+}
+
+[data-theme="light"] .link-btn {
+  color: #006064;
+}
+
+[data-theme="dark"] .link-btn {
+  color: #00e5ff;
+}
+
+.link-btn:hover {
+  opacity: 0.8;
+}
+
+#uploadStatus {
+  margin-top: 1rem;
+  min-height: 1.5rem;
+}
+
+.status-message {
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  font-size: 0.9rem;
+}
+
+.status-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.preset-section {
+  border: 1px solid #444;
+  border-radius: 0;
+  padding: 1.5rem;
+  background: #1a1a1a;
+}
+
+[data-theme="light"] .preset-section {
+  background: #f5f5f5;
+  border-color: #ddd;
+}
+
+[data-theme="dark"] .preset-section {
+  background: #1a1a1a;
+  border-color: #444;
+}
+
+.preset-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.preset-header h2 {
+  font-size: 1.3rem;
+  margin: 0;
+  color: #e0e0e0;
+}
+
+[data-theme="light"] .preset-header h2 {
+  color: #222;
+}
+
+[data-theme="dark"] .preset-header h2 {
+  color: #e0e0e0;
+}
+
+.presets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preset-card {
+  border: 1px solid #444;
+  border-radius: 0;
+  padding: 1rem;
+  background: #252525;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+[data-theme="light"] .preset-card {
+  background: #fff;
+  border-color: #ddd;
+}
+
+[data-theme="dark"] .preset-card {
+  background: #252525;
+  border-color: #444;
+}
+
+.preset-card.default-preset {
+  border-color: #00bcd4;
+  background: rgba(0, 188, 212, 0.08);
+}
+
+[data-theme="light"] .preset-card.default-preset {
+  border-color: #00838f;
+  background: #e0f7fa;
+}
+
+[data-theme="dark"] .preset-card.default-preset {
+  border-color: #00bcd4;
+  background: rgba(0, 188, 212, 0.08);
+}
+
+.preset-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #e0e0e0;
+}
+
+[data-theme="light"] .preset-info h3 {
+  color: #222;
+}
+
+[data-theme="dark"] .preset-info h3 {
+  color: #e0e0e0;
+}
+
+.preset-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg-secondary, #f0f0f0);
+  color: var(--text-primary, #333);
+}
+
+.badge-default {
+  background: var(--artlomo-accent, #00bcd4);
+  color: white;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--artlomo-accent, #00bcd4);
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: #333;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: #333;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+.btn-secondary:hover {
+  background: #404040;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: #f0f0f0;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background: #404040;
+}
+
+.btn-danger {
+  background: #ff4757;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ff3838;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.import-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.import-modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 0;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.import-modal-content h2 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.import-modal-form-group {
+  margin: 1.5rem 0;
+}
+
+.import-modal-form-group label {
+  display: block;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.import-modal-form-group input,
+.import-modal-form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.import-modal-form-group input:focus,
+.import-modal-form-group select:focus {
+  outline: none;
+  border-color: #00bcd4;
+  box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.1);
+}
+
+.import-modal-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.import-modal-btn-cancel {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: #f0f0f0;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.import-modal-btn-cancel:hover {
+  background: #e0e0e0;
+}
+
+.import-modal-btn-import {
+  padding: 0.5rem 1rem;
+  background: #00bcd4;
+  color: white;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.import-modal-btn-import:hover {
+  background: #0097a7;
+}

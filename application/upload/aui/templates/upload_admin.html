@@ -1,0 +1,39 @@
+{% extends 'admin_base.html' %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('upload.static', filename='css/upload_admin.css') }}">{% endblock %}
+{% block extra_js %}<script src="{{ url_for('upload.static', filename='js/upload_admin.js') }}"></script>{% endblock %}
+{% block admin_content %}
+<h1 class="h4 mb-3">Upload Admin</h1>
+<p class="text-body-secondary">Quick view of unprocessed uploads.</p>
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>Slug</th>
+        <th>SKU</th>
+        <th>Dimensions</th>
+        <th>DPI</th>
+        <th>Filesize</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        <tr>
+          <td>{{ item.slug }}</td>
+          <td>{{ item.meta.sku if item.meta else 'n/a' }}</td>
+          {% if item.qc %}
+            {% set qc = item.qc %}
+            {% set dims = qc.get('dimensions', {}) %}
+            <td>{{ dims.get('width', 'n/a') }}×{{ dims.get('height', 'n/a') }}</td>
+            <td>{{ qc.get('dpi', 'n/a') }}</td>
+            <td>{{ '%.1f MB'|format(qc.get('filesize_mb', 0)) }}</td>
+          {% else %}
+            <td colspan="3" class="text-warning">QC missing</td>
+          {% endif %}
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-body-secondary">No uploads yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

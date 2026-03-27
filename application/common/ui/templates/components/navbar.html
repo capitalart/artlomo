@@ -1,0 +1,32 @@
+<nav class="navbar sticky-top">
+  <div class="container header-shell" aria-label="Global header">
+    <div class="header-left">
+      <a class="navbar-brand fw-semibold" href="{{ url_for('home') }}">
+        <img
+          src="{{ url_for('static', filename='logo/artlomo-logo.svg') }}"
+          alt="ArtLomo"
+          class="logo logo-light"
+        >
+        <img
+          src="{{ url_for('static', filename='logo/artlomo-logo-white.svg') }}"
+          alt="ArtLomo"
+          class="logo logo-dark"
+        >
+      </a>
+    </div>
+    <div class="header-center" role="group" aria-label="Overlay navigation">
+      <button class="overlay-link" type="button" data-overlay-toggle="admin" aria-controls="menu-overlay" aria-expanded="false" aria-haspopup="dialog">
+        <span class="overlay-label">Admin Hub</span>
+        <span class="overlay-arrow" aria-hidden="true">↓</span>
+      </button>
+    </div>
+    <div class="header-right">
+      {% if session.get('username') %}
+        <a class="btn btn-logout" href="{{ url_for('auth.logout') }}">Logout</a>
+      {% endif %}
+      <button class="btn theme-toggle" type="button" aria-label="Toggle theme">
+        <img class="theme-icon" alt="" src="{{ url_for('static', filename='icons/dark.svg') }}" />
+      </button>
+    </div>
+  </div>
+</nav>

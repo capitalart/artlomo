@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/bedroom-adults/bedroom-adults_1x1_var1_20260313_025134_071295.png",
+  "generated_at": "2026-03-13T02:51:34.172608Z",
+  "points": [
+    {
+      "x": 609,
+      "y": 403
+    },
+    {
+      "x": 1285,
+      "y": 427
+    },
+    {
+      "x": 1283,
+      "y": 1392
+    },
+    {
+      "x": 609,
+      "y": 1405
+    }
+  ]
+}

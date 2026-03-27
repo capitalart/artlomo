@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/outdoors/outdoors_5x4_var1_20260313_025352_469152.png",
+  "generated_at": "2026-03-13T02:53:52.593284Z",
+  "points": [
+    {
+      "x": 781,
+      "y": 545
+    },
+    {
+      "x": 1354,
+      "y": 545
+    },
+    {
+      "x": 1354,
+      "y": 1368
+    },
+    {
+      "x": 781,
+      "y": 1368
+    }
+  ]
+}

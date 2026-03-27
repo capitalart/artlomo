@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/bedroom-kids/bedroom-kids_4x5_var1_20260313_032456_619818.png",
+  "generated_at": "2026-03-13T03:24:56.734740Z",
+  "points": [
+    {
+      "x": 693,
+      "y": 309
+    },
+    {
+      "x": 1333,
+      "y": 309
+    },
+    {
+      "x": 1333,
+      "y": 1175
+    },
+    {
+      "x": 693,
+      "y": 1175
+    }
+  ]
+}

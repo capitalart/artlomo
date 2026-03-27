@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manifesto.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="manifesto-page">
+  <div class="manifesto-card">
+    <p class="manifesto-kicker">ArtLomo</p>
+    <h2 class="manifesto-title">The Manifesto</h2>
+    <p class="manifesto-lede">
+      ArtLomo exists to protect the work. To reduce the noise. To give independent artists a darkroom that respects
+      craft,
+      privacy, and the quiet dignity of making.
+    </p>
+
+    <section class="manifesto-section" aria-label="Pillars">
+      <h3>Pillars</h3>
+      <ul class="manifesto-pillars">
+        <li class="manifesto-pillar">
+          <p class="manifesto-pillar__name">No AI Training</p>
+          <p class="manifesto-pillar__desc">Your artwork is yours. It is never used to train models.</p>
+        </li>
+        <li class="manifesto-pillar">
+          <p class="manifesto-pillar__name">14K Standard</p>
+          <p class="manifesto-pillar__desc">Quality is non-negotiable: outputs are tuned for professional listing and
+            print workflows.</p>
+        </li>
+        <li class="manifesto-pillar">
+          <p class="manifesto-pillar__name">Exclusive 25</p>
+          <p class="manifesto-pillar__desc">Small by design. A focused cohort, not an infinite crowd.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="manifesto-section" aria-label="People of the Reeds">
+      <h3>People of the Reeds</h3>
+      <p class="manifesto-lede manifesto-lede--flush">
+        The philosophy is simple: move like water through reeds—quiet, deliberate, and unbroken.
+        Build systems that protect the creative rhythm.
+      </p>
+      <blockquote class="manifesto-quote">
+        We do not chase attention. We build craft.
+        We do not extract. We protect.
+        We do not train on artists. We serve them.
+        <cite>People of the Reeds</cite>
+      </blockquote>
+    </section>
+
+    <a class="manifesto-footlink" href="{{ url_for('site.about') }}">Return to About</a>
+  </div>
+</div>
+{% endblock %}

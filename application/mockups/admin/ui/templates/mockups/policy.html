@@ -1,0 +1,28 @@
+{% extends 'admin_base.html' %}
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/mockups_admin.css') }}">
+{% endblock %}
+{% block admin_content %}
+<h1 class="h4 mb-3">Mandatory Template Policy</h1>
+<p class="text-body-secondary">Mandatory templates must remain enabled; policy changes affect selection only.</p>
+
+<form method="post" class="mb-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="template-grid">
+    {% for tpl in templates %}
+      <label class="mockup-card d-flex flex-column gap-2">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">{{ tpl.slug }}</span>
+          <input class="form-check-input" type="checkbox" name="mandatory" value="{{ tpl.slug }}" {% if tpl.slug in mandatory %}checked{% endif %}>
+        </div>
+        <div class="small text-body-secondary">Aspect {{ tpl.aspect_ratio }} · Category {{ tpl.category }} · Roles {{ tpl.roles | join(', ') }}</div>
+      </label>
+    {% endfor %}
+  </div>
+  <div class="mt-3 d-flex gap-2">
+    <button class="btn btn-primary" type="submit">Save policy</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('mockups_admin.bases') }}">Back</a>
+    <span class="text-body-secondary small align-self-center">Version {{ policy_version }}</span>
+  </div>
+</form>
+{% endblock %}

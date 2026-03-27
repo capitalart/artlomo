@@ -1,0 +1,625 @@
+{% extends 'admin_base.html' %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/mockups_admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/mockup_generator_dashboard.css') }}">
+{% endblock %}
+
+{% block admin_content %}
+<div
+  id="mockup-dashboard-root"
+  data-start-url="{{ url_for('mockup_generator.start_generation_pipeline') }}"
+  data-control-url="{{ url_for('mockup_generator.control_generation_pipeline') }}"
+  data-clear-pending-url="{{ url_for('mockup_generator.clear_pending_generation_jobs') }}"
+  data-clear-failed-url="{{ url_for('mockup_generator.clear_failed_generation_jobs') }}"
+  data-delete-completed-url="{{ url_for('mockup_generator.delete_completed_generation_jobs') }}"
+  data-approve-completed-url="{{ url_for('mockup_generator.approve_completed_generation_jobs') }}"
+  data-status-url="{{ url_for('mockup_generator.get_generator_status') }}"
+  data-prompt-preview-url="{{ url_for('mockup_generator.mockup_generator_prompt_preview') }}"
+  data-force-retry-base-url="{{ url_for('mockup_generator.force_retry_job', job_id=0)|replace('/0/', '/{id}/') }}"
+  data-skip-coordinate-detection="{{ control_state.get('skip_coordinate_detection', 'false') }}"
+  data-expected-total="{{ expected_total }}"
+  data-completion-percentage="{{ completion_percentage }}"
+  data-worker-running="{{ 1 if worker_running else 0 }}"
+>
+  <div class="mockup-dashboard-header">
+    <h1 class="mockup-dashboard-title">Mockup Generator Control Center</h1>
+    <p class="mockup-dashboard-subtitle">Monitor and control the automated mockup generation pipeline</p>
+    <div>
+      <a class="gallery-btn gallery-btn--outline" href="{{ url_for('mockup_generator.mockup_generator_prompt_settings') }}">Prompt Settings</a>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="error-box">
+      <strong>Error:</strong> {{ error }}
+    </div>
+  {% endif %}
+
+  <div class="dashboard-status-banner" id="dashboard-status-banner" hidden></div>
+
+  {% if not worker_running %}
+  <div class="error-box">
+    <strong>Worker Offline:</strong> No Celery worker process detected. Queued jobs will stay Pending.
+    Use inline single-test mode below for one-off runs, or start the Celery worker service.
+  </div>
+  {% endif %}
+
+  <div class="status-grid">
+    <div class="status-card pending">
+      <span class="status-label">Pending</span>
+      <div class="status-count" id="status-count-pending">{{ status_counts.get('Pending', 0) - retry_queued_count }}</div>
+    </div>
+    <div class="status-card generating">
+      <span class="status-label">Generating</span>
+      <div class="status-count" id="status-count-generating">{{ status_counts.get('Generating', 0) }}</div>
+    </div>
+    <div class="status-card processing">
+      <span class="status-label">Processing</span>
+      <div class="status-count" id="status-count-processing">{{ status_counts.get('ProcessingCoordinates', 0) + status_counts.get('Processing', 0) }}</div>
+    </div>
+    <div class="status-card retry-queued">
+      <span class="status-label">Retry Queued</span>
+      <div class="status-count" id="status-count-retry-queued">{{ retry_queued_count }}</div>
+    </div>
+    <div class="status-card completed">
+      <span class="status-label">Completed</span>
+      <div class="status-count" id="status-count-completed">{{ status_counts.get('Completed', 0) }}</div>
+    </div>
+    <div class="status-card failed">
+      <span class="status-label">Failed</span>
+      <div class="status-count" id="status-count-failed">{{ status_counts.get('Failed', 0) }}</div>
+    </div>
+  </div>
+
+  <p class="refresh-status-line" id="refresh-status-line">Refreshing…</p>
+
+  <div class="progress-section">
+    <div class="progress-label">
+      <span>Generation Progress</span>
+      <span>{{ completed_jobs }} / {{ expected_total }} images ({{ completion_percentage }}%)</span>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-meta">
+      <span>Active: {{ active_jobs }}</span> ·
+      <span>Completed: {{ completed_jobs }}</span> ·
+      <span>Failed: {{ failed_jobs }}</span> ·
+      <span>Pending: {{ pending_jobs }}</span>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-box-title">Pipeline Information</div>
+    <div class="info-box-text">
+      Total expected output: <strong>{{ expected_total }}</strong> unique mockup environments
+      ({{ num_aspects }} aspects ×
+      {{ num_categories }} categories ×
+      {{ max_variations }} variations)
+    </div>
+  </div>
+
+  <div class="controls-section">
+    <div class="controls-title">Start Generation Pipeline</div>
+    <div class="controls-description">
+      Click the button below to begin the automated mockup generation process.
+      The system will create prompts, generate images via Gemini AI, and extract bordered artwork coordinates.
+    </div>
+    <div class="pipeline-state-line">
+      <span class="pipeline-state-label">Pipeline State</span>
+      <span class="pipeline-state-badge state-{{ control_state.get('state', 'running') }}" id="pipeline-state-badge">
+        {{ control_state.get('state', 'running')|upper }}
+      </span>
+    </div>
+    <div class="pipeline-state-line">
+      <span class="pipeline-state-label">Coordinate Detection</span>
+      <span
+        class="pipeline-state-badge"
+        id="coordinate-detection-badge"
+        data-skip-coordinate-detection="{{ control_state.get('skip_coordinate_detection', 'false') }}"
+      >
+        {{ 'DISABLED (FALLBACK)' if control_state.get('skip_coordinate_detection', 'false') == 'true' else 'ENABLED' }}
+      </span>
+    </div>
+
+    <div class="scope-form-grid">
+      <label class="scope-field">
+        <span>Generation Scope</span>
+        <select id="generation-mode" class="scope-select">
+          <option value="full_batch" selected>Full Batch (All Aspects × All Categories)</option>
+          <option value="aspect_only">Single Aspect Ratio (All Categories)</option>
+          <option value="category_only">Single Category (All Aspects)</option>
+          <option value="aspect_and_category">Single Aspect + Single Category</option>
+        </select>
+      </label>
+
+      <label class="scope-field">
+        <span>Aspect Ratio</span>
+        <select id="generation-aspect" class="scope-select">
+          <option value="">All Aspects</option>
+          {% for ratio in aspect_ratios %}
+            <option value="{{ ratio }}">{{ ratio }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="scope-field">
+        <span>Category</span>
+        <select id="generation-category" class="scope-select">
+          <option value="">All Categories</option>
+          {% for category in categories %}
+            <option value="{{ category }}">{{ category }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="scope-field">
+        <span>Quantity</span>
+        <select id="generation-quantity" class="scope-select">
+          {% for quantity in quantity_options %}
+            <option
+              value="{{ quantity }}"
+              {% if quantity == max_variations %}selected{% endif %}
+              {% if quantity > max_variations %}disabled{% endif %}
+            >
+              {{ quantity }}{% if quantity > max_variations %} (requires 1-30 expansion){% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="scope-field">
+        <span>Workflow</span>
+        <select id="placeholder-mode-select" class="scope-select">
+          <option value="chromakey_auto" {% if saved_placeholder_mode == 'chromakey_auto' %}selected{% endif %}>Chromakey Auto (No Guide Image)</option>
+          <option value="artwork_trojan" {% if saved_placeholder_mode == 'artwork_trojan' %}selected{% endif %}>Outlined Artwork Guide Workflow</option>
+          <option value="artwork_only_composite" {% if saved_placeholder_mode == 'artwork_only_composite' %}selected{% endif %}>Plain Artwork Composite Mockup</option>
+        </select>
+      </label>
+
+      <label class="scope-field">
+        <span>Max Rate-Limit Retries</span>
+        <select id="max-retries-select" class="scope-select">
+          {% for n in [1, 2, 3, 4, 5, 6, 8, 10] %}
+            <option value="{{ n }}" {% if n == saved_max_retries %}selected{% endif %}>{{ n }} retr{{ 'y' if n == 1 else 'ies' }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <label class="retry-flag">
+      <input id="retry-failed-toggle" type="checkbox">
+      Retry previously failed jobs in the selected scope
+    </label>
+    <label class="retry-flag">
+      <input id="inline-single-toggle" type="checkbox">
+      Run inline single-test mode (only when scope resolves to exactly one job)
+    </label>
+
+    <div class="scope-field" style="margin-top:12px;">
+      <span>Custom Prompt Text (optional)</span>
+      <textarea
+        id="custom-prompt-text"
+        class="scope-select"
+        rows="7"
+        style="width:100%;resize:vertical;font-family:inherit;line-height:1.4;"
+        placeholder="If this field is not empty, Gemini will receive this text as-is (plus the selected guide image). Use tokens: {{aspect_ratio}}, {{category}}, {{variation_index}}"
+      >{{ control_state.get('custom_prompt_text', '') }}</textarea>
+      <div class="controls-note" style="margin-top:6px;">Leave blank to use system prompt builder. Non-empty text overrides system prompt and sends only your text + guide image.</div>
+      <button class="gallery-btn gallery-btn--outline" id="auto-generate-custom-prompt-button" type="button" style="margin-top:8px;">Auto Generate Prompt</button>
+      <button class="gallery-btn gallery-btn--outline" id="preview-rendered-prompt-button" type="button" style="margin-top:8px;">Preview Rendered Prompt</button>
+      <textarea
+        id="rendered-prompt-preview-output"
+        class="scope-select"
+        rows="9"
+        style="width:100%;resize:vertical;margin-top:8px;font-family:monospace;line-height:1.35;"
+        readonly
+        placeholder="Rendered prompt preview will appear here for the currently selected scope."
+      ></textarea>
+    </div>
+
+    <div class="scope-field" style="margin-top:12px;">
+      <span>Raw Prompt Only (exact text mode)</span>
+      <label class="retry-flag" style="margin-top:6px;">
+        <input id="raw-prompt-only-toggle" type="checkbox" {% if control_state.get('raw_prompt_only_enabled', 'false') == 'true' %}checked{% endif %}>
+        Send only this exact text + selected aspect guide image (no auto additions)
+      </label>
+      <textarea
+        id="raw-prompt-text"
+        class="scope-select"
+        rows="4"
+        style="width:100%;resize:vertical;font-family:inherit;line-height:1.4;"
+        placeholder="Example: please generate a square image of a mockup of this 2:3 aspect ratio artwork in an office"
+      >{{ control_state.get('raw_prompt_text', '') }}</textarea>
+    </div>
+
+    <div class="controls-note controls-note-compact">
+      Quantity maps to variation count per selected scope. Current backend limit is {{ max_variations }}.
+    </div>
+
+    <div class="pipeline-actions">
+      <button class="start-button" id="start-pipeline-button" type="button">Start Queue</button>
+      <button class="control-button clear" id="clear-pending-button" type="button">Clear Pending</button>
+      <button class="control-button clear-failed" id="clear-failed-button" type="button">Clear Failed</button>
+      <button class="control-button" id="toggle-coordinate-detection-button" type="button">
+        {% if control_state.get('skip_coordinate_detection', 'false') == 'true' %}
+          Enable Coordinate Detection
+        {% else %}
+          Disable Coordinate Detection
+        {% endif %}
+      </button>
+      <button class="control-button pause" id="pause-pipeline-button" type="button">Pause</button>
+      <button class="control-button resume" id="resume-pipeline-button" type="button">Resume</button>
+      <button class="control-button stop" id="stop-pipeline-button" type="button">Stop</button>
+    </div>
+    <div class="controls-note">Pipeline will run in the background. Check status above for progress updates.</div>
+  </div>
+
+  <section class="queue-section live-activity-section">
+    <div class="queue-header-row">
+      <h3 class="queue-title">Live Activity</h3>
+      <div class="queue-subtitle" id="live-activity-subtitle">What the worker is doing right now</div>
+    </div>
+
+    <!-- Currently running job -->
+    <div id="active-job-panel" class="active-job-panel"
+      {% if active_job %}
+        data-started-at="{{ active_job.started_at }}"
+        data-updated-at="{{ active_job.updated_at }}"
+      {% endif %}
+    >
+      {% if active_job %}
+        <div class="active-job-header">
+          <span class="active-job-pulse"></span>
+          <strong>Currently running:</strong>
+          {{ active_job.aspect_ratio }} &middot; {{ active_job.category }} &middot; v{{ active_job.variation_index }}
+        </div>
+        <div class="active-job-meta">
+          <span>Stage: <strong>{{ active_job.stage or active_job.status }}</strong></span>
+          &nbsp;&middot;&nbsp;
+          <span>Attempts: <strong>{{ active_job.attempts }}</strong></span>
+          &nbsp;&middot;&nbsp;
+          <span>Running: <strong id="active-job-timer">{{ active_job.running_seconds }}s</strong></span>
+        </div>
+        {% if active_job.placeholder_mode or active_job.guide_path %}
+        <div class="active-job-meta">
+          <span>Placeholder Mode: <strong>{{ active_job.placeholder_mode or '—' }}</strong></span>
+          &nbsp;&middot;&nbsp;
+          <span title="{{ active_job.guide_path or '' }}">Guide: <strong>{{ active_job.guide_path or '—' }}</strong></span>
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="active-job-idle" id="active-job-idle">No job is actively running right now. Worker may be between jobs, paused, or waiting on a rate-limit retry delay.</div>
+      {% endif %}
+    </div>
+
+    <!-- Upcoming pending items -->
+    {% set show_next = next_pending or retry_queued_jobs %}
+    <div id="next-pending-wrap" {% if not show_next %}hidden{% endif %}>
+      <h4 class="next-pending-title">Up Next <span class="badge-soft" id="next-pending-badge">{{ (next_pending | length) + (retry_queued_jobs | length) }}</span></h4>
+      <table class="queue-table next-pending-table">
+        <thead>
+          <tr><th>Scope</th><th>Stage</th><th>Attempts</th><th></th></tr>
+        </thead>
+        <tbody id="next-pending-body">
+          {% for job in next_pending %}
+          <tr>
+            <td>{{ job.aspect_ratio }} &middot; {{ job.category }} &middot; v{{ job.variation_index }}</td>
+            <td><span class="badge badge-queued">Queued</span></td>
+            <td>{{ job.attempts }}</td>
+            <td></td>
+          </tr>
+          {% endfor %}
+          {% for job in retry_queued_jobs %}
+          <tr class="retry-queued-row">
+            <td>{{ job.aspect_ratio }} &middot; {{ job.category }} &middot; v{{ job.variation_index }}</td>
+            <td><span class="badge badge-retryqueued">Retry Queued</span></td>
+            <td>{{ job.attempts }}</td>
+            <td><button class="gallery-btn gallery-btn--compact force-retry-btn" type="button" data-force-retry-job-id="{{ job.id }}">Retry Now</button></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div id="next-pending-empty" {% if show_next %}hidden{% endif %}>
+      <p class="active-job-idle">Queue is empty &mdash; no pending jobs.</p>
+    </div>
+  </section>
+
+  <section class="queue-section">
+    <table class="queue-table">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Count</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for status, count in status_counts.items() %}
+        <tr>
+          <td>
+            <span class="badge badge-{{ status|lower }}">{{ status }}</span>
+          </td>
+          <td>{{ count }}</td>
+          <td>
+            {% if total_jobs > 0 %}
+              {{ ((count / total_jobs) * 100)|int }}%
+            {% else %}
+              0%
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        <tr class="queue-total-row">
+          <td>Total</td>
+          <td>{{ total_jobs }}</td>
+          <td>100%</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="queue-section">
+    <div class="queue-header-row">
+      <h3 class="queue-title">Recent Failures</h3>
+      <div class="queue-subtitle">Latest {{ recent_failed_jobs|length }} failed jobs with stored error details</div>
+    </div>
+    {% if recent_failed_jobs %}
+      <div class="failure-table-wrap" id="recent-failures-table-wrap">
+        <table class="queue-table failure-table">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Scope</th>
+              <th>Stage</th>
+              <th>Reason</th>
+              <th>Error</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody id="recent-failures-body">
+            {% for job in recent_failed_jobs %}
+            <tr>
+              <td>
+                <div class="failure-job-id">{{ job.job_id }}</div>
+                <div class="failure-meta">Attempt {{ job.attempts }}</div>
+              </td>
+              <td>{{ job.aspect_ratio }} · {{ job.category }} · v{{ job.variation_index }}</td>
+              <td>{{ job.stage or 'Failed' }}</td>
+              <td>{{ job.reason or '—' }}</td>
+              <td class="failure-message-cell" title="{{ job.error_message }}">
+                <div>{{ job.error_message or '—' }}</div>
+                {% if job.placeholder_mode or job.guide_path %}
+                <div class="failure-meta">{{ job.placeholder_mode or '—' }}{% if job.guide_path %} · {{ job.guide_path }}{% endif %}</div>
+                {% endif %}
+              </td>
+              <td>{{ job.updated_at_adelaide if job.updated_at_adelaide else '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box failure-empty" id="recent-failures-empty" hidden>
+        <div class="info-box-title">No recent failures</div>
+        <div class="info-box-text">When jobs fail, the stored error message will appear here.</div>
+      </div>
+    {% else %}
+      <div class="failure-table-wrap" id="recent-failures-table-wrap" hidden>
+        <table class="queue-table failure-table">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Scope</th>
+              <th>Stage</th>
+              <th>Reason</th>
+              <th>Error</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody id="recent-failures-body"></tbody>
+        </table>
+      </div>
+      <div class="info-box failure-empty" id="recent-failures-empty">
+        <div class="info-box-title">No recent failures</div>
+        <div class="info-box-text">When jobs fail, the stored error message will appear here.</div>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="queue-section">
+    <div class="queue-header-row">
+      <h3 class="queue-title">Recent Completed Mockup Previews <span class="selected-count-badge" id="selected-previews-count-badge">0 selected</span></h3>
+      <div class="queue-subtitle">Latest {{ recent_completed_jobs|length }} generated base images</div>
+    </div>
+    <div class="completed-preview-controls" id="completed-preview-controls">
+      <button class="gallery-btn gallery-btn--outline" type="button" id="select-all-previews-button">Select All</button>
+      <button class="gallery-btn gallery-btn--outline" type="button" id="clear-selection-previews-button">Clear</button>
+      <button class="gallery-btn gallery-btn--primary" type="button" id="approve-selected-previews-button">Approve Selected</button>
+      <button class="gallery-btn gallery-btn--danger" type="button" id="delete-selected-previews-button">Delete Selected</button>
+    </div>
+    {% if recent_completed_jobs %}
+      <div class="completed-preview-grid" id="recent-completed-grid">
+        {% for job in recent_completed_jobs %}
+          <article class="completed-preview-card" data-completed-job-id="{{ job.id }}" data-completed-job-name="{{ job.job_id }}">
+            <div class="completed-preview-card-actions">
+              <label class="completed-preview-select">
+                <input type="checkbox" class="completed-preview-checkbox" data-select-completed-job-id="{{ job.id }}">
+                <span>Select</span>
+              </label>
+              <div class="completed-preview-card-actions-right">
+                <button class="gallery-btn gallery-btn--primary completed-preview-approve-btn" type="button" data-approve-completed-job-id="{{ job.id }}" data-approve-completed-job-name="{{ job.job_id }}">Approve</button>
+                <button class="gallery-btn gallery-btn--outline completed-preview-delete-btn" type="button" data-delete-completed-job-id="{{ job.id }}" data-delete-completed-job-name="{{ job.job_id }}">Delete</button>
+              </div>
+            </div>
+            <div class="completed-preview-image-wrap">
+              <img
+                class="completed-preview-image"
+                src="{{ job.image_preview_url }}"
+                alt="{{ job.job_id }} preview"
+                loading="lazy"
+                data-generator-carousel-trigger
+                data-generator-preview-url="{{ job.image_preview_url }}"
+                data-generator-preview-name="{{ job.job_id }}"
+              >
+            </div>
+            <div class="completed-preview-meta">
+              <div class="completed-preview-job">{{ job.job_id }}</div>
+              <div class="completed-preview-scope">{{ job.aspect_ratio }} · {{ job.category }} · v{{ job.variation_index }}</div>
+              {% if job.placeholder_mode or job.guide_path %}
+              <div class="completed-preview-scope">{{ job.placeholder_mode or '—' }}{% if job.guide_path %} · {{ job.guide_path }}{% endif %}</div>
+              {% endif %}
+              <div class="completed-preview-time">{{ job.updated_at_adelaide if job.updated_at_adelaide else '—' }}</div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      <div class="info-box completed-empty" id="recent-completed-empty" hidden>
+        <div class="info-box-title">No completed previews yet</div>
+        <div class="info-box-text">Completed jobs with generated images will appear here.</div>
+      </div>
+    {% else %}
+      <div class="completed-preview-grid" id="recent-completed-grid" hidden></div>
+      <div class="info-box completed-empty" id="recent-completed-empty">
+        <div class="info-box-title">No completed previews yet</div>
+        <div class="info-box-text">Completed jobs with generated images will appear here.</div>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="queue-section">
+    <div class="queue-header-row">
+      <h3 class="queue-title">Recent Gemini/Vertex Attempts</h3>
+      <div class="queue-subtitle">Last {{ recent_attempt_logs|length }} completed or failed attempts with exact submitted prompt text</div>
+    </div>
+    {% if recent_attempt_logs %}
+      <div class="failure-table-wrap" id="recent-attempt-log-table-wrap">
+        <table class="queue-table failure-table">
+          <thead>
+            <tr>
+              <th>Result</th>
+              <th>Scope</th>
+              <th>Guide Image Sent</th>
+              <th>Prompt Sent</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody id="recent-attempt-log-body">
+            {% for job in recent_attempt_logs %}
+            <tr>
+              <td>
+                <span class="badge badge-{{ job.status|lower }}">{{ job.status }}</span>
+                <div class="failure-meta">Attempt {{ job.attempts }}</div>
+              </td>
+              <td>{{ job.aspect_ratio }} · {{ job.category }} · v{{ job.variation_index }}</td>
+              <td class="failure-message-cell" title="{{ job.submitted_guide_image or '' }}">
+                <div>{{ job.submitted_guide_image or '—' }}</div>
+              </td>
+              <td class="failure-message-cell" title="{{ job.submitted_prompt_text or '' }}">
+                <details>
+                  <summary>View prompt text</summary>
+                  <pre style="white-space:pre-wrap;max-width:560px;">{{ job.submitted_prompt_text or '—' }}</pre>
+                </details>
+              </td>
+              <td>{{ job.updated_at_adelaide if job.updated_at_adelaide else '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box failure-empty" id="recent-attempt-log-empty" hidden>
+        <div class="info-box-title">No recent attempts</div>
+        <div class="info-box-text">Completed and failed generation attempts will appear here with exact prompt and guide image details.</div>
+      </div>
+    {% else %}
+      <div class="failure-table-wrap" id="recent-attempt-log-table-wrap" hidden>
+        <table class="queue-table failure-table">
+          <thead>
+            <tr>
+              <th>Result</th>
+              <th>Scope</th>
+              <th>Guide Image Sent</th>
+              <th>Prompt Sent</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody id="recent-attempt-log-body"></tbody>
+        </table>
+      </div>
+      <div class="info-box failure-empty" id="recent-attempt-log-empty">
+        <div class="info-box-title">No recent attempts</div>
+        <div class="info-box-text">Completed and failed generation attempts will appear here with exact prompt and guide image details.</div>
+      </div>
+    {% endif %}
+  </section>
+
+  <div class="modal-sheet" data-carousel-modal>
+    <div class="modal-card mockup-carousel__card">
+      <div class="bases-header-row">
+        <h2 class="bases-title" data-carousel-title>Generated preview</h2>
+        <button
+          class="gallery-btn gallery-btn--outline"
+          type="button"
+          data-carousel-close
+        >
+          Close
+        </button>
+      </div>
+      <div class="mockup-carousel__frame">
+        <button
+          class="gallery-btn gallery-btn--outline"
+          type="button"
+          data-carousel-prev
+        >
+          &lsaquo;
+        </button>
+        <img
+          data-carousel-image
+          class="mockup-carousel__image"
+          alt="Generated preview image"
+        />
+        <button
+          class="gallery-btn gallery-btn--outline"
+          type="button"
+          data-carousel-next
+        >
+          &rsaquo;
+        </button>
+      </div>
+      <div class="bases-pagination">
+        <div data-carousel-counter></div>
+        <a
+          class="gallery-btn gallery-btn--outline"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          data-carousel-open
+          >Open full size</a
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-sheet" data-delete-modal>
+    <div class="modal-card completed-delete-modal-card">
+      <div class="bases-header-row">
+        <h2 class="bases-title" data-delete-modal-title>Confirm Delete</h2>
+        <button class="gallery-btn gallery-btn--outline" type="button" data-delete-modal-cancel>Cancel</button>
+      </div>
+      <div class="completed-delete-modal-body">
+        <p class="completed-delete-modal-text" data-delete-modal-message>Are you sure you want to delete the selected preview(s)?</p>
+        <p class="completed-delete-modal-note">This removes the selected completed jobs from the dashboard and deletes their generated files from disk where available.</p>
+      </div>
+      <div class="completed-delete-modal-actions">
+        <button class="gallery-btn gallery-btn--outline" type="button" data-delete-modal-cancel>Cancel</button>
+        <button class="gallery-btn gallery-btn--danger" type="button" data-delete-modal-confirm>Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('mockups_admin.static', filename='js/mockup_generator_dashboard.js') }}"></script>
+{% endblock %}

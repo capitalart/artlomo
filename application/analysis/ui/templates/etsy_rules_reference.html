@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% set page_title = "Etsy Rules Reference" %}
+
+{% block content %}
+<div class="rules-reference">
+  <header class="rules-hero">
+    <h1 class="rules-title">Etsy Rules Reference</h1>
+    <p class="rules-subtitle">
+      Field-by-field listing rules for Analysis Review pages. Use anchor links from each field’s “Etsy Rules” link.
+    </p>
+  </header>
+
+  <nav class="rules-nav">
+    <a href="#rule-title" class="btn btn-outline-secondary btn-sm">Title</a>
+    <a href="#rule-description" class="btn btn-outline-secondary btn-sm">Description</a>
+    <a href="#rule-tags" class="btn btn-outline-secondary btn-sm">Tags</a>
+    <a href="#rule-materials" class="btn btn-outline-secondary btn-sm">Materials</a>
+    <a href="#rule-section" class="btn btn-outline-secondary btn-sm">Section</a>
+    <a href="#rule-quantity" class="btn btn-outline-secondary btn-sm">Quantity</a>
+    <a href="#rule-price" class="btn btn-outline-secondary btn-sm">Price</a>
+  </nav>
+
+  <section id="rule-title" class="rule-card rules-card">
+    <h2>Title</h2>
+    <ul class="rules-list">
+      <li>Maximum <strong>140 characters</strong>.</li>
+      <li>Front-load with at least <strong>3 high-intent keywords</strong>.</li>
+      <li>Avoid all-caps titles.</li>
+      <li>Keep language clear, descriptive, and human-readable.</li>
+    </ul>
+  </section>
+
+  <section id="rule-description" class="rule-card rules-card">
+    <h2>Description</h2>
+    <ul class="rules-list">
+      <li>The first <strong>160 characters</strong> should carry the strongest SEO intent.</li>
+      <li>Include a clear <strong>Materials</strong> section.</li>
+      <li>Include a clear <strong>Shipping</strong> section.</li>
+      <li>Keep structure scannable with short paragraphs or bullets.</li>
+    </ul>
+  </section>
+
+  <section id="rule-tags" class="rule-card rules-card">
+    <h2>Tags</h2>
+    <ul class="rules-list">
+      <li>Use <strong>exactly 13 tags</strong>.</li>
+      <li>Each tag must be <strong>20 characters max</strong>.</li>
+      <li>No duplicate tags (case-insensitive).</li>
+      <li>Use buyer-language, not internal studio shorthand.</li>
+    </ul>
+  </section>
+
+  <section id="rule-materials" class="rule-card rules-card">
+    <h2>Materials</h2>
+    <ul class="rules-list">
+      <li>Maximum <strong>13 material entries</strong>.</li>
+      <li>Each material entry must be <strong>45 characters max</strong>.</li>
+      <li>Use concise terms buyers recognize.</li>
+    </ul>
+  </section>
+
+  <section id="rule-section" class="rule-card rules-card">
+    <h2>Section</h2>
+    <ul class="rules-list">
+      <li>Assign listings to a store section matching the artwork intent.</li>
+      <li>Use one consistent taxonomy to keep catalog filtering clean.</li>
+      <li>Avoid misc/catch-all sections for publish-ready listings.</li>
+    </ul>
+  </section>
+
+  <section id="rule-quantity" class="rule-card rules-card">
+    <h2>Quantity</h2>
+    <ul class="rules-list">
+      <li>Required for Etsy publish compliance.</li>
+      <li>Must be a positive whole number.</li>
+    </ul>
+  </section>
+
+  <section id="rule-price" class="rule-card rules-card rules-card-last">
+    <h2>Price</h2>
+    <ul class="rules-list">
+      <li>Required for Etsy publish compliance.</li>
+      <li>Must be a valid positive amount in store currency.</li>
+      <li>Prefer clear, consistent pricing with your collection strategy.</li>
+    </ul>
+  </section>
+</div>
+{% endblock %}

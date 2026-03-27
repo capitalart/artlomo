@@ -1,0 +1,65 @@
+{
+  "comment": "Example payload sent to video_worker/render.js when all settings are configured correctly",
+  "slug": "artwork-slug-123",
+  "master_path": "/srv/artlomo/application/lab/processed/artwork-slug-123/artwork-slug-123-MASTER.jpg",
+  "master_mode": "square",
+  "mockup_paths": [
+    "/srv/artlomo/application/lab/processed/artwork-slug-123/mockups/mu-artwork-slug-123-01.jpg",
+    "/srv/artlomo/application/lab/processed/artwork-slug-123/mockups/mu-artwork-slug-123-02.jpg",
+    "/srv/artlomo/application/lab/processed/artwork-slug-123/mockups/mu-artwork-slug-123-03.jpg"
+  ],
+  "output_path": "/srv/artlomo/application/lab/processed/artwork-slug-123/artwork-slug-123_NODE_V1.mp4",
+  "processed_root": "/srv/artlomo/application/lab/processed",
+  "coordinates_root": "/srv/artlomo/application/analysis/coordinates",
+  "ffmpeg_bin": "/usr/bin/ffmpeg",
+  "render_status_path": "/srv/artlomo/application/common/ui/static/temp/render_status.json",
+  "video": {
+    "width": 1024,
+    "height": 1024,
+    "fps": 24,
+    "slide_seconds": 2.5,
+    "crossfade_seconds": 0.5,
+    "fill_scale_size": 1100,
+    "codec": "libx264",
+    "preset": "fast",
+    "crf": 20,
+    "zoom_intensity": 1.1,
+    "panning_enabled": false,
+    "duration_seconds": 15,
+    "artwork_zoom_duration": 3.0,
+    "include_master_slide": true,
+    "output_size": 1024,
+    "encoder_preset": "fast",
+    "artwork_source": "auto",
+    "artwork": {
+      "zoom_intensity": 1.1,
+      "zoom_duration": 3.0,
+      "pan_enabled": false,
+      "pan_direction": "up"
+    },
+    "mockups": {
+      "zoom_intensity": 1.1,
+      "zoom_duration": 2.0,
+      "pan_enabled": false,
+      "pan_direction": "right",
+      "auto_alternate": false
+    },
+    "mockup_shots": [
+      {
+        "id": "mu-artwork-slug-123-01",
+        "pan_enabled": true,
+        "pan_direction": "left"
+      },
+      {
+        "id": "mu-artwork-slug-123-02",
+        "pan_enabled": true,
+        "pan_direction": "right"
+      },
+      {
+        "id": "mu-artwork-slug-123-03",
+        "pan_enabled": false,
+        "pan_direction": "none"
+      }
+    ]
+  }
+}

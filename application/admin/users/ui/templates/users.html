@@ -1,0 +1,113 @@
+{% extends 'admin_base.html' %}
+{% block admin_content %}
+<h1 class="artlomo-page-title">User Management</h1>
+<p class="artlomo-page-subtitle">Create and manage artist tester accounts.</p>
+
+<div class="users-grid">
+
+  <div>
+    <h2 class="users-section-title">Create New User</h2>
+    <form method="post" action="{{ url_for('admin_users.create_user') }}" class="vstack gap-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div>
+        <label class="form-label" for="username">Username <span class="form-required">*</span></label>
+        <input class="form-control" id="username" name="username" type="text" required minlength="3" autocomplete="off"
+          placeholder="e.g. artist_jane">
+      </div>
+
+      <div>
+        <label class="form-label" for="email">Email</label>
+        <input class="form-control" id="email" name="email" type="email" autocomplete="off"
+          placeholder="e.g. jane@example.com">
+      </div>
+
+      <div>
+        <label class="form-label" for="password">Password <span class="form-required">*</span></label>
+        <input class="form-control" id="password" name="password" type="password" required minlength="12"
+          autocomplete="new-password">
+        <small class="text-muted">Min 12 chars, with uppercase, lowercase, number, and special character (!@#$%^&*
+          etc)</small>
+      </div>
+
+      <div>
+        <label class="form-label" for="confirm_password">Confirm Password <span class="form-required">*</span></label>
+        <input class="form-control" id="confirm_password" name="confirm_password" type="password" required
+          autocomplete="new-password">
+      </div>
+
+      <div>
+        <label class="form-label" for="role">Role <span class="form-required">*</span></label>
+        <select class="form-control" id="role" name="role" required>
+          <option value="artist" selected>Artist</option>
+          <option value="viewer">Viewer (Read-Only)</option>
+          <option value="admin">Admin (Full Access)</option>
+        </select>
+        <small class="text-muted">Artists see only their own artworks. Admins see all artworks and can manage
+          users.</small>
+      </div>
+
+      <div class="theme-form__actions">
+        <button class="artlomo-btn artlomo-btn--save" type="submit">Create User</button>
+      </div>
+    </form>
+  </div>
+
+  <div>
+    <h2 class="users-section-title">Existing Users</h2>
+    {% if users %}
+    <table class="users-table">
+      <thead>
+        <tr class="users-table-head-row">
+          <th class="users-table-cell-left">Username</th>
+          <th class="users-table-cell-left">Email</th>
+          <th class="users-table-cell-left">Role</th>
+          <th class="users-table-cell-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="users-row">
+          <td class="users-cell users-cell-strong">{{ user['username'] }}</td>
+          <td class="users-cell">{{ user['email'] or '—' }}</td>
+          <td class="users-cell">
+            <span
+              class="users-role-pill {% if user['role'] == 'admin' %}users-role-admin{% elif user['role'] == 'artist' %}users-role-artist{% else %}users-role-viewer{% endif %}">
+              {{ user['role'] }}
+            </span>
+          </td>
+          <td class="users-cell users-table-cell-right">
+            {% if user['role'] != 'admin' %}
+            <form method="post" action="{{ url_for('admin_users.delete_user_route', username=user['username']) }}"
+              class="users-inline-form"
+              data-confirm-message="Delete user {{ user.username }}? This cannot be undone.">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="artlomo-btn artlomo-btn--danger users-delete-btn">Delete</button>
+            </form>
+            {% else %}
+            <span class="users-protected">Protected</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No users found in the database.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="users-security">
+  <h3 class="users-security-title">Security Notes</h3>
+  <ul class="users-security-list">
+    <li><strong>Admin role</strong>: Full access to all artworks and user management. Only admins can grant admin role.
+    </li>
+    <li><strong>Artist role</strong>: Users can only view and manage artworks where they are the owner.</li>
+    <li><strong>Viewer role</strong>: Read-only access to assigned artworks.</li>
+    <li>Passwords must be at least 12 characters with uppercase, lowercase, number, and special character.</li>
+    <li>All user actions are logged for audit purposes.</li>
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/restaurant/restaurant_5x4_var1_20260313_025353_470341.png",
+  "generated_at": "2026-03-13T02:53:53.596582Z",
+  "points": [
+    {
+      "x": 826,
+      "y": 314
+    },
+    {
+      "x": 1370,
+      "y": 241
+    },
+    {
+      "x": 1370,
+      "y": 1102
+    },
+    {
+      "x": 827,
+      "y": 1102
+    }
+  ]
+}

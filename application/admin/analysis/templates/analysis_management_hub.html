@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Management - Admin{% endblock %}
+{% block workflow_css %}{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis_management.css') }}?v=1.0" />
+{% endblock %}
+
+{% block content %}
+<div class="analysis-management-container">
+  <div class="page-header">
+    <h1>Analysis Management</h1>
+    <p class="page-subtitle">Configure AI analysis presets for OpenAI and Gemini</p>
+    <p><a class="btn btn-secondary" href="{{ url_for('analysis_management.analysis_jobs_admin_page') }}">Open Analysis Jobs</a></p>
+  </div>
+
+  <!-- File Upload Section -->
+  <div class="upload-section">
+    <h2>📁 Import Preset from File</h2>
+    <p class="upload-subtitle">Upload a JSON file to populate all fields at once. Useful for testing and refining analysis.</p>
+    <div class="upload-area" id="uploadArea">
+      <input type="file" id="fileInput" accept=".json" class="file-input-hidden">
+      <div class="upload-content">
+        <p class="upload-icon">📄</p>
+        <p class="upload-text">Drag and drop a JSON file here or <button type="button" class="link-btn file-select-btn">click to select</button></p>
+        <p class="upload-hint">File should contain: system_prompt, user_full_prompt, user_section_prompt, listing_boilerplate, analysis_prompt</p>
+      </div>
+    </div>
+    <div id="uploadStatus"></div>
+  </div>
+
+  <div class="presets-grid">
+    <!-- OpenAI Presets -->
+    <div class="preset-section">
+      <div class="preset-header">
+        <h2>🤖 OpenAI Analysis</h2>
+        <button class="btn btn-primary edit-preset-btn" data-href="/admin/analysis-management/edit/openai/0">
+          Edit Default
+        </button>
+      </div>
+      
+      <div class="presets-list">
+        {% for preset in presets_openai %}
+        <div class="preset-card {% if preset.is_default %}default-preset{% endif %}">
+          <div class="preset-info">
+            <h3>{{ preset.name }}</h3>
+            {% if preset.is_default %}
+            <span class="badge badge-default">DEFAULT</span>
+            {% endif %}
+          </div>
+          <div class="preset-actions">
+            <a href="/admin/analysis-management/edit/openai/{{ preset.id }}" class="btn btn-sm btn-secondary">
+              ✏️ Edit
+            </a>
+            <button class="btn btn-sm btn-secondary export-preset-btn" data-preset-id="{{ preset.id }}" data-preset-name="{{ preset.name|escape }}">
+              💾 Export
+            </button>
+            {% if not preset.is_default %}
+            <button class="btn btn-sm btn-danger delete-preset-btn" data-preset-id="{{ preset.id }}" data-preset-name="{{ preset.name|escape }}">
+              Delete
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Gemini Presets -->
+    <div class="preset-section">
+      <div class="preset-header">
+        <h2>✨ Gemini Analysis</h2>
+        <button class="btn btn-primary edit-preset-btn" data-href="/admin/analysis-management/edit/gemini/0">
+          Edit Default
+        </button>
+      </div>
+      
+      <div class="presets-list">
+        {% for preset in presets_gemini %}
+        <div class="preset-card {% if preset.is_default %}default-preset{% endif %}">
+          <div class="preset-info">
+            <h3>{{ preset.name }}</h3>
+            {% if preset.is_default %}
+            <span class="badge badge-default">DEFAULT</span>
+            {% endif %}
+          </div>
+          <div class="preset-actions">
+            <a href="/admin/analysis-management/edit/gemini/{{ preset.id }}" class="btn btn-sm btn-secondary">
+              ✏️ Edit
+            </a>
+            <button class="btn btn-sm btn-secondary export-preset-btn" data-preset-id="{{ preset.id }}" data-preset-name="{{ preset.name|escape }}">
+              💾 Export
+            </button>
+            {% if not preset.is_default %}
+            <button class="btn btn-sm btn-danger delete-preset-btn" data-preset-id="{{ preset.id }}" data-preset-name="{{ preset.name|escape }}">
+              Delete
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/analysis_management_hub.js') }}"></script>
+{% endblock %}

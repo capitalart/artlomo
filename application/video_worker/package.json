@@ -1,0 +1,20 @@
+{
+  "name": "artlomo",
+  "version": "1.0.0",
+  "description": "Modular, workflow-oriented Flask application. All contributors (humans and AI) **must** follow the architectural contract defined here and in application/docs/ARCHITECTURE_INDEX.md.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^3.2.1",
+    "ffcreator": "^7.5.8",
+    "sharp": "^0.34.5"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/kitchen/kitchen_3x2_var1_20260313_025317_124666.png",
+  "generated_at": "2026-03-13T02:53:17.252363Z",
+  "points": [
+    {
+      "x": 970,
+      "y": 380
+    },
+    {
+      "x": 1552,
+      "y": 347
+    },
+    {
+      "x": 1553,
+      "y": 1194
+    },
+    {
+      "x": 971,
+      "y": 1182
+    }
+  ]
+}

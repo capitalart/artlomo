@@ -1,0 +1,236 @@
+@font-face {
+  font-family: 'Outfit';
+  src: url('/static/fonts/Outfit-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html, body, button, input {
+  font-family: 'Outfit', sans-serif !important;
+}
+
+body {
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+}
+
+.stark-topnav a,
+.site-header a,
+.artlomo-btn,
+.btn,
+button {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+input, button {
+  border-radius: 0px !important;
+}
+:root {
+  --color-bg-primary: #f8f9fb;
+  --color-background: #f8f9fb;
+  --background-color: #f8f9fb;
+  --color-card-bg: #ffffff;
+  --color-text: #1f2a36;
+  --color-text-primary: #1f2a36;
+  --color-border-primary: #e5e5e5;
+  --color-border-subtle: #e5e5e5;
+  --color-action-danger: #c8252d;
+  --bg-body: var(--color-background);
+  --bg-secondary: var(--card-bg);
+  --text-primary: var(--color-text);
+  --card-bg: var(--color-card-bg);
+  --card-text: var(--color-text);
+  --button-bg: var(--color-border-primary);
+  --button-text: var(--color-bg-primary);
+  --header-bg: #f8f9fb;
+  --overlay-surface: var(--color-bg-primary);
+  --button-danger-bg: var(--color-action-danger);
+  --checkbox-accent: var(--color-action-danger);
+  --artlomo-accent: #1a1a1a;
+  --accent-color: #1a1a1a;
+  --font-family-main: 'Outfit', sans-serif;
+  --font-primary: 'Outfit', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --base-font-size: 16px;
+  --card-radius: 0;
+  --border-color: #e5e5e5;
+  --border-width: 1px;
+  --grid-gap: 3rem;
+  --letter-spacing-heading: 0.02em;
+  --text-secondary: #666666;
+  --button-padding: 12px 24px;
+  --artlomo-btn-text: #333333;
+  --artlomo-btn-bg: transparent;
+  --artlomo-btn-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+  --artlomo-btn-hover-bg: #1a1a1a;
+  --artlomo-btn-hover-text: #ffffff;
+  --artlomo-save-bg: #1a1a1a;
+  --artlomo-save-text: #ffffff;
+  --artlomo-danger: #c8252d;
+  --artlomo-lock-border-light: rgba(0, 0, 0, 0.55);
+  --artlomo-lock-border-dark: rgba(255, 255, 255, 0.55);
+}
+
+html[data-theme="light"] {
+  --color-bg-primary: #f8f9fb;
+  --color-background: #f8f9fb;
+  --color-card-bg: #ffffff;
+  --color-text: #1f2a36;
+  --color-text-primary: #1f2a36;
+  --color-border-primary: #e5e5e5;
+  --color-border-subtle: #e5e5e5;
+  --color-action-danger: #c8252d;
+  --bg-body: var(--color-background);
+  --bg-secondary: var(--card-bg);
+  --text-primary: var(--color-text);
+  --card-bg: var(--color-card-bg);
+  --card-text: var(--color-text);
+  --button-bg: var(--color-border-primary);
+  --button-text: var(--color-bg-primary);
+  --header-bg: #f8f9fb;
+  --overlay-surface: var(--color-bg-primary);
+  --button-danger-bg: var(--color-action-danger);
+  --checkbox-accent: var(--color-action-danger);
+  --artlomo-accent: #1a1a1a;
+  --accent-color: #1a1a1a;
+  --font-family-main: 'Outfit', sans-serif;
+  --font-primary: 'Outfit', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --base-font-size: 16px;
+  --card-radius: 0;
+  --border-color: #e5e5e5;
+  --border-width: 1px;
+  --grid-gap: 3rem;
+  --letter-spacing-heading: 0.02em;
+  --text-secondary: #666666;
+  --button-padding: 12px 24px;
+  --artlomo-btn-text: #333333;
+  --artlomo-btn-bg: transparent;
+  --artlomo-btn-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+  --artlomo-btn-hover-bg: #1a1a1a;
+  --artlomo-btn-hover-text: #ffffff;
+  --artlomo-save-bg: #1a1a1a;
+  --artlomo-save-text: #ffffff;
+  --artlomo-danger: #c8252d;
+  --artlomo-lock-border-light: rgba(0, 0, 0, 0.55);
+  --artlomo-lock-border-dark: rgba(255, 255, 255, 0.55);
+}
+
+html[data-theme="dark"] {
+  --color-bg-primary: #0b0b0b;
+  --color-background: #0b0b0b;
+  --color-card-bg: #0f0f0f;
+  --color-text: #f2f2f2;
+  --color-text-primary: #f2f2f2;
+  --color-border-primary: #2b2b2b;
+  --color-border-subtle: #2b2b2b;
+  --color-action-danger: #c8252d;
+  --bg-body: var(--color-background);
+  --bg-secondary: var(--card-bg);
+  --text-primary: var(--color-text);
+  --card-bg: var(--color-card-bg);
+  --card-text: var(--color-text);
+  --button-bg: var(--color-border-primary);
+  --button-text: var(--color-bg-primary);
+  --header-bg: #0b0b0b;
+  --overlay-surface: var(--color-bg-primary);
+  --button-danger-bg: var(--color-action-danger);
+  --checkbox-accent: var(--color-action-danger);
+  --artlomo-accent: #1a1a1a;
+  --accent-color: #1a1a1a;
+  --font-family-main: 'Outfit', sans-serif;
+  --font-primary: 'Outfit', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --base-font-size: 16px;
+  --card-radius: 0;
+  --border-color: #2b2b2b;
+  --border-width: 1px;
+  --grid-gap: 3rem;
+  --letter-spacing-heading: 0.02em;
+  --text-secondary: #b3b3b3;
+  --button-padding: 12px 24px;
+  --artlomo-btn-text: #333333;
+  --artlomo-btn-bg: transparent;
+  --artlomo-btn-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+  --artlomo-btn-hover-bg: #1a1a1a;
+  --artlomo-btn-hover-text: #ffffff;
+  --artlomo-save-bg: #1a1a1a;
+  --artlomo-save-text: #ffffff;
+  --artlomo-danger: #c8252d;
+  --artlomo-lock-border-light: rgba(0, 0, 0, 0.55);
+  --artlomo-lock-border-dark: rgba(255, 255, 255, 0.55);
+}
+
+.artlomo-admin-surface h1,
+.artlomo-admin-surface h2,
+.artlomo-admin-surface h3,
+.artlomo-admin-surface h4,
+.artlomo-admin-surface h5,
+.artlomo-admin-surface h6 {
+  text-align: left;
+  margin: 0 0 40px;
+}
+
+.row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.col,
+[class^='col-'],
+[class*=' col-'] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.artlomo-btn {
+  background: transparent;
+  border: 1px solid var(--color-text, var(--text-primary)) !important;
+  color: var(--color-text, var(--text-primary));
+  border-radius: 0px;
+  height: 42px;
+  padding: var(--button-padding, 12px 24px);
+  font-family: var(--font-family-main);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: none;
+}
+
+.artlomo-btn:hover,
+.artlomo-btn:focus-visible {
+  background: var(--color-text, var(--text-primary));
+  color: var(--color-bg-primary);
+  outline: none;
+}
+
+.artlomo-btn--danger {
+  border-color: var(--color-action-danger);
+}
+
+.artlomo-btn--danger:hover,
+.artlomo-btn--danger:focus-visible {
+  background: var(--color-action-danger);
+  border-color: var(--color-action-danger);
+  color: var(--color-bg-primary);
+}
+
+.artlomo-workstation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 40px;
+}

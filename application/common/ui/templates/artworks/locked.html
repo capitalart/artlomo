@@ -1,0 +1,91 @@
+{% extends 'base.html' %} {% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}?v=1.2" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload_gallery.css') }}?v=20260311-01" />
+{% endblock %} {% block content %}
+<div data-gallery-minimal>
+  <div class="upload-panel control-panel">
+    <div class="upload-fields">
+      <div class="upload-field upload-field-right">
+        <label>&nbsp;</label>
+        <div class="upload-actions-right">
+          <a class="btn btn-stark-primary" href="https://artlomo.com/artworks/upload">+ UPLOAD NEW ARTWORK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if not items %}
+  <p class="text-body-secondary">No locked artwork found.</p>
+  {% else %}
+  <div class="artwork-grid">
+    {% for item in items %} {% set analyse_src =
+    url_for('upload.locked_analyse', slug=item.slug) %} {% set thumb_src =
+    url_for('upload.locked_thumb', slug=item.slug) if item.thumb_path else '' %}
+    {% set uploaded = item.upload_date_display or '' %} {% set print_size =
+    item.print_size_display or '' %} {% set qc = item.qc or {} %} {% set dims =
+    qc.get('dimensions', {}) %} {% set aspect_obj = qc.get('aspect_ratio') %} {%
+    set aspect_label = aspect_obj.label if aspect_obj else 'n/a' %} {% set
+    resolution = dims.get('width', 'n/a') ~ '×' ~ dims.get('height', 'n/a') %}
+    {% set dpi_val = qc.get('dpi', 'n/a') %} {% set filesize =
+    ('%.1f'|format(qc.get('filesize_mb', 0))) ~ ' MB' %} {% set display_title =
+    (item.meta.display_title if item.meta and item.meta.display_title else
+    item.sku) %} {% set artist_name = item.artist_display or '' %}
+
+    <div class="gallery-card art-card" data-analyse-src="{{ analyse_src }}" data-fallback-src="{{ thumb_src }}"
+      data-title="{{ display_title | e }}" data-artist="{{ artist_name | e }}" data-details="ID {{ item.sku }}"
+      data-aspect="{{ aspect_label | e }}" data-resolution="{{ resolution | e }}" data-dpi="{{ dpi_val | e }}"
+      data-filesize="{{ filesize | e }}" data-uploaded="{{ uploaded | e }}" data-print="{{ print_size | e }}">
+      <div class="artwork-visual">
+        {% if item.thumb_path %}
+        <img src="{{ url_for('upload.locked_thumb', slug=item.slug) }}" alt="{{ item.slug }} thumbnail"
+          class="thumb-image js-preview-trigger" loading="lazy" />
+        {% else %}
+        <div class="thumb-placeholder">No thumbnail</div>
+        {% endif %}
+      </div>
+
+      <div class="artwork-info">
+        <div class="artwork-text">
+          <h2 class="artwork-title">{{ display_title }}</h2>
+          {% if artist_name %}
+          <p class="artwork-subtext">Artist: {{ artist_name }}</p>
+          {% endif %}
+          <p class="artwork-subtext">ID {{ item.sku }}</p>
+          {% if qc %}
+          <ul class="artwork-meta">
+            {% if uploaded %}
+            <li>Uploaded: {{ uploaded }}</li>
+            {% endif %}
+            <li>Aspect Ratio: {{ aspect_label }}</li>
+            <li>Resolution (Pixels): {{ resolution }}</li>
+            <li>Dots Per Inch (DPI): {{ dpi_val }}</li>
+            <li>Filesize: {{ filesize }}</li>
+            {% if print_size %}
+            <li>Max Print Size: {{ print_size }}</li>
+            {% endif %}
+          </ul>
+          {% else %}
+          <p class="artwork-subtext">QC data missing.</p>
+          {% endif %}
+        </div>
+
+        <div class="artwork-actions">
+          <div class="action-row action-row-single">
+            <form method="post" action="{{ url_for('upload.unlock_locked', slug=item.slug) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button class="btn" type="submit">Unlock</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{% include 'partials/_artwork_carousel.html' %} {% endblock %} {% block extra_js
+%}
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upload_gallery.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{# Shared Artwork Carousel Modal - Used across Hub Templates #} {# Museum-style
+layout with pro navigation below image and click-outside-to-close #}
+
+<div
+  id="artPreviewModal"
+  class="modal hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Artwork preview carousel"
+>
+  <button type="button" class="carousel-close-btn" aria-label="Close carousel">
+    ×
+  </button>
+
+  <div class="modal-backdrop"></div>
+
+  <div class="modal-dialog modal-gallery-layout">
+    <div class="modal-body-gallery">
+      <img
+        class="modal-image"
+        alt="Artwork preview"
+      />
+
+      {# Navigation controls at bottom corners of image #}
+      <button
+        type="button"
+        class="modal-nav modal-prev carousel-nav-btn"
+        aria-label="Previous artwork"
+      >
+        <img
+          src="{{ url_for('common.static', filename='icons/arrow-circle-left-light.svg') }}"
+          alt="Previous"
+        />
+      </button>
+
+      <button
+        type="button"
+        class="modal-nav modal-next carousel-nav-btn"
+        aria-label="Next artwork"
+      >
+        <img
+          src="{{ url_for('common.static', filename='icons/arrow-circle-right-light.svg') }}"
+          alt="Next"
+        />
+      </button>
+    </div>
+
+    {# Left-aligned metadata below navigation #}
+    <div class="modal-meta-panel">
+      <div class="meta-title"></div>
+      <div class="meta-artist"></div>
+      <div class="meta-details"></div>
+      <div class="meta-notice"></div>
+    </div>
+  </div>
+</div>
+

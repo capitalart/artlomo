@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/closeup/closeup_4x5_var1_20260313_032512_504908.png",
+  "generated_at": "2026-03-13T03:25:12.629434Z",
+  "points": [
+    {
+      "x": 817,
+      "y": 403
+    },
+    {
+      "x": 1404,
+      "y": 622
+    },
+    {
+      "x": 1407,
+      "y": 1275
+    },
+    {
+      "x": 815,
+      "y": 1267
+    }
+  ]
+}

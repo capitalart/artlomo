@@ -1,0 +1,247 @@
+.manual-preview {
+  position: relative;
+  border: 1px solid var(--text-primary);
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--bg-body);
+  min-height: 240px;
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manual-preview__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.manual-preview__placeholder {
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 0.95rem;
+}
+
+.manual-mockups__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.manual-mockups__thumb {
+  padding: 0;
+  border: 1px solid var(--text-primary);
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--bg-body);
+  cursor: pointer;
+  width: 100%;
+  height: auto;
+}
+
+.manual-mockups__thumb img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+ .manual-layout__grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+   gap: 12px;
+   margin: 12px 0 18px;
+ }
+
+.manual-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0;
+  border: 1px solid var(--text-primary);
+  background: var(--bg-body);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+ .manual-btn:hover,
+ .manual-btn:focus-visible {
+   background: #f2a359;
+   border-color: #f2a359;
+   color: #000000;
+ }
+
+ .manual-btn[disabled],
+ .manual-btn[aria-disabled="true"] {
+   opacity: 0.6;
+   cursor: not-allowed;
+ }
+
+.manual-btn-lock[disabled] {
+  opacity: 0.6;
+}
+
+.stark-sticky-panel {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--bg-body);
+  border: 1px solid var(--text-primary);
+  border-radius: 0;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#mockup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.mockup-card {
+  border: 1px solid var(--text-primary);
+  border-radius: 0;
+  background: var(--bg-body);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.mockup-card__select {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+}
+
+.mockup-card__thumb {
+  position: relative;
+  border: 1px solid var(--text-primary);
+  border-radius: 0;
+  overflow: hidden;
+  width: 100%;
+  background: var(--bg-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mockup-card__thumb img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.mockup-card__thumb .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.mockup-card.is-loading .mockup-card__thumb .overlay {
+  display: flex !important;
+}
+
+.mockup-card__thumb .processing-icon {
+  width: 24px;
+  height: 24px;
+  z-index: 2400;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinning {
+    animation: none;
+  }
+}
+
+.mockup-card__controls {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.mockup-card__controls .btn {
+  border-radius: 0;
+}
+
+.mockup-card__controls .form-select,
+.mockup-card__controls .form-label {
+  font-family: var(--font-family-main);
+}
+
+.manual-meta {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.manual-meta__scroll {
+  overflow: auto;
+  padding-right: 4px;
+}
+
+body {
+    background-color: #000000;
+}
+
+.workspace-grid {
+    display: grid;
+    grid-template-columns: 40% 1fr;
+    gap: 20px;
+}
+
+.workspace-grid__visuals {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+.workspace-grid__data .artlomo-data-card,
+.workspace-grid__data .artlomo-panel {
+    border: none;
+    background-color: #18181b;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.workspace-grid__data .form-control {
+    width: 100%;
+}
+
+#mockup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .workspace-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .workspace-grid__visuals {
+        position: static;
+    }
+}
