@@ -1,0 +1,195 @@
+{% extends 'base.html' %} {% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}?v=1.5" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload_gallery.css') }}?v=20260311-01" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis-loading.css') }}" />
+{% endblock %} {% block content %}
+<div class="unprocessed-gallery" data-gallery-minimal>
+  {% if not items %}
+  <p class="text-body-secondary">
+    No unprocessed artwork yet. Upload to get started.
+  </p>
+  {% else %}
+  <div class="toolbar hub-controls gallery-toolbar-inline">
+    <button type="button" class="artlomo-btn" data-bulk-select-all>
+      Select All
+    </button>
+    <button type="button" class="artlomo-btn" data-bulk-deselect-all>
+      Deselect All
+    </button>
+    <span class="artwork-subtext gallery-toolbar-count" data-bulk-count hidden></span>
+    <div class="gallery-toolbar-spacer"></div>
+    <button type="button" class="artlomo-btn artlomo-btn--danger" data-bulk-delete-trigger disabled>
+      Move to Trash
+    </button>
+    <a class="artlomo-btn artlomo-btn--primary" href="{{ url_for('upload.upload_page') }}">+ Upload</a>
+  </div>
+
+  <div class="artwork-grid">
+    {% for item in items %} {% set analyse_src = url_for('upload.analyse',
+    slug=item.slug) %} {% set thumb_src = url_for('upload.thumb',
+    slug=item.slug) if item.thumb_path else '' %} {% set uploaded =
+    item.upload_date_display or '' %} {% set print_size =
+    item.print_size_display or '' %} {% set qc = item.qc or {} %} {% set dims =
+    qc.get('dimensions', {}) %} {% set aspect_obj = qc.get('aspect_ratio') %} {%
+    set aspect_label = aspect_obj.label if aspect_obj else 'n/a' %} {% set
+    resolution = dims.get('width', 'n/a') ~ '×' ~ dims.get('height', 'n/a') %}
+    {% set dpi_val = qc.get('dpi', 'n/a') %} {% set filesize =
+    ('%.1f'|format(qc.get('filesize_mb', 0))) ~ ' MB' %} {% set palette =
+    qc.get('palette') if qc else {} %} {% set dominant_hex =
+    palette.get('dominant_hex') if palette else [] %} {% set luminance =
+    (qc.get('luminance') or {}) if qc else {} %} {% set luminance_cat =
+    luminance.get('category') if luminance else None %} {% set edge =
+    (qc.get('edge_safety') or {}) if qc else {} %} {% set edge_too_close =
+    edge.get('too_close') if edge else False %} {% set display_title =
+    (item.meta.display_title if item.meta and item.meta.display_title else
+    item.sku) %} {% set artist_name = item.artist_display or '' %} {% set
+    artist_label = artist_name or current_artist or '' %}
+
+    <div class="gallery-card art-card" data-analyse-src="{{ analyse_src }}" data-fallback-src="{{ thumb_src }}"
+      data-title="{{ display_title | e }}" data-artist="{{ artist_name | e }}" data-details="ID {{ item.sku }}"
+      data-aspect="{{ aspect_label | e }}" data-resolution="{{ resolution | e }}" data-dpi="{{ dpi_val | e }}"
+      data-filesize="{{ filesize | e }}" data-uploaded="{{ uploaded | e }}" data-print="{{ print_size | e }}">
+      {% if item.analysis_failed %}
+      <span class="badge badge-failed">FAILED ANALYSIS</span>
+      {% endif %}
+
+      <label class="card-select" aria-label="Select {{ item.slug }}">
+        <input type="checkbox" class="card-checkbox bulk-select-checkbox" data-bulk-select
+          data-slug="{{ item.slug }}" />
+      </label>
+
+      <div class="artwork-visual">
+        {% if item.thumb_path %}
+        <img src="{{ url_for('upload.thumb', slug=item.slug) }}" alt="{{ item.slug }} thumbnail"
+          class="thumb-image js-preview-trigger" loading="lazy" />
+        {% else %}
+        <div class="thumb-placeholder">No thumbnail</div>
+        {% endif %}
+      </div>
+
+      <div class="artwork-info">
+        <div class="artwork-text">
+          <h2 class="artwork-title">{{ display_title }}</h2>
+          <p class="artwork-subtext">Artist: {{ artist_label }}</p>
+          <p class="artwork-subtext">ID {{ item.sku }}</p>
+          {% if item.analysis_failed %}
+          <p class="artwork-subtext analysis-failure-text">Previous run failed{% if item.analysis_failure_reason %}: {{ item.analysis_failure_reason }}{% endif %}</p>
+          {% endif %}
+          {% if qc %}
+          <ul class="artwork-meta">
+            {% if uploaded %}
+            <li>Uploaded: {{ uploaded }}</li>
+            {% endif %}
+            <li>Aspect Ratio: {{ aspect_label }}</li>
+            <li>Resolution (Pixels): {{ resolution }}</li>
+            <li>Dots Per Inch (DPI): {{ dpi_val }}</li>
+            <li>Filesize: {{ filesize }}</li>
+            {% if dominant_hex %}
+            <li>Dominant Colours: {{ dominant_hex|join(', ') }}</li>
+            {% endif %} {% if luminance_cat %}
+            <li>Luminance: {{ luminance_cat }}</li>
+            {% endif %} {% if edge_too_close %}
+            <li>Edge Safety: WARNING (too close)</li>
+            {% endif %} {% if print_size %}
+            <li>Max Print Size: {{ print_size }}</li>
+            {% endif %}
+          </ul>
+          {% else %}
+          <p class="artwork-subtext">QC data missing.</p>
+          {% endif %}
+        </div>
+
+        <div class="artwork-actions">
+          <div class="action-row action-row-single">
+            <a class="artlomo-btn artlomo-btn--outline"
+              href="{{ url_for('upload.custom_input', slug=item.slug) }}">Custom Input</a>
+          </div>
+          <div class="action-row action-row-single">
+            <a class="artlomo-btn" href="{{ url_for('artwork.openai_analysis', slug=item.slug) }}" data-openai-async
+              data-slug="{{ item.slug }}" data-sku="{{ item.sku }}" data-analysis-provider="openai">{% if item.analysis_failed %}Retry OpenAI Analysis{% else %}OpenAI Analysis{% endif %}</a>
+          </div>
+          <div class="action-row action-row-single">
+            <a class="artlomo-btn" href="{{ url_for('artwork.gemini_analysis', slug=item.slug) }}" data-gemini-async
+              data-slug="{{ item.slug }}" data-sku="{{ item.sku }}" data-analysis-provider="gemini">{% if item.analysis_failed %}Retry Gemini Analysis{% else %}Gemini Analysis{% endif %}</a>
+          </div>
+          <div class="action-row action-row-single">
+            <form method="post" action="{{ url_for('manual.process', slug=item.slug) }}" class="gallery-form-reset">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button class="artlomo-btn" type="submit">Manual Analysis</button>
+            </form>
+          </div>
+          <div class="action-row action-row-single">
+            <button class="artlomo-btn artlomo-btn--danger" type="button" data-upload-delete-trigger
+              data-slug="{{ item.slug }}" data-id="{{ item.sku }}"
+              data-thumb-url="{{ url_for('upload.thumb', slug=item.slug) }}"
+              data-delete-url="{{ url_for('upload.delete_unprocessed', slug=item.slug) }}">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="upload-modal delete-modal hidden" id="uploadDeleteModal" role="dialog" aria-modal="true"
+    aria-hidden="true" aria-label="Confirm move to trash">
+    <div class="upload-modal-backdrop" data-delete-dismiss></div>
+    <div class="upload-modal-dialog" role="document">
+      <button type="button" class="upload-modal-close" aria-label="Close" data-delete-dismiss>
+        ×
+      </button>
+
+      <div class="delete-modal__body">
+        <div class="delete-modal__content delete-modal-content-center">
+          <div class="delete-modal-icon">🗑️</div>
+          <p class="delete-modal__warning delete-modal-warning">
+            Move to Trash?
+          </p>
+          <p class="delete-modal__meta delete-modal-meta">
+            <strong>Selected Items: <span data-delete-count>1</span></strong>
+          </p>
+          <p class="delete-modal-copy">
+            Items in Trash are permanently removed after 14 days.
+          </p>
+          <label class="delete-modal__label delete-modal-label-block" for="deleteConfirmInput">Type
+            <strong>DELETE</strong>
+            to confirm</label>
+          <input id="deleteConfirmInput" type="text" class="delete-modal__input delete-modal-input-centered"
+            autocomplete="off" data-delete-input placeholder="DELETE" aria-label="Type DELETE to confirm" />
+          <div class="delete-modal__error" data-delete-error role="alert" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="delete-modal__actions">
+        <button type="button" class="artlomo-btn" data-delete-dismiss>
+          Cancel
+        </button>
+        <button type="button" class="artlomo-btn artlomo-btn--danger" data-delete-confirm disabled>
+          Move to Trash
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {% include 'partials/_artwork_carousel.html' %}
+</div>
+{% endblock %}
+
+<svg class="hidden-svg">
+  <defs>
+    <symbol id="arrows-clockwise-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"></polyline>
+      <polyline points="1 20 1 14 7 14"></polyline>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+    </symbol>
+  </defs>
+</svg>
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upload_gallery.js') }}"></script>
+<script src="{{ url_for('static', filename='js/analysis-loading.js') }}"></script>
+{% endblock %}

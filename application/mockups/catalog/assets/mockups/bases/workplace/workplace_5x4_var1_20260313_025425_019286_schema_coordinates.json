@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/workplace/workplace_5x4_var1_20260313_025425_019286.png",
+  "generated_at": "2026-03-13T02:54:25.140619Z",
+  "points": [
+    {
+      "x": 675,
+      "y": 259
+    },
+    {
+      "x": 1362,
+      "y": 259
+    },
+    {
+      "x": 1362,
+      "y": 1459
+    },
+    {
+      "x": 675,
+      "y": 1458
+    }
+  ]
+}

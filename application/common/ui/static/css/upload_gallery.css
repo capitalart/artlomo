@@ -1,0 +1,797 @@
+/* Custom upload delete modal stack (Bootstrap-free) */
+.upload-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.25rem;
+}
+
+.upload-modal.hidden,
+.upload-modal[aria-hidden="true"] {
+  display: none;
+}
+
+.upload-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 900;
+}
+
+.upload-modal-dialog {
+  position: relative;
+  background: var(--panel-bg, var(--color-bg-primary));
+  border-radius: 0;
+  max-width: 520px;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 1001;
+}
+
+.upload-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+body.upload-modal-open {
+  overflow: hidden;
+}
+
+/* Upload dropzone feedback */
+.upload-dropzone {
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.upload-dropzone.drag-over {
+  border-color: var(--color-border-primary);
+  background: var(--color-bg-primary);
+}
+
+.upload-status {
+  min-height: 1.25rem;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.upload-status[data-state="success"] { color: var(--color-text-primary); }
+.upload-status[data-state="warning"] { color: var(--color-text-primary); }
+.upload-status[data-state="danger"] { color: var(--color-action-danger); }
+
+/* Artwork dashboard top navigation */
+.artworks-top-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 auto 14px;
+  width: 100%;
+  max-width: var(--content-max-width);
+}
+
+.control-panel .artworks-top-nav {
+  margin: 0 0 10px;
+  max-width: 100%;
+}
+
+.artworks-top-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--button-height);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.control-panel .artworks-top-nav__btn {
+  height: 38px;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.artworks-top-nav__btn.is-active {
+  background: color-mix(in srgb, var(--color-bg-primary) 70%, var(--color-border-primary));
+  border: 2px solid var(--color-border-primary);
+}
+
+@media (max-width: 680px) {
+  .artworks-top-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Responsive 3-up analysis action grid */
+#analysis-review-container .analysis-action-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+#analysis-review-container .analysis-action-grid > * {
+  flex: 1 1 calc(33.333% - 10px) !important;
+  min-width: 120px;
+}
+
+#analysis-review-container .analysis-action-grid > form {
+  display: flex !important;
+}
+
+#analysis-review-container .analysis-action-grid > form > button,
+#analysis-review-container .analysis-action-grid > a {
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+@media (max-width: 600px) {
+  #analysis-review-container .analysis-action-grid > * {
+    flex: 1 1 100% !important;
+  }
+}
+
+.upload-results {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.upload-processing {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.processing-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 100px;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  background: var(--color-bg-primary);
+  box-shadow: none;
+}
+
+.processing-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 0;
+  object-fit: contain;
+  background: var(--color-bg-primary);
+}
+
+.processing-meta {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.processing-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.processing-status {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.processing-status-error {
+  color: var(--color-action-danger);
+  font-weight: 600;
+}
+
+.processing-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.processing-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+.processing-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .processing-icon.spinning {
+    animation: none;
+  }
+}
+
+.processing-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1400;
+}
+
+.processing-overlay.hidden,
+.processing-overlay[aria-hidden="true"] {
+  display: none;
+}
+
+.processing-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.processing-overlay-dialog {
+  position: relative;
+  background: var(--color-bg-primary);
+  border-radius: 0;
+  padding: 1.25rem;
+  width: min(720px, 94vw);
+  box-shadow: none;
+  z-index: 1401;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.processing-overlay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.processing-overlay-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.processing-overlay-note {
+  margin: 0;
+}
+
+.processing-message {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.processing-overlay.closing .processing-overlay-dialog,
+.processing-overlay.closing .processing-overlay-backdrop {
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.processing-overlay.closing .processing-overlay-dialog {
+  transform: translateY(6px);
+}
+
+body.overlay-lock {
+  overflow: hidden;
+}
+
+.upload-result-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  background: var(--color-bg-primary);
+  box-shadow: none;
+}
+
+.upload-result-thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 0;
+  object-fit: contain;
+  background: var(--color-bg-primary);
+}
+
+.upload-result-meta {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.upload-results-continue {
+  margin-top: 1rem;
+}
+
+.upload-results-continue-btn {
+  width: 100%;
+  border-radius: 0;
+  border: 1px solid var(--color-border-primary, #0A0A0A);
+}
+
+.upload-result-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.upload-result-status {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.delete-modal__body {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.delete-modal__preview {
+  width: 100%;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+.delete-modal__preview img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  background: var(--bg-secondary);
+  display: block;
+}
+
+.delete-modal__warning {
+  color: var(--color-action-danger);
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.delete-modal__meta {
+  margin: 0 0 0.75rem 0;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.delete-modal__label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.delete-modal__input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  font-size: 1rem;
+}
+
+.delete-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.delete-modal__error {
+  margin-top: 0.5rem;
+  color: var(--color-action-danger);
+  min-height: 1.25rem;
+  font-size: 0.95rem;
+}
+
+/* Stark Gallery (Processed Artworks only) */
+.processed-gallery .artwork-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2.5rem;
+}
+
+.processed-gallery .gallery-card {
+  border: 1px solid var(--text-primary);
+  background: var(--bg-body);
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.processed-gallery .artwork-visual {
+  margin: 0;
+  width: 100%;
+  height: auto;
+}
+
+.processed-gallery .thumb-image {
+  width: 80%;
+  height: auto;
+  max-height: 350px;
+  margin-top: 15px;
+  object-fit: contain;
+  background: var(--bg-secondary);
+  display: block;
+}
+
+.processed-gallery .artwork-info {
+  flex: 1 1 auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  text-align: left;
+  padding: 14px 16px 16px;
+  gap: 12px;
+}
+
+.processed-gallery .artwork-text {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.processed-gallery .artwork-actions {
+  margin-top: auto;
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  justify-content: stretch;
+  width: 100%;
+}
+
+.processed-gallery .action-row {
+  width: 100%;
+}
+
+.processed-gallery .action-row .btn,
+.processed-gallery .action-row button,
+.processed-gallery .action-row a {
+  width: 100% !important;
+}
+
+.processed-gallery .btn-stark-outline {
+  background: var(--bg-body);
+  color: var(--text-primary) !important;
+  border: 1px solid var(--text-primary);
+}
+
+.processed-gallery .btn-stark-outline:hover,
+.processed-gallery .btn-stark-outline:focus-visible {
+  background: var(--text-primary);
+  color: var(--bg-body) !important;
+  border-color: var(--text-primary);
+}
+
+.processed-gallery .btn-stark-danger {
+  background: var(--button-danger-bg);
+  color: var(--color-bg-primary) !important;
+  border: 1px solid var(--button-danger-bg);
+}
+
+.processed-gallery .btn-stark-danger:hover,
+.processed-gallery .btn-stark-danger:focus-visible {
+  background: var(--bg-body);
+  color: var(--button-danger-bg) !important;
+  border-color: var(--button-danger-bg);
+}
+
+.btn-delete {
+  background: var(--color-action-danger);
+  color: var(--color-bg-primary);
+}
+
+.btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-stark-primary {
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary) !important;
+  border: 1px solid var(--color-text-primary);
+}
+
+.btn-stark-primary:hover,
+.btn-stark-primary:focus-visible {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-text-primary);
+}
+
+.analysis-source-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  border: 1px solid var(--color-text-primary);
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Action rows on cards (override gallery defaults to enforce column stack) */
+.artwork-actions {
+  display: flex !important;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.5rem;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+.action-row {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.action-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.action-row-single .btn,
+.action-row-single button,
+.action-row-single a {
+  width: 100% !important;
+}
+
+.action-row-single form {
+  width: 100%;
+  display: block;
+}
+
+.action-row-single form button,
+.action-row-single form .btn {
+  width: 100% !important;
+}
+
+.action-row-split .btn,
+.action-row-split button,
+.action-row-split a {
+  flex: 1 1 50%;
+  width: 100% !important;
+}
+
+[data-gallery-minimal] .upload-panel,
+[data-gallery-minimal] .control-panel {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border-primary);
+  border-radius: 0 !important;
+  margin-top: 0;
+}
+
+[data-gallery-minimal] .upload-fields label {
+  color: var(--color-text-primary);
+}
+
+[data-gallery-minimal] .upload-actions-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+[data-gallery-minimal] .upload-panel,
+[data-gallery-minimal] .gallery-card,
+[data-gallery-minimal] .thumb-image,
+[data-gallery-minimal] .thumb-placeholder,
+[data-gallery-minimal] .card-checkbox,
+[data-gallery-minimal] .btn,
+[data-gallery-minimal] button,
+[data-gallery-minimal] input,
+[data-gallery-minimal] select,
+[data-gallery-minimal] textarea {
+  border-radius: 0 !important;
+}
+
+[data-gallery-minimal] .gallery-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+[data-gallery-minimal] .artwork-info {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-bottom: 10px;
+}
+
+[data-gallery-minimal] .artwork-text {
+  flex: 1 1 auto;
+}
+
+[data-gallery-minimal] .artwork-actions {
+  margin-top: auto;
+  width: 100%;
+}
+
+[data-gallery-minimal] .gallery-card {
+  background: var(--card-bg);
+  box-shadow: none !important;
+  border: 2px solid var(--color-border-subtle);
+}
+
+[data-gallery-minimal] .card-checkbox {
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-primary);
+  opacity: 1;
+}
+
+[data-gallery-minimal] .card-checkbox:checked::after {
+  color: var(--color-text-primary);
+}
+
+[data-gallery-minimal] .artwork-actions .btn:not(.btn-delete) {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border-primary);
+}
+
+[data-gallery-minimal] .btn-delete {
+  background: var(--color-action-danger);
+  border: 1px solid var(--color-action-danger);
+  color: var(--color-bg-primary);
+}
+
+[data-gallery-minimal] [data-bulk-panel] .btn:not(.btn-delete) {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border-primary);
+  box-shadow: none !important;
+}
+
+[data-gallery-minimal] [data-bulk-panel] .btn.btn-delete {
+  background: var(--color-action-danger);
+  border: 1px solid var(--color-action-danger);
+  color: var(--color-bg-primary);
+  box-shadow: none !important;
+}
+
+[data-gallery-minimal] .btn:disabled,
+[data-gallery-minimal] button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#uploadDeleteModal .btn,
+#uploadDeleteModal button,
+#uploadDeleteModal input {
+  border-radius: 0 !important;
+}
+
+#uploadDeleteModal .upload-modal-dialog {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+#uploadDeleteModal .delete-modal__preview {
+  border-radius: 0 !important;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+#uploadDeleteModal .delete-modal__input {
+  border-radius: 0 !important;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 640px) {
+  .delete-modal__body {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-modal-dialog {
+    padding: 1.25rem;
+  }
+}
+
+/* Additional responsive safeguards for gallery and dialogs */
+@media (max-width: 900px) {
+  .processing-row {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+
+  .processing-action {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .upload-result-row {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+
+  .upload-result-title,
+  .upload-result-status,
+  .processing-title,
+  .processing-status,
+  .delete-modal__meta {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+@media (max-width: 720px) {
+  .artworks-top-nav {
+    gap: 8px;
+  }
+
+  .action-row-split {
+    grid-template-columns: 1fr;
+  }
+
+  .delete-modal__actions {
+    justify-content: stretch;
+  }
+
+  .delete-modal__actions .btn,
+  .delete-modal__actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .upload-modal {
+    padding: 0.75rem;
+  }
+
+  .upload-modal-dialog {
+    padding: 1rem;
+  }
+
+  .processing-thumb {
+    width: 64px;
+    height: 64px;
+  }
+
+  .upload-result-thumb {
+    width: 80px;
+    height: 80px;
+  }
+
+  .processed-gallery .artwork-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

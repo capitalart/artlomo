@@ -1,0 +1,113 @@
+/* Controls bar layout */
+.controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    align-items: flex-end;
+    margin: .5rem 0 1rem;
+}
+
+.controls-bar .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.controls-bar .view-toggle {
+    flex-direction: row;
+    gap: .5rem;
+    align-items: center;
+}
+
+/* Grid/List views and preview sizes */
+#mockup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: .75rem;
+}
+
+#mockup-grid.list-view {
+    display: block;
+}
+
+#mockup-grid.list-view .gallery-card {
+    display: block;
+    padding: 8px;
+    border: 1px solid var(--card-border, #ccc);
+}
+
+#mockup-grid.size-small .card-img-top {
+    width: 140px;
+    height: auto;
+}
+
+#mockup-grid.size-medium .card-img-top {
+    width: 220px;
+    height: auto;
+}
+
+#mockup-grid.size-large .card-img-top {
+    width: 320px;
+    height: auto;
+}
+
+.gallery-card {
+    background: var(--color-card-bg, #fff);
+    border: 1px solid var(--card-border, #ddd);
+    padding: .5rem;
+    position: relative;
+}
+
+.gallery-card .card-thumb {
+    display: block;
+    text-align: center;
+}
+
+.gallery-card .card-img-top {
+    max-width: 100%;
+    height: auto;
+    cursor: pointer;
+}
+
+.gallery-card .card-details {
+    margin-top: .5rem;
+}
+
+.gallery-card .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .5);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-card .card-overlay.hidden {
+    display: none;
+}
+
+.category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: .5rem 0;
+}
+
+.category-tag {
+    padding: .25rem .5rem;
+    border: 1px solid var(--card-border, #ddd);
+    border-radius: 999px;
+    text-decoration: none;
+}
+
+.category-tag.active {
+    background: #333;
+    color: #fff;
+}
+
+.mockup-card-controls .btn {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 12px;
+    padding: 10px;
+}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="artlomo-panel">
+  <h1 class="artlomo-page-title">ArtLomo</h1>
+  <p class="artlomo-page-subtitle">Sitemap</p>
+</div>
+
+{% if not session.get('username') %}
+  <div class="artlomo-panel" role="region" aria-label="Login required">
+    <div class="artlomo-panel__row">
+      <div>
+        <div class="artlomo-panel__title">Login required</div>
+        <div class="artlomo-panel__sub">Sign in to access admin and artwork workflows.</div>
+      </div>
+      <a class="artlomo-btn artlomo-btn--save" href="{{ url_for('auth.login') }}">Login</a>
+    </div>
+  </div>
+{% endif %}
+
+<div class="artlomo-control-grid" role="navigation" aria-label="Sitemap">
+  <a href="{{ safe_url('upload.upload_page') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Upload Artwork</span>
+    <span class="artlomo-btn__desc">Upload new JPG Artworks.</span>
+  </a>
+
+  <a href="{{ safe_url('upload.unprocessed') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Unprocessed</span>
+    <span class="artlomo-btn__desc">Review new uploads and start workflows.</span>
+  </a>
+
+  <a href="{{ safe_url('upload.processed') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Processed</span>
+    <span class="artlomo-btn__desc">Processed catalog ready for mockups and export.</span>
+  </a>
+
+  <a href="{{ safe_url('upload.locked') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Locked</span>
+    <span class="artlomo-btn__desc">Items locked from further manual edits.</span>
+  </a>
+
+  <a href="{{ safe_url('hub.style_editor') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Style Editor</span>
+    <span class="artlomo-btn__desc">Theme presets and generated CSS.</span>
+  </a>
+
+  <a href="{{ safe_url('mockups_admin.bases') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Mockup Bases</span>
+    <span class="artlomo-btn__desc">Browse bases; sanitize/sync; generate thumbnails.</span>
+  </a>
+
+  <a href="{{ safe_url('mockups_admin.aspect_manager') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Aspect Ratio Manager</span>
+    <span class="artlomo-btn__desc">Create/delete aspect folders for bases.</span>
+  </a>
+
+  <a href="{{ safe_url('mockups_admin.category_manager') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Category Manager</span>
+    <span class="artlomo-btn__desc">Create/delete category folders across all aspects.</span>
+  </a>
+</div>
+{% endblock %}

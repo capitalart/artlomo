@@ -1,0 +1,31 @@
+{
+  "ignores": [
+    "application/tools/app-stacks/stacks/*.md"
+  ],
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD033": false,
+    "MD040": false,
+    "MD060": false,
+    "MD024": { "siblings_only": true },
+    "overrides": [
+      {
+        "files": [
+          "application/tools/app-stacks/stacks/*.md"
+        ],
+        "MD001": false,
+        "MD003": false,
+        "MD022": false,
+        "MD024": false,
+        "MD025": false,
+        "MD028": false,
+        "MD035": false,
+        "MD036": false,
+        "MD037": false,
+        "MD046": false,
+        "MD052": false
+      }
+    ]
+  }
+}

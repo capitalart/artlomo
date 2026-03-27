@@ -1,0 +1,21 @@
+[Unit]
+Description=ArtLomo Analysis Queue Worker
+After=network.target
+
+[Service]
+Type=simple
+User=empire_builder_v1
+Group=empire_builder_v1
+WorkingDirectory=/srv/artlomo
+Environment="PATH=/srv/artlomo/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="ARTLOMO_BASE_DIR=/srv/artlomo"
+ExecStart=/srv/artlomo/.venv/bin/python -m application.analysis.worker.analysis_worker
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/srv/artlomo/logs/analysis-worker.log
+StandardError=append:/srv/artlomo/logs/analysis-worker-error.log
+
+[Install]
+WantedBy=multi-user.target

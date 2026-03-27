@@ -1,0 +1,214 @@
+{% extends 'admin_base.html' %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/mockups_admin.css') }}">
+{% endblock %}
+
+{% block admin_content %}
+<section class="bases-page">
+  <header class="bases-header">
+    <div class="bases-header-row">
+      <div class="bases-heading">
+        <nav class="bases-breadcrumbs" aria-label="Breadcrumb">
+          <a class="bases-crumb" href="{{ url_for('mockup_generator.mockup_generator_dashboard') }}">Mockup Generator</a>
+          <span class="bases-crumb-sep">/</span>
+          <span>Prompt Settings</span>
+        </nav>
+        <h1 class="bases-title">Mockup Generator Prompt Settings</h1>
+      </div>
+      <div class="bases-header-actions">
+        <a class="gallery-btn gallery-btn--outline" href="{{ url_for('mockup_generator.mockup_generator_dashboard') }}">Back to Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <form class="filter-section" method="post" action="{{ url_for('mockup_generator.mockup_generator_prompt_settings') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <div class="control-group">
+      <label for="default-style">Default Style Direction</label>
+      <select id="default-style" name="default_style" class="gallery-select">
+        {% for style in style_options %}
+          <option value="{{ style }}" {% if settings.default_style == style %}selected{% endif %}>{{ style }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="default-tone">Default Tone</label>
+      <select id="default-tone" name="default_tone" class="gallery-select">
+        {% for tone in tone_options %}
+          <option value="{{ tone }}" {% if settings.default_tone == tone %}selected{% endif %}>{{ tone }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="default-season">Default Season Cue</label>
+      <select id="default-season" name="default_season" class="gallery-select">
+        {% for season in season_options %}
+          <option value="{{ season }}" {% if settings.default_season == season %}selected{% endif %}>{{ season }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="generation-canvas-aspect">Generation Canvas Aspect Ratio</label>
+      <select id="generation-canvas-aspect" name="generation_canvas_aspect_ratio" class="gallery-select">
+        {% for aspect in aspect_ratios %}
+          <option value="{{ aspect }}" {% if settings.generation_canvas_aspect_ratio == aspect %}selected{% endif %}>{{ aspect }}</option>
+        {% endfor %}
+      </select>
+      <p class="bases-subtitle">Used for Gemini image generation canvas while preserving artwork placement guidance from the selected queue aspect/category.</p>
+    </div>
+
+    <div class="control-group">
+      <label>Available Situations (Mapped to Queue Categories)</label>
+      <p class="bases-subtitle">Situation selection comes from category choice on the generator dashboard.</p>
+      <textarea class="gallery-input" rows="4" readonly>{{ categories | join(', ') }}</textarea>
+    </div>
+
+    <div class="control-group">
+      <label for="standard-prefix">Standard Mode Prompt Prefix</label>
+      <textarea id="standard-prefix" name="standard_prefix" class="gallery-input" rows="6">{{ settings.standard_prefix }}</textarea>
+    </div>
+
+    <div class="control-group">
+      <label for="standard-suffix">Standard Mode Prompt Suffix</label>
+      <textarea id="standard-suffix" name="standard_suffix" class="gallery-input" rows="6">{{ settings.standard_suffix }}</textarea>
+    </div>
+
+    <div class="control-group">
+      <label for="outlined-prefix">Outlined Artwork Mode Prompt Prefix</label>
+      <textarea id="outlined-prefix" name="outlined_prefix" class="gallery-input" rows="6">{{ settings.outlined_prefix }}</textarea>
+    </div>
+
+    <div class="control-group">
+      <label for="outlined-suffix">Outlined Artwork Mode Prompt Suffix</label>
+      <textarea id="outlined-suffix" name="outlined_suffix" class="gallery-input" rows="6">{{ settings.outlined_suffix }}</textarea>
+    </div>
+
+    <div class="control-group">
+      <label>Prompt Examples (Auto-built from current defaults)</label>
+      <textarea class="gallery-input" rows="8" readonly>{% for line in prompt_examples %}{{ line }}
+{% endfor %}</textarea>
+    </div>
+
+    <div class="actions">
+      <button class="gallery-btn gallery-btn--primary" type="submit">Save Settings</button>
+      <a class="gallery-btn gallery-btn--outline" href="{{ url_for('mockup_generator.mockup_generator_dashboard') }}">Cancel</a>
+    </div>
+  </form>
+
+  <hr style="margin: 2.5rem 0; border-color: var(--border-color, #e0e0e0);">
+
+  <div class="bases-heading" style="margin-bottom: 1.25rem;">
+    <h2 class="bases-title" style="font-size: 1.3rem; margin: 0;">Compiled Prompt Preview</h2>
+    <p class="bases-subtitle" style="margin-top: 0.35rem;">See the exact full text sent to Gemini, compiled live from the current form values above. Unsaved edits are included — no need to save first.</p>
+  </div>
+
+  <div class="filter-section">
+    <div class="control-group">
+      <label for="preview-mode">Generation Mode</label>
+      <select id="preview-mode" class="gallery-select">
+        <option value="chromakey_auto">Chromakey Auto (No Guide Image)</option>
+        <option value="artwork_trojan">Outlined Artwork (Trojan)</option>
+        <option value="artwork_only_composite">Plain Artwork Composite</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="preview-category">Example Category</label>
+      <select id="preview-category" class="gallery-select">
+        {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="control-group" id="preview-aspect-group" style="display:none;">
+      <label for="preview-aspect">Aspect Ratio (Trojan reference image)</label>
+      <select id="preview-aspect" class="gallery-select">
+        {% for ar in aspect_ratios %}
+          <option value="{{ ar }}">{{ ar }}</option>
+        {% endfor %}
+      </select>
+      <p class="bases-subtitle">Determines which outlined-artwork PNG would be sent alongside the prompt.</p>
+    </div>
+    <div class="actions" style="margin-top: 0.5rem;">
+      <button type="button" id="preview-prompt-btn" class="gallery-btn gallery-btn--primary">Preview Compiled Prompt</button>
+    </div>
+  </div>
+
+  <div id="prompt-preview-output" style="display:none; margin-top: 1rem;">
+    <div class="control-group">
+      <p id="preview-guide-note" class="bases-subtitle" style="font-style: italic; background: #f0f8ff; border-left: 3px solid #4a9eff; padding: 0.5rem 0.75rem; border-radius: 3px; display:none;"></p>
+      <label for="prompt-preview-text">Compiled Prompt Text (sent to Gemini)</label>
+      <textarea id="prompt-preview-text" class="gallery-input" rows="22" readonly style="font-family: monospace; font-size: 0.85rem; white-space: pre;"></textarea>
+    </div>
+  </div>
+
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var btn = document.getElementById('preview-prompt-btn');
+  var modeEl = document.getElementById('preview-mode');
+  var aspectGroup = document.getElementById('preview-aspect-group');
+  if (!btn || !modeEl) return;
+
+  aspectGroup.style.display = modeEl.value === 'chromakey_auto' ? 'none' : '';
+  modeEl.addEventListener('change', function () {
+    aspectGroup.style.display = modeEl.value === 'chromakey_auto' ? 'none' : '';
+  });
+
+  btn.addEventListener('click', function () {
+    btn.disabled = true;
+    btn.textContent = 'Building preview\u2026';
+
+    var g = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
+    var payload = {
+      generation_mode: g('preview-mode'),
+      category:        g('preview-category'),
+      aspect_ratio:    g('preview-aspect'),
+      standard_prefix: g('standard-prefix'),
+      standard_suffix: g('standard-suffix'),
+      outlined_prefix: g('outlined-prefix'),
+      outlined_suffix: g('outlined-suffix'),
+      generation_canvas_aspect_ratio: g('generation-canvas-aspect'),
+      default_style:   g('default-style'),
+      default_tone:    g('default-tone'),
+      default_season:  g('default-season'),
+    };
+
+    fetch('{{ url_for("mockup_generator.mockup_generator_prompt_preview") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        alert('Preview error: ' + data.error);
+        return;
+      }
+      document.getElementById('prompt-preview-text').value = data.prompt_text || '';
+      var guideEl = document.getElementById('preview-guide-note');
+      if (data.guide_note) {
+        guideEl.textContent = data.guide_note;
+        guideEl.style.display = '';
+      } else {
+        guideEl.style.display = 'none';
+      }
+      var outputEl = document.getElementById('prompt-preview-output');
+      outputEl.style.display = '';
+      outputEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    })
+    .catch(function (err) { alert('Request failed: ' + err); })
+    .finally(function () {
+      btn.disabled = false;
+      btn.textContent = 'Preview Compiled Prompt';
+    });
+  });
+})();
+</script>
+{% endblock %}

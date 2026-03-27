@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Jobs - Admin{% endblock %}
+{% block workflow_css %}{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis_jobs_admin.css') }}?v=1.0" />
+{% endblock %}
+
+{% block content %}
+<div class="analysis-jobs-admin" data-jobs-admin>
+  <div class="analysis-jobs-admin__header">
+    <div>
+      <h1>Analysis Jobs</h1>
+      <p>Monitor queue activity and cancel jobs with cleanup.</p>
+    </div>
+    <div class="analysis-jobs-admin__actions">
+      <a class="btn btn-secondary" href="{{ url_for('analysis_management.analysis_management_hub') }}">Back to Analysis Management</a>
+      <button class="btn btn-primary" type="button" data-action="refresh">Refresh</button>
+    </div>
+  </div>
+
+  <div class="analysis-jobs-admin__toolbar">
+    <label for="statusFilter">Status</label>
+    <select id="statusFilter" data-filter="status">
+      <option value="">All</option>
+      <option value="QUEUED">QUEUED</option>
+      <option value="RUNNING">RUNNING</option>
+      <option value="CANCEL_REQUESTED">CANCEL_REQUESTED</option>
+      <option value="DONE">DONE</option>
+      <option value="FAILED">FAILED</option>
+    </select>
+  </div>
+
+  <p class="analysis-jobs-admin__feedback" data-feedback role="status" aria-live="polite"></p>
+
+  <div class="analysis-jobs-admin__table-wrap">
+    <table class="analysis-jobs-admin__table">
+      <thead>
+        <tr>
+          <th>Job ID</th>
+          <th>Slug</th>
+          <th>Provider</th>
+          <th>Status</th>
+          <th>Stage</th>
+          <th>Progress</th>
+          <th>Attempts</th>
+          <th>Updated</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody data-jobs-table-body>
+        <tr>
+          <td colspan="9">Loading jobs...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/analysis_jobs_admin.js') }}?v=1.0"></script>
+{% endblock %}

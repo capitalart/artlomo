@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/cafe/cafe_1x1_var1_20260313_025133_576253.png",
+  "generated_at": "2026-03-13T02:51:33.713606Z",
+  "points": [
+    {
+      "x": 682,
+      "y": 439
+    },
+    {
+      "x": 1436,
+      "y": 439
+    },
+    {
+      "x": 1379,
+      "y": 1103
+    },
+    {
+      "x": 687,
+      "y": 1443
+    }
+  ]
+}

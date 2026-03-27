@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% set page_title = "Director's Suite" %}
+
+{% block content %}
+<div class="video-suite"
+  data-video-suite
+  data-slug="{{ slug }}"
+  data-status-url="{{ status_url }}"
+  data-generate-url="{{ generate_url }}"
+  data-delete-url="{{ delete_url }}"
+  data-settings-url="{{ settings_url }}"
+  data-video-suite-json='{{ video_settings | tojson }}'
+  data-auto-mockup-ids='{{ auto_mockup_ids | tojson }}'>
+  <header class="suite-header">
+    <div>
+      <h1>Director's Suite</h1>
+      <div class="page-version">Version2: Director Suite Layout</div>
+      <p>{{ slug }}</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ review_url }}">Back to Workspace</a>
+  </header>
+
+  <div class="suite-grid">
+    <section class="suite-left">
+      <div class="suite-player-wrap">
+        {% if has_video and video_url %}
+        <video controls preload="metadata" data-suite-player src="{{ video_url }}"></video>
+        {% elif placeholder_url %}
+        <img src="{{ placeholder_url }}" alt="Mockup placeholder" data-suite-placeholder>
+        {% else %}
+        <div class="suite-empty">No render yet and no mockup placeholder available.</div>
+        {% endif %}
+        <div class="suite-render-overlay" data-render-overlay hidden>
+          <div class="suite-render-overlay-content">
+            <div class="suite-render-spinner"></div>
+            <div class="suite-render-overlay-text">
+              <div>VIDEO RENDERING</div>
+              <div>in PROGRESS</div>
+              <div>Optionally</div>
+              <div>You can close this window it will be here when you come back</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="suite-helper">Render output is locked to 1024×1024 preview for composition checks.</p>
+
+      <div class="suite-card storyboard-panel">
+        <h3>Select Mockups for Video (Optional)</h3>
+        <p class="suite-helper mb-0" data-storyboard-count>
+          Select mockups from below to be used in the video
+        </p>
+
+        <div class="chosen-panel" data-chosen-panel>
+          <div class="chosen-panel__header">
+            <h4 data-chosen-title>Chosen Mockups (Video Order)</h4>
+            <span class="chosen-subtitle" data-chosen-subtitle>Drag to reorder</span>
+          </div>
+          
+          <!-- Timing Summary Bar -->
+          <div class="timing-summary" data-timing-summary hidden>
+            <div class="timing-summary-row">
+              <div class="timing-stat">
+                <span class="timing-stat-label">Total:</span>
+                <span class="timing-stat-value" data-timing-total>15s</span>
+              </div>
+              <div class="timing-stat">
+                <span class="timing-stat-label">Main Artwork:</span>
+                <input type="number" class="timing-input-sm" data-timing-main-seconds min="1" max="10" step="0.5" value="4.0">
+                <span>s</span>
+              </div>
+              <div class="timing-stat">
+                <span class="timing-stat-label">Available for Mockups:</span>
+                <span class="timing-stat-value" data-timing-available>11s</span>
+              </div>
+              <div class="timing-stat">
+                <span class="timing-stat-label">Locked:</span>
+                <span class="timing-stat-value" data-timing-locked-count>0</span> / <span data-timing-locked-time>0s</span>
+              </div>
+              <div class="timing-stat">
+                <span class="timing-stat-label">Auto:</span>
+                <span class="timing-stat-value" data-timing-auto-count>0</span> / <span data-timing-auto-each>0s</span>
+              </div>
+            </div>
+            <div class="timing-warning" data-timing-warning hidden>
+              <small data-timing-warning-text>Locked time exceeds available. Scaling to fit: ×1.00</small>
+            </div>
+          </div>
+          
+          <!-- Inline timing warning (replaces tiny top warning) -->
+          <div class="timing-warning-inline" data-timing-warning-inline hidden>
+            ⚠ Locked time exceeds available duration. Adjusting automatically.
+          </div>
+          
+          <div class="chosen-list" data-chosen-list></div>
+          <div class="chosen-empty" data-chosen-empty hidden>No mockups selected.</div>
+          <div class="chosen-no-mockups chosen-no-mockups-layout" data-chosen-no-mockups hidden>
+            <p><strong>No mockups available.</strong></p>
+            <p class="chosen-no-mockups-note">Generate mockups first to use the video workspace.</p>
+          </div>
+        </div>
+
+        {% if storyboard_entries %}
+        <div class="storyboard-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3"
+          data-storyboard-grid>
+          {% for item in storyboard_entries %}
+          <div class="col">
+            <article class="storyboard-item mockup-card" data-storyboard-item data-slot="{{ item.slot }}"
+              data-mockup-id="{{ item.mockup_id }}" data-thumb-url="{{ item.thumb_url }}"
+              data-full-url="{{ item.composite_url }}" data-filename="{{ item.filename }}"
+              data-swap-url="{{ item.swap_url }}" data-category-url="{{ item.category_url }}">
+              <div class="storyboard-thumb-wrap mockup-image-wrap" data-carousel-trigger role="button" tabindex="0" title="Click to view full size">
+                <img src="{{ item.thumb_url }}" alt="Storyboard mockup {{ item.slot }}" data-storyboard-thumb
+                  class="mockup-image">
+                <label class="storyboard-select" title="Select for Video" data-stop-propagation>
+                  <input type="checkbox" class="form-check-input" data-storyboard-checkbox value="{{ item.filename }}"
+                    {% if item.selected %}checked{% endif %}>
+                  <span class="visually-hidden">Select for Video</span>
+                </label>
+              </div>
+              <div class="storyboard-controls mockup-controls">
+                <div class="mockup-control-row">
+                  <select class="form-select form-select-sm mockup-category" data-storyboard-category>
+                    <option value="">Default</option>
+                    {% for cat in storyboard_categories %}
+                    <option value="{{ cat }}" {% if item.category==cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="mockup-control-row">
+                  <button type="button" class="btn btn-sm btn-outline-primary" data-storyboard-swap>Swap</button>
+                </div>
+              </div>
+            </article>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="suite-empty">No mockup composites available yet. Generate mockups first.</div>
+        {% endif %}
+      </div>
+    </section>
+
+    <aside class="suite-right">
+      <div class="suite-card">
+        <h3>Cinematic Settings</h3>
+
+        <!-- OUTPUT SETTINGS -->
+        <div class="suite-control-block output-settings">
+          <label class="suite-control-title">
+            <span>Output Settings</span>
+          </label>
+          <p class="suite-helper output-helper">Higher FPS and higher resolution increase render time.</p>
+          <div class="output-grid">
+            <div class="output-field">
+              <label for="output-fps" class="suite-control-title">FPS</label>
+              <select id="output-fps" class="form-select form-select-sm" data-output-fps>
+                {% for fps in [24, 30, 60] %}
+                <option value="{{ fps }}" {% if fps == video_settings.get('video_fps', 24) %}selected{% endif %}>{{ fps }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="output-field">
+              <label for="output-size" class="suite-control-title">Resolution</label>
+              <select id="output-size" class="form-select form-select-sm" data-output-size>
+                {% for size in [1024, 1536, 1920, 2560, 3840] %}
+                <option value="{{ size }}" {% if size == video_settings.get('video_output_size', 1024) %}selected{% endif %}>{{ size }}×{{ size }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="output-field">
+              <label for="output-preset" class="suite-control-title">Encoder Preset</label>
+              <select id="output-preset" class="form-select form-select-sm" data-output-preset>
+                {% for preset in ['fast', 'medium', 'slow'] %}
+                <option value="{{ preset }}" {% if preset == video_settings.get('video_encoder_preset', 'fast') %}selected{% endif %}>{{ preset|capitalize }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="output-field">
+              <label for="output-source" class="suite-control-title">Artwork Source</label>
+              <select id="output-source" class="form-select form-select-sm" data-output-source>
+                <option value="auto" {% if video_settings.get('video_artwork_source', 'auto') == 'auto' %}selected{% endif %}>Auto (Proxy)</option>
+                <option value="closeup_proxy" {% if video_settings.get('video_artwork_source', 'auto') == 'closeup_proxy' %}selected{% endif %}>Closeup Proxy</option>
+                <option value="master" {% if video_settings.get('video_artwork_source', 'auto') == 'master' %}selected{% endif %}>Master</option>
+              </select>
+            </div>
+          </div>
+          <div class="output-warning" data-output-warning hidden>Warning: 60 FPS at 1920px or higher can render slowly.</div>
+        </div>
+
+        <!-- TOTAL DURATION -->
+        <div class="suite-control-block">
+          <label class="suite-control-title">
+            <span>TOTAL DURATION</span>
+            <strong data-duration-label>{{ video_settings.get("video_duration", 15) }}s</strong>
+          </label>
+          <div class="duration-buttons" data-duration-buttons>
+            {% for sec in [10, 15, 20] %}
+            <button type="button"
+              class="btn btn-sm {% if sec == video_settings.get('video_duration', 15) %}btn-dark{% else %}btn-outline-secondary{% endif %}"
+              data-duration-value="{{ sec }}">{{ sec }}s</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- MAIN ARTWORK SETTINGS -->
+        <hr class="my-2">
+        <h4 class="suite-subsection-title">Main Artwork</h4>
+
+        <div class="suite-control-block">
+          <label for="artwork-seconds" class="suite-control-title">
+            <span>Duration (Seconds)</span>
+            <strong data-artwork-seconds-value>{{ "%.1f"|format(video_settings.get("main_artwork_seconds", 4.0)) }}s</strong>
+          </label>
+          <input id="artwork-seconds" type="range" min="1.0" max="10.0" step="0.5"
+            value="{{ '%.1f'|format(video_settings.get('main_artwork_seconds', 4.0)) }}" data-artwork-seconds>
+        </div>
+
+        <div class="suite-control-block">
+          <label for="artwork-zoom-intensity" class="suite-control-title">
+            <span>Zoom Intensity</span>
+            <strong data-artwork-zoom-intensity-value>{{ "%.2f"|format(video_settings.get("artwork_zoom_intensity", 1.1)) }}x</strong>
+          </label>
+          <input id="artwork-zoom-intensity" type="range" min="1.00" max="2.25" step="0.01"
+            value="{{ '%.2f'|format(video_settings.get('artwork_zoom_intensity', 1.1)) }}" data-artwork-zoom-intensity>
+        </div>
+
+        <div class="suite-control-block">
+          <label for="artwork-zoom-duration" class="suite-control-title">
+            <span>Zoom Duration (Seconds)</span>
+            <strong data-artwork-zoom-duration-value>{{ "%.1f"|format(video_settings.get('artwork_zoom_duration', 3.0)) }}s</strong>
+          </label>
+          <input id="artwork-zoom-duration" type="range" min="0.0" max="8.0" step="0.1"
+            value="{{ '%.1f'|format(video_settings.get('artwork_zoom_duration', 3.0)) }}" data-artwork-zoom-duration>
+        </div>
+
+        <div class="suite-control-block">
+          <label class="suite-control-title" for="artwork-pan-toggle">
+            <span>Pan Motion</span>
+          </label>
+          <label class="suite-toggle" for="artwork-pan-toggle">
+            <input id="artwork-pan-toggle" type="checkbox" data-artwork-pan-toggle {% if video_settings.get("artwork_pan_enabled", True) %}checked{% endif %}>
+            <span>Enable panning</span>
+          </label>
+        </div>
+
+        <div class="suite-control-block" data-artwork-direction-block>
+          <label class="suite-control-title">
+            <span>Pan Direction</span>
+          </label>
+          <div class="direction-buttons" data-artwork-pan-direction>
+            {% for dir in ['up', 'down', 'left', 'right'] %}
+            <button type="button" class="btn btn-xs {% if dir == video_settings.get('artwork_pan_direction', 'up') %}btn-dark{% else %}btn-outline-secondary{% endif %}"
+              data-direction="{{ dir }}">{{ dir|upper }}</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- PRESETS -->
+        <hr class="my-2">
+        <div class="suite-control-block">
+          <label class="suite-control-title">
+            <span>Quick Presets</span>
+          </label>
+          <div class="preset-grid">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-preset="minimal">Gallery Minimal</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-preset="commercial">Commercial Push</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-preset="social">Social Dynamic</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="suite-card action-center">
+        <h3>Action Center</h3>
+        <div class="status-box" data-status-box hidden>
+          <div class="status-head">
+            <span data-status-stage>idle</span>
+            <span data-status-percent>0%</span>
+          </div>
+          <div class="status-track">
+            <div class="status-fill" data-status-fill></div>
+          </div>
+          <small data-status-message>Waiting…</small>
+        </div>
+        <div class="action-row">
+          <a class="btn btn-sm btn-outline-secondary" data-download-btn href="{{ video_url or '#' }}"
+            download>Download</a>
+          <button type="button" class="btn btn-sm btn-outline-danger" data-delete-btn {% if not has_video %}disabled{%
+            endif %}>🗑</button>
+        </div>
+        <button type="button" class="btn btn-primary start-render" data-start-render>START RENDER</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Carousel Modal for Storyboard Mockups -->
+<div id="mockupCarouselModal" class="mockup-carousel-modal hidden" data-carousel-modal>
+  <button class="carousel-close" data-carousel-close title="Close (ESC)">×</button>
+  <button class="carousel-nav-btn carousel-nav-prev" data-carousel-prev title="Previous (← Arrow)">‹</button>
+  <div class="carousel-center-content">
+    <img class="carousel-image" id="carouselImage" alt="Mockup composite" data-stop-propagation>
+    <div class="carousel-info">
+      <span class="carousel-counter" id="carouselCounter"></span>
+      <label class="carousel-checkbox-label" title="Include in video generation">
+        <input type="checkbox" id="carouselCheckbox" class="carousel-checkbox" data-stop-propagation>
+        <span class="carousel-checkbox-text">Include in Video</span>
+      </label>
+    </div>
+  </div>
+  <button class="carousel-nav-btn carousel-nav-next" data-carousel-next title="Next (→ Arrow)">›</button>
+</div>
+
+{% endblock %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/video_suite.css') }}?v=20260311-02">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/video_cinematic.js') }}?v=20260308-03"></script>
+<script src="{{ url_for('static', filename='js/video_workspace_carousel.js') }}?v=20260311-01"></script>
+{% endblock %}

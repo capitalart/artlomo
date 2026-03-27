@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}?v=1.2">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis-loading.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom_input.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="custom-input-container" id="customInputApp" data-slug="{{ slug }}" data-unprocessed-url="{{ url_for('upload.unprocessed') }}">
+  <a href="{{ url_for('upload.unprocessed') }}" class="back-link">← Back to Unprocessed</a>
+
+  <div class="custom-input-header">
+    <div class="custom-input-thumb">
+      {% if thumb_url %}
+      <img src="{{ thumb_url }}" alt="{{ slug }} thumbnail">
+      {% else %}
+      <div class="custom-thumb-placeholder">No thumbnail</div>
+      {% endif %}
+    </div>
+    <div class="custom-input-info">
+      <h1>Custom Input</h1>
+      <p><strong>Artwork:</strong> {{ display_title or slug }}</p>
+      <p><strong>ID:</strong> {{ sku }}</p>
+      {% if original_filename %}
+      <p><strong>Original File:</strong> <span class="artwork-original-filename">{{ original_filename }}</span></p>
+      {% endif %}
+      <p class="custom-input-note">Provide context to guide the AI analysis. Location, sentiment, and original prompts
+        help ensure accurate and artistically faithful descriptions.</p>
+    </div>
+  </div>
+
+  <form method="post" action="{{ url_for('upload.save_seed_context', slug=slug) }}" class="seed-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="seed-form__group">
+      <label class="seed-form__label" for="location">Location / Inspiration</label>
+      <input type="text" id="location" name="location" class="seed-form__input"
+        placeholder="e.g., Limestone Coast, SA (Optional)" value="{{ seed_context.location or '' }}">
+    </div>
+
+    <div class="seed-form__group">
+      <label class="seed-form__label" for="sentiment">
+        General Info / Sentiment
+        <span class="seed-form__sublabel">Provide a word or phrase to set the mood/context for the AI</span>
+      </label>
+      <textarea id="sentiment" name="sentiment" class="seed-form__textarea"
+        placeholder="e.g., Melancholy, Ethereal, Rhythmic (Optional)">{{ seed_context.sentiment or seed_context.notes or '' }}</textarea>
+    </div>
+
+    <div class="seed-form__group">
+      <label class="seed-form__label" for="original_prompt">
+        Original Generation Prompt
+        <span class="seed-form__sublabel">For AI Context Only — Not Publicly Visible</span>
+      </label>
+      <textarea id="original_prompt" name="original_prompt" class="seed-form__textarea seed-form__textarea--tall"
+        placeholder="Paste MJ/DALL-E prompt here for internal AI guidance (Hidden from public)">{{ seed_context.original_prompt or '' }}</textarea>
+      <div class="seed-form__privacy-note">
+        <strong>Privacy Note:</strong> The original prompt is internal intelligence only. It helps the AI describe what
+        it observes in the artwork, but the raw prompt text will never appear in customer-facing descriptions.
+      </div>
+    </div>
+
+    <div class="seed-form__actions">
+      <button type="submit" name="action" value="analyze_openai" class="artlomo-btn artlomo-btn--primary"
+        data-action="analyze_openai">Save & Analyze (OpenAI)</button>
+      <button type="submit" name="action" value="analyze_gemini" class="artlomo-btn artlomo-btn--primary"
+        data-action="analyze_gemini">Save & Analyze (Gemini)</button>
+      <button type="submit" name="action" value="save_only" class="artlomo-btn artlomo-btn--outline"
+        data-action="save_only">Save Context Only</button>
+      <a href="{{ url_for('upload.unprocessed') }}" class="artlomo-btn">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<!-- SVG Icon Definition -->
+<svg class="hidden-svg">
+  <defs>
+    <symbol id="arrows-clockwise-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"></polyline>
+      <polyline points="1 20 1 14 7 14"></polyline>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+    </symbol>
+  </defs>
+</svg>
+
+<script src="{{ url_for('static', filename='js/analysis-loading.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom_input.js') }}"></script>
+{% endblock %}

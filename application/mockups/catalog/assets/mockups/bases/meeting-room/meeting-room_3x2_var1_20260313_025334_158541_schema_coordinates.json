@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/meeting-room/meeting-room_3x2_var1_20260313_025334_158541.png",
+  "generated_at": "2026-03-13T02:53:34.266261Z",
+  "points": [
+    {
+      "x": 842,
+      "y": 452
+    },
+    {
+      "x": 1466,
+      "y": 454
+    },
+    {
+      "x": 1158,
+      "y": 1299
+    },
+    {
+      "x": 843,
+      "y": 1304
+    }
+  ]
+}

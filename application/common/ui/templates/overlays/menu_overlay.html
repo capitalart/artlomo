@@ -1,0 +1,73 @@
+<div class="overlay-layer" data-overlay="admin" data-open="false" aria-hidden="true" id="menu-overlay">
+  <div class="overlay-backdrop" data-overlay-backdrop="admin"></div>
+  <div class="overlay-body" role="dialog" aria-modal="true" aria-label="Admin Hub overlay">
+    <div class="container overlay-content">
+      <div class="overlay-panel">
+        {% set ep = request.endpoint or '' %}
+        {% set path = request.path or '' %}
+
+        <p class="overlay-heading">Admin Hub</p>
+
+        {% macro overlay_link(label, href, is_active=False) -%}
+          <li>
+            <a class="overlay-nav-link overlay-sub{% if is_active %} active{% endif %}"
+               href="{{ href }}"{% if is_active %} aria-current="page"{% endif %}>{{ label }}</a>
+          </li>
+        {%- endmacro %}
+
+        {% macro overlay_heading(title) -%}
+          <li class="overlay-item">{{ title }}</li>
+        {%- endmacro %}
+
+        {% macro overlay_placeholder(label, note) -%}
+          <li>
+            <button class="overlay-nav-link overlay-sub overlay-disabled" type="button" aria-disabled="true">{{ label }} — {{ note }}</button>
+          </li>
+        {%- endmacro %}
+
+        <div class="overlay-columns" role="navigation" aria-label="Menu">
+          <div class="overlay-column">
+            <p class="overlay-column__title">Workflows</p>
+            <ul class="overlay-list">
+              {{ overlay_link('Upload', url_for('upload.upload_page'), ep == 'upload.upload_page' or path.startswith('/artworks/upload')) }}
+              {{ overlay_link('Analysis', url_for('upload.unprocessed'), ep == 'upload.unprocessed' or path.startswith('/artworks/unprocessed')) }}
+              {{ overlay_link('Unprocessed', url_for('upload.unprocessed'), ep == 'upload.unprocessed' or path.startswith('/artworks/unprocessed')) }}
+              {{ overlay_link('Processed', url_for('upload.processed'), ep == 'upload.processed' or path.startswith('/artworks/processed')) }}
+            </ul>
+          </div>
+
+          <div class="overlay-column">
+            <p class="overlay-column__title">Library</p>
+            <ul class="overlay-list">
+              {{ overlay_link('Mockup Library', url_for('mockups_admin.bases'), ep.startswith('mockups_admin.') and 'bases' in ep or path.startswith('/admin/mockups/bases')) }}
+              {{ overlay_link('Category Manager', url_for('mockups_admin.category_manager'), ep == 'mockups_admin.category_manager' or path.startswith('/admin/mockups/categories')) }}
+              {{ overlay_link('Locked', url_for('upload.locked'), ep == 'upload.locked' or path.startswith('/artworks/locked')) }}
+               {{ overlay_link('Mockup Generator', url_for('mockup_generator.mockup_generator_dashboard'), ep == 'mockup_generator.mockup_generator_dashboard' or path.startswith('/admin/mockups/mockup-generator')) }}
+              {{ overlay_link('Mockup Queue Admin', url_for('mockup_generator.mockup_generator_queue_admin_page'), ep == 'mockup_generator.mockup_generator_queue_admin_page' or path.startswith('/admin/mockups/mockup-generator/queue-admin')) }}
+              {{ overlay_link('Mockup Prompt Settings', url_for('mockup_generator.mockup_generator_prompt_settings'), ep == 'mockup_generator.mockup_generator_prompt_settings' or path.startswith('/admin/mockups/mockup-generator/prompt-settings')) }}
+               {{ overlay_link('Solid Image Utility', url_for('utility.solid_image_generator_form'), ep == 'utility.solid_image_generator_form' or path.startswith('/admin/mockups/solid-image-generator')) }}
+              {{ overlay_link('Trash', url_for('upload.trash'), ep == 'upload.trash' or path.startswith('/artworks/trash')) }}
+            </ul>
+          </div>
+
+          <div class="overlay-column">
+            <p class="overlay-column__title">System</p>
+            <ul class="overlay-list">
+              {{ overlay_link('Hub', url_for('hub.home'), ep.startswith('hub.') and not ep.endswith('style_editor') or path.startswith('/admin/hub')) }}
+              {{ overlay_link('Style Editor', url_for('hub.style_editor'), ep == 'hub.style_editor' or path.startswith('/admin/hub/style')) }}
+              {{ overlay_link('Analysis Management', url_for('analysis_management.analysis_management_hub'), ep == 'analysis_management.analysis_management_hub' or path.startswith('/admin/analysis-management')) }}
+              {{ overlay_link('Analysis Jobs', url_for('analysis_management.analysis_jobs_admin_page'), ep == 'analysis_management.analysis_jobs_admin_page' or path.startswith('/admin/analysis-management/jobs')) }}
+              {{ overlay_link('Settings', url_for('admin_settings.settings_page'), path.startswith('/admin/settings')) }}
+              {% if session.get('role') == 'admin' or session.get('is_admin') %}
+                {{ overlay_link('User Manager', url_for('admin_users.users_page'), path.startswith('/admin/users')) }}
+              {% endif %}
+              {% if session.get('username') %}
+                {{ overlay_link('Logout', url_for('auth.logout'), false) }}
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

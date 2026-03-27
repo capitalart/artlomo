@@ -1,0 +1,175 @@
+{% extends 'admin_base.html' %}
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/gemini_studio.css') }}">
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/precision_mockups.css') }}">
+{% endblock %}
+
+{% block admin_content %}
+<section
+  class="gemini-studio precision-mockups"
+  data-precision-mockups
+  data-queue-endpoint="{{ url_for('mockups_admin.precision_mockups_generate') }}"
+  data-status-endpoint="{{ url_for('mockups_admin.precision_mockups_status') }}"
+  data-delete-endpoint-template="{{ url_for('mockups_admin.precision_mockup_delete', job_id=0) }}"
+  data-csrf-token="{{ csrf_token }}"
+>
+  <header class="gemini-studio__header">
+    <div>
+      <h1 class="h4 mb-1">Precision Mockups</h1>
+      <p class="text-body-secondary mb-0">
+        Fresh-start deterministic pipeline: Gemini scene generation, local OpenCV frame detection, local perspective composite, and visual QA overlay.
+      </p>
+    </div>
+    <div class="gemini-studio__worker {{ 'is-online' if worker_running else 'is-offline' }}">
+      {{ 'Celery worker online' if worker_running else 'Celery worker offline' }}
+    </div>
+  </header>
+
+  <form class="gemini-studio__form" data-precision-form novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <div class="gemini-studio__field">
+      <label class="form-label" for="precision-image-input">Artwork Source (Optional)</label>
+      <div
+        id="precision-dropzone"
+        class="upload-dropzone gemini-studio__dropzone"
+        role="button"
+        tabindex="0"
+        aria-label="Upload artwork by click or drag and drop"
+        data-precision-dropzone
+      >
+        <p class="upload-hint">Drag &amp; drop artwork or placeholder</p>
+        <p class="upload-constraints">PNG, JPG, or WebP. Leave empty to auto-load the matching artwork-only placeholder.</p>
+        <p class="upload-constraints" data-precision-file-name>Using auto-selected placeholder.</p>
+      </div>
+      <input
+        id="precision-image-input"
+        name="image"
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+        hidden
+        data-precision-image-input
+      >
+    </div>
+
+    <div class="gemini-studio__grid">
+      <div class="gemini-studio__field">
+        <label for="precision-aspect" class="form-label">Aspect Ratio</label>
+        <select id="precision-aspect" name="aspect_ratio" class="form-select" data-precision-aspect required>
+          {% for aspect in aspects %}
+          <option value="{{ aspect }}" {% if aspect == '4x5' %}selected{% endif %}>{{ aspect }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="gemini-studio__field">
+        <label for="precision-category" class="form-label">Category</label>
+        <select id="precision-category" name="category" class="form-select" data-precision-category required>
+          {% for category in categories %}
+          <option value="{{ category }}" {% if category == 'living-room' %}selected{% endif %}>{{ category }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="gemini-studio__field">
+      <label class="form-label" for="precision-prompt">Raw Prompt</label>
+      <textarea
+        id="precision-prompt"
+        name="prompt"
+        class="form-control"
+        rows="6"
+        maxlength="4000"
+        data-precision-prompt
+        placeholder="Describe the room scene. Precision Mockups will add the mandatory matte black frame constraint automatically."
+      ></textarea>
+    </div>
+
+    <div class="gemini-studio__actions">
+      <button type="submit" class="btn btn-primary" data-precision-submit>Generate Precision Mockup</button>
+      <button type="button" class="gallery-btn gallery-btn--outline" data-precision-refresh>Refresh Now</button>
+      <span class="text-body-secondary" data-precision-status aria-live="polite"></span>
+    </div>
+  </form>
+
+  <section class="gemini-studio__results">
+    <div class="gemini-studio__results-header">
+      <div>
+        <h2 class="h5 mb-0">Results</h2>
+        <p class="text-body-secondary mb-0">The red overlay traces the detected quadrilateral so you can validate the geometry at a glance.</p>
+      </div>
+    </div>
+    <div class="gemini-studio__cards" data-precision-cards>
+      {% for job in recent_jobs %}
+      <article class="studio-card" data-precision-job-id="{{ job.id }}">
+        <div class="studio-card__top">
+          <div>
+            <div class="studio-card__title">{{ job.category }} · {{ job.aspect_ratio }}</div>
+            <div class="studio-card__meta">{{ (job.prompt_text or '')[:80] }}{% if job.prompt_text and job.prompt_text|length > 80 %}…{% endif %}</div>
+          </div>
+          <div>
+            <div class="studio-card__badge studio-card__badge--{{ job.status|lower }}">{{ job.status }}</div>
+            {% if job.error_message %}
+            <div class="ezy-failure-reason" title="{{ job.error_message }}">
+              Failure: {{ job.error_message[:90] }}{% if job.error_message|length > 90 %}…{% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if job.room_image_url %}
+        <div class="studio-card__meta">Composite Room JPEG</div>
+        <div class="precision-overlay-frame">
+          <img src="{{ job.room_image_url }}" class="studio-card__image" alt="Precision room output" loading="lazy">
+          {% if job.frame_overlay_points and job.image_width and job.image_height %}
+          <svg class="precision-overlay-svg" viewBox="0 0 {{ job.image_width }} {{ job.image_height }}" preserveAspectRatio="none" aria-hidden="true">
+            <polygon
+              points="{% for point in job.frame_overlay_points %}{% if point %}{{ point[0] }},{{ point[1] }} {% endif %}{% endfor %}"
+              class="precision-overlay-polygon"
+            ></polygon>
+            {% for point in job.frame_overlay_points %}
+            {% if point %}
+            <circle cx="{{ point[0] }}" cy="{{ point[1] }}" r="12" class="precision-overlay-point"></circle>
+            {% endif %}
+            {% endfor %}
+          </svg>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if job.transparent_image_url %}
+        <div class="studio-card__meta">Transparent PNG</div>
+        <img src="{{ job.transparent_image_url }}" class="studio-card__image" alt="Precision transparent output" loading="lazy">
+        {% endif %}
+
+        <details class="ezy-result-drawer">
+          <summary>Detection Data</summary>
+          <pre class="ezy-verifier-json">{{ job.result_details | tojson(indent=2) }}</pre>
+        </details>
+
+        <div class="studio-card__actions">
+          {% if job.transparent_image_url %}
+          <a class="gallery-btn gallery-btn--sm gallery-btn--outline" href="{{ job.transparent_image_url }}" download>
+            Download PNG
+          </a>
+          {% endif %}
+          <button class="gallery-btn gallery-btn--sm gallery-btn--outline gallery-btn--danger" type="button" data-precision-delete="{{ job.id }}">
+            Delete
+          </button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <div class="gemini-studio__empty" data-precision-empty-state>
+      <p class="text-body-secondary text-center">No Precision Mockups yet.</p>
+    </div>
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('mockups_admin.static', filename='js/precision_mockups.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'admin_base.html' %}
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mockups_admin.css') }}">
+{% endblock %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+  <div>
+    <h1 class="h4 mb-1">Aspect Ratio Manager</h1>
+    <p class="text-body-secondary mb-0">Physical folder source-of-truth for mockup bases.</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary" href="{{ url_for('mockups_admin.bases') }}">Back to Mockup Bases</a>
+  </div>
+</div>
+
+<div class="mb-3 small text-body-secondary">Base root: <span class="text-monospace">{{ base_root }}</span></div>
+
+<div class="row gy-3 gx-3">
+  <div class="col-12 col-lg-6">
+    <div class="mockup-manager-card">
+      <div class="fw-semibold mb-2">Create aspect</div>
+      <form method="post" class="row gy-2 gx-2 align-items-end">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="action" value="create">
+        <div class="col-12 col-md-8">
+          <label class="form-label" for="aspect-create">Aspect ratio</label>
+          <input id="aspect-create" name="aspect" type="text" class="form-control" list="standard-aspects"
+            placeholder="e.g. 4x5">
+          <datalist id="standard-aspects">
+            {% for a in standard_aspects %}
+            <option value="{{ a }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end">
+          <button class="btn btn-primary w-100" type="submit">Create</button>
+        </div>
+      </form>
+      <div class="mt-2 small text-body-secondary">Creates <span
+          class="text-monospace">&lt;aspect&gt;/&lt;category&gt;</span> folders for all existing categories.</div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="mockup-manager-card">
+      <div class="fw-semibold mb-2">Delete aspect</div>
+      <form method="post" class="row gy-2 gx-2 align-items-end">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="action" value="delete">
+        <div class="col-12 col-md-8">
+          <label class="form-label" for="aspect-delete">Aspect ratio</label>
+          <select id="aspect-delete" name="aspect" class="form-select" required>
+            <option value="" selected disabled>Choose aspect</option>
+            {% for a in aspects %}
+            <option value="{{ a }}">{{ a }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end">
+          <button class="btn btn-danger w-100" type="submit">Delete</button>
+        </div>
+      </form>
+      <div class="mt-2 small text-body-secondary">Deletion is blocked if any files exist under the aspect folder.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <form method="post" class="d-flex gap-2 flex-wrap">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="action" value="ensure_standard">
+    <button class="btn btn-dark mockup-btn-hard" type="submit">Ensure Standard Aspects</button>
+  </form>
+</div>
+
+<div class="mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="fw-semibold">Current aspects</div>
+    <div class="small text-body-secondary">{{ aspects | length }} total</div>
+  </div>
+  <div class="template-grid">
+    {% for a in aspects %}
+    <div class="mockup-card">
+      <div class="fw-semibold">{{ a }}</div>
+      <div class="small text-body-secondary">{{ categories | length }} category folders expected</div>
+    </div>
+    {% endfor %}
+    {% if not aspects %}
+    <div class="mockup-card">
+      <div class="text-body-secondary">No aspect folders found yet.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

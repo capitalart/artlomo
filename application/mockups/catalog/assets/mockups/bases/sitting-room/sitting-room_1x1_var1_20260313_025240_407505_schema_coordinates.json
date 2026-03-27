@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/sitting-room/sitting-room_1x1_var1_20260313_025240_407505.png",
+  "generated_at": "2026-03-13T02:52:40.552301Z",
+  "points": [
+    {
+      "x": 696,
+      "y": 388
+    },
+    {
+      "x": 1212,
+      "y": 324
+    },
+    {
+      "x": 1213,
+      "y": 1149
+    },
+    {
+      "x": 697,
+      "y": 1140
+    }
+  ]
+}

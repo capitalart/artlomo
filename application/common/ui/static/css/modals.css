@@ -1,0 +1,211 @@
+/* Modal styling for delete confirmation and other modals */
+.modal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-layer[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-dialog {
+  z-index: 1600;
+  background: var(--color-card-bg);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-card-border);
+  padding: 24px;
+  width: 95vw;
+  max-width: 95vw;
+  max-height: 95vh;
+  display: grid;
+  gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.modal-body {
+  display: grid;
+  gap: 12px;
+}
+
+.modal-row {
+  display: grid;
+  gap: 6px;
+}
+
+.modal-label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-slug {
+  font-family: monospace;
+  margin: 0;
+  word-break: break-all;
+}
+
+.modal-thumb {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border-primary);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-button {
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  border: 1px solid var(--color-text-primary);
+  min-width: 120px;
+  height: var(--button-height);
+}
+
+.modal-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-close {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-text-primary);
+  min-width: 120px;
+  height: var(--button-height);
+}
+
+/* Carousel Modal Standards */
+.modal-sheet[data-carousel-modal] {
+  position: fixed;
+  inset: 0;
+  z-index: 2000; /* Higher than sidebar (1000) and other UI */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.modal-sheet[data-carousel-modal][data-open="true"] {
+  display: flex;
+}
+
+/* Export confirmation modal styling */
+.export-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.export-modal-backdrop.export-modal-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.export-modal-dialog {
+  z-index: 1600;
+  background: var(--color-card-bg);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-card-border);
+  
+  padding: 0;
+  width: 90vw;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.export-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.export-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-bottom: 1px solid var(--color-card-divider);
+}
+
+.export-modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.export-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.export-modal-close:hover {
+  color: var(--color-text-primary);
+}
+
+.export-modal-body {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+}
+
+.export-modal-body p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.export-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid var(--color-card-divider);
+  background: var(--color-background);
+}

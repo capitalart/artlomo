@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Virtualenv
+.venv/
+
+# Test caches
+.pytest_cache/
+
+# Logs (keep directories, ignore log files)
+logs/*.log
+
+# Environment & Configuration
+.env
+.env.local
+.env.*.local
+config/*.secret.*
+secrets/
+*.key
+*.pem
+.htpasswd*
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Runtime
+var/
+copilot-work/
+application/lab/
+application/mockups/mockup-templates/
+application/tools/app-stacks/stacks/
+application/tools/app-stacks/backups/
+
+# Node modules (development dependencies)
+node_modules/
+application/video_worker/node_modules/
+
+*.tmp
+temp/
+tmp/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Backups & Archives  
+*.bak
+*.backup
+*.tar.gz
+*.zip
+artlomo_backups/
+previous-documents/
+.copilot-undo/
+previous-chat.md

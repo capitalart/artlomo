@@ -1,0 +1,152 @@
+{% extends 'admin_base.html' %}
+{% block admin_content %}
+<h1 class="artlomo-page-title">Profile</h1>
+<p class="artlomo-page-subtitle">Edit the artist identity used in Heritage-First prompts.</p>
+
+<form method="post" action="{{ url_for('admin_profile.profile_page') }}" class="vstack gap-3"
+  enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="form_action" value="save_profile">
+
+  <div>
+    <label class="form-label" for="artist_name">Artist Name</label>
+    <input class="form-control" id="artist_name" name="artist_name" type="text"
+      value="{{ (profile.get('artist_name') or '') }}" autocomplete="off">
+  </div>
+
+  <div>
+    <label class="form-label" for="profile_image">Profile Image</label>
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <input class="form-control" id="profile_image" name="profile_image" type="file" accept="image/*">
+      {% if profile.get('profile_image_path') %}
+      <img src="{{ profile.get('profile_image_path') }}" alt="Profile image" class="profile-avatar">
+      {% else %}
+      <div class="profile-avatar profile-avatar-placeholder">RC</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <label class="form-label" for="artist_story">Artist Story</label>
+    <textarea class="form-control" id="artist_story" name="artist_story"
+      rows="8">{{ (profile.get('artist_story') or '') }}</textarea>
+  </div>
+
+  <div class="theme-form__actions">
+    <button class="artlomo-btn artlomo-btn--save" type="submit">Save</button>
+    <a class="artlomo-btn" href="{{ url_for('hub.home') }}">Back to Hub</a>
+  </div>
+</form>
+
+<hr class="divider-large">
+
+<h2 class="artlomo-page-title section-title">Security & Account Info</h2>
+<p class="artlomo-page-subtitle">View your account details and update your password.</p>
+
+<div class="vstack gap-3 settings-container">
+  <div>
+    <label class="form-label">Username</label>
+    <input class="form-control input-disabled" type="text" value="{{ username or 'N/A' }}" readonly disabled>
+  </div>
+
+  <form method="post" action="{{ url_for('admin_profile.profile_page') }}" class="vstack gap-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="form_action" value="update_email">
+    <div>
+      <label class="form-label" for="email">Registered Email</label>
+      <div class="email-form-group">
+        <input class="form-control email-input" id="email" name="email" type="email"
+          value="{{ user_info.get('email', '') if user_info else '' }}" placeholder="Enter your email">
+        <button type="submit" class="artlomo-btn artlomo-btn--save btn-nowrap">Update Email</button>
+      </div>
+      <small class="text-muted">Your email for account recovery and notifications.</small>
+    </div>
+  </form>
+</div>
+
+<h3 class="section-subtitle">Update Password</h3>
+<form method="post" action="{{ url_for('admin_profile.profile_page') }}" class="vstack gap-3 settings-container">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="form_action" value="update_password">
+
+  <div>
+    <label class="form-label" for="current_password">Current Password</label>
+    <input class="form-control" id="current_password" name="current_password" type="password" required
+      autocomplete="current-password">
+  </div>
+
+  <div>
+    <label class="form-label" for="new_password">New Password</label>
+    <input class="form-control" id="new_password" name="new_password" type="password" required
+      autocomplete="new-password" minlength="12">
+    <small class="text-muted">Min 12 chars, with uppercase, lowercase, number, and special character (!@#$%^&*
+      etc)</small>
+  </div>
+
+  <div>
+    <label class="form-label" for="confirm_password">Confirm New Password</label>
+    <input class="form-control" id="confirm_password" name="confirm_password" type="password" required
+      autocomplete="new-password">
+  </div>
+
+  <div class="theme-form__actions">
+    <button class="artlomo-btn artlomo-btn--save" type="submit">Update Password</button>
+  </div>
+</form>
+
+<hr class="divider-danger">
+
+<div class="danger-zone danger-container">
+  <h2 class="danger-title">Danger Zone</h2>
+  <p class="danger-text">
+    Permanently delete your account and all associated data. This action cannot be undone.
+  </p>
+  <button type="button" class="artlomo-btn artlomo-btn--danger danger-btn" id="delete-account-btn">
+    Delete My Account
+  </button>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal-layer modal-hidden" data-modal="delete-account" data-expected-username="{{ username }}" aria-hidden="true">
+  <div class="modal-dialog profile-modal-dialog" role="dialog" aria-modal="true"
+    aria-labelledby="delete-account-modal-title">
+    <div class="modal-header profile-modal-header">
+      <h2 class="modal-title profile-modal-title-danger" id="delete-account-modal-title">Delete Account</h2>
+      <button type="button" class="modal-close" data-modal-dismiss-account>&times;</button>
+    </div>
+    <div class="modal-body profile-modal-body">
+      <p class="profile-modal-p"><strong>Warning:</strong> This will permanently delete:</p>
+      <ul class="profile-modal-ul">
+        <li>Your user account</li>
+        <li>All artworks you have uploaded</li>
+        <li>All exported files</li>
+      </ul>
+      <p class="profile-modal-p">Type <strong>{{ username }}</strong> to confirm:</p>
+      <input type="text" class="form-control" id="delete-confirm-input" placeholder="Enter your username"
+        autocomplete="off">
+    </div>
+    <div class="modal-footer profile-modal-footer">
+      <button type="button" class="artlomo-btn" data-modal-dismiss-account>Cancel</button>
+      <form method="post" action="{{ url_for('admin_profile.delete_account') }}" id="delete-account-form"
+        class="profile-btn-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="form_action" value="delete_account">
+        <button type="submit" class="artlomo-btn artlomo-btn--danger profile-btn-danger" id="confirm-delete-btn"
+          disabled>
+          Permanently Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}
+{% endblock %}

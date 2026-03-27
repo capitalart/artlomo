@@ -1,0 +1,134 @@
+#latest-results {
+  margin-top: 1rem;
+}
+
+#latest-results .card {
+  border: 1px solid var(--color-border-primary, #e0e0e0);
+  background: var(--color-bg-primary, #ffffff);
+  border-radius: 4px;
+}
+
+#latest-results .card-body {
+  padding: 1.25rem;
+}
+
+#latest-results .h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+#latest-results .fw-semibold {
+  font-weight: 600;
+}
+
+#latest-results .text-body-secondary {
+  color: var(--text-secondary, #666);
+}
+
+#latest-results .small {
+  font-size: 0.875rem;
+}
+
+#latest-results .row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+#latest-results pre {
+  max-height: 240px;
+  overflow: auto;
+  background: var(--color-bg-secondary, #f9f9f9);
+  border: 1px solid var(--color-border-secondary, #e0e0e0);
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.latest-results-hidden {
+  display: none;
+}
+
+.latest-results-hidden.visible {
+  display: block;
+}
+
+.storage-management-container {
+  max-width: 600px;
+}
+
+.storage-management-panel {
+  padding: 1rem;
+  background: var(--color-bg-secondary, #f9f9f9);
+  border: 1px solid var(--color-border-primary, #e0e0e0);
+  border-radius: 4px;
+  color: var(--text-primary, #000);
+}
+
+.storage-management-panel h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary, #000);
+}
+
+.storage-management-panel p {
+  margin-bottom: 1rem;
+  color: var(--text-secondary, #666);
+  font-size: 0.9rem;
+}
+
+.storage-management-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.storage-management-actions form {
+  display: inline;
+}
+
+.storage-management-actions .artlomo-btn--danger {
+  background: var(--color-danger, #c8252d);
+  color: #fff;
+}
+
+.storage-management-actions .artlomo-btn--danger:hover {
+  background: var(--color-danger-hover, #a81e23);
+}
+
+.settings-divider {
+  margin: 2.5rem 0;
+  border: none;
+  border-top: 1px solid var(--color-border-primary, #e0e0e0);
+}
+
+@media (prefers-color-scheme: dark) {
+  #latest-results .card {
+    background: var(--color-bg-primary, #1a1a1a);
+    border-color: var(--color-border-primary, #333);
+  }
+
+  #latest-results pre {
+    background: var(--color-bg-secondary, #2a2a2a);
+    border-color: var(--color-border-secondary, #444);
+    color: var(--text-primary, #fff);
+  }
+
+  .storage-management-panel {
+    background: var(--color-bg-secondary, #2a2a2a);
+    border-color: var(--color-border-primary, #444);
+    color: var(--text-primary, #fff);
+  }
+
+  .storage-management-panel h3 {
+    color: var(--text-primary, #fff);
+  }
+
+  .storage-management-panel p {
+    color: var(--text-secondary, #aaa);
+  }
+}

@@ -1,0 +1,213 @@
+{% extends 'admin_base.html' %}
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/gemini_studio.css') }}">
+{% endblock %}
+
+{% block admin_content %}
+<section
+  class="gemini-studio"
+  data-gemini-studio
+  data-queue-endpoint="{{ url_for('mockups_admin.gemini_studio_generate') }}"
+  data-status-endpoint="{{ url_for('mockups_admin.gemini_studio_status') }}"
+  data-delete-endpoint-template="{{ url_for('mockups_admin.gemini_studio_delete', job_id=0) }}"
+  data-clear-pending-endpoint="{{ url_for('mockups_admin.gemini_studio_clear_all_pending') }}"
+  data-library-endpoint-template="{{ url_for('mockups_admin.gemini_studio_add_to_library', job_id=0) }}"
+  data-csrf-token="{{ csrf_token }}"
+>
+  <header class="gemini-studio__header">
+    <div>
+      <h1 class="h4 mb-1">Gemini Mockup Studio</h1>
+      <p class="text-body-secondary mb-0">
+        Queue 1 to 10 Gemini variations using an uploaded artwork reference or automatic aspect-specific artwork placeholders, then add keepers to the mockup library.
+      </p>
+    </div>
+    <div class="gemini-studio__worker {{ 'is-online' if worker_running else 'is-offline' }}">
+      {{ 'Celery worker online' if worker_running else 'Celery worker offline' }}
+    </div>
+  </header>
+
+  <form class="gemini-studio__form" data-gemini-studio-form novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="source_placeholder" value="1x1-artwork-placeholder.png" data-studio-source-placeholder>
+
+    <div class="gemini-studio__field">
+      <div class="gemini-studio__prompt-header">
+        <label for="studio-prompt" class="form-label">Prompt</label>
+        <button type="button" class="gallery-btn gallery-btn--outline" data-studio-auto-prompt>
+          Auto Generate Prompt
+        </button>
+      </div>
+      <textarea
+        id="studio-prompt"
+        name="prompt"
+        class="form-control"
+        rows="6"
+        maxlength="4000"
+        placeholder="Describe the mockup you want Gemini to generate..."
+        data-studio-prompt
+        required
+      ></textarea>
+      <p class="text-body-secondary gemini-studio__hint">Include subject, room style, camera framing, lighting, and overall mood.</p>
+    </div>
+
+    <div class="gemini-studio__grid">
+      <div class="gemini-studio__field">
+        <label for="studio-placeholder-type" class="form-label">Placeholder Type</label>
+        <select id="studio-placeholder-type" name="placeholder_type" class="form-select" data-studio-placeholder-type>
+          <option value="artwork-only" selected>ARTWORK PLACEHOLDER</option>
+          <option value="outlined">OUTLINED PLACEHOLDER</option>
+        </select>
+      </div>
+
+      <div class="gemini-studio__field">
+        <label for="studio-aspect" class="form-label">Artwork Aspect Ratio</label>
+        <select id="studio-aspect" name="aspect_ratio" class="form-select" data-studio-aspect>
+          {% for aspect in aspects %}
+          <option value="{{ aspect }}" {% if aspect == '1x1' %}selected{% endif %}>{{ aspect }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="gemini-studio__field">
+        <label for="studio-category" class="form-label">Target Category</label>
+        <select id="studio-category" name="category" class="form-select" data-studio-category>
+          {% for category in categories %}
+          <option value="{{ category }}" {% if category == 'uncategorised' %}selected{% endif %}>{{ category }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="gemini-studio__field">
+        <label for="studio-variations" class="form-label">Variations</label>
+        <select id="studio-variations" name="variations" class="form-select" data-studio-variations>
+          {% for count in range(1, 11) %}
+          <option value="{{ count }}" {% if count == 4 %}selected{% endif %}>{{ count }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="gemini-studio__field" style="display:none;" data-studio-upload-field>
+      <label class="form-label" for="studio-image-input">Reference Upload (Manual Override)</label>
+      <div
+        id="studio-dropzone"
+        class="upload-dropzone gemini-studio__dropzone"
+        role="button"
+        tabindex="0"
+        aria-label="Upload artwork by click or drag and drop"
+        data-studio-dropzone
+      >
+        <p class="upload-hint">Drag &amp; drop to override auto-selected placeholder</p>
+        <p class="upload-constraints">PNG, JPG, or WebP. Leave empty to use auto-selected placeholder for aspect ratio.</p>
+        <p class="upload-constraints" data-studio-file-name>Using auto-selected placeholder.</p>
+      </div>
+      <input
+        id="studio-image-input"
+        name="image"
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+        hidden
+        data-studio-image-input
+      >
+    </div>
+
+    <div class="gemini-studio__actions">
+      <button type="submit" class="btn btn-primary" data-studio-submit disabled>Queue Variations</button>
+      <span class="text-body-secondary" data-studio-status aria-live="polite"></span>
+    </div>
+  </form>
+
+  <section class="gemini-studio__results">
+    <div class="gemini-studio__results-header">
+      <div>
+        <h2 class="h5 mb-0">Queued Results</h2>
+        <p class="text-body-secondary mb-0">Completed images appear here with add-to-library and delete controls.</p>
+      </div>
+      <div class="gemini-studio__header-actions">
+        <button class="gallery-btn gallery-btn--outline" type="button" data-studio-refresh>
+          Refresh Now
+        </button>
+        <button class="gallery-btn gallery-btn--danger" type="button" data-studio-clear-pending title="Permanently delete all pending jobs and their files">
+          🛑 Stop & Clear All Pending
+        </button>
+      </div>
+    </div>
+    <div class="gemini-studio__cards" data-studio-cards>
+      {% for job in recent_jobs %}
+      <article class="studio-card" data-studio-job-id="{{ job.id }}">
+        <div class="studio-card__top">
+          <div>
+            <div class="studio-card__title">{{ job.category }} · {{ job.aspect_ratio }} · v{{ job.variation_index }}</div>
+            <div class="studio-card__meta">{{ (job.prompt_text or '')[:60] }}{% if job.prompt_text and job.prompt_text|length > 60 %}…{% endif %}</div>
+          </div>
+          <div class="studio-card__badge studio-card__badge--{{ job.status|lower }}">{{ job.status }}</div>
+        </div>
+
+        {% if job.image_url %}
+        <button class="studio-card__image-button" type="button" data-studio-carousel-trigger data-studio-image-url="{{ job.image_url }}" data-studio-image-name="{{ job.category }} · {{ job.aspect_ratio }} · v{{ job.variation_index }}">
+          <img src="{{ job.image_url }}" alt="{{ job.category }} variation {{ job.variation_index }}" class="studio-card__image" loading="lazy">
+        </button>
+        {% else %}
+        <div class="studio-card__placeholder">{{ job.error_message if job.error_message else 'Waiting for worker output...' }}</div>
+        {% endif %}
+
+        <div class="studio-card__footer">
+          <div class="studio-card__footer-meta">{{ job.created_at if job.created_at else '' }}</div>
+          <div class="studio-card__actions">
+            <button class="gallery-btn gallery-btn--primary" type="button" data-studio-add {% if job.status != 'Completed' or job.added_to_library %}disabled{% endif %}>
+              {{ 'Added' if job.added_to_library else 'Add to Library' }}
+            </button>
+            <button class="gallery-btn gallery-btn--outline" type="button" data-studio-view-text>
+              View Text
+            </button>
+            <button class="gallery-btn gallery-btn--outline" type="button" data-studio-delete>Delete</button>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="modal-sheet" data-carousel-modal>
+    <div class="modal-card mockup-carousel__card">
+      <div class="bases-header-row">
+        <h2 class="bases-title" data-carousel-title>Generated preview</h2>
+        <button class="gallery-btn gallery-btn--outline" type="button" data-carousel-close>Close</button>
+      </div>
+      <div class="mockup-carousel__frame">
+        <button class="gallery-btn gallery-btn--outline" type="button" data-carousel-prev>&lsaquo;</button>
+        <img data-carousel-image class="mockup-carousel__image" alt="Generated preview image" />
+        <button class="gallery-btn gallery-btn--outline" type="button" data-carousel-next>&rsaquo;</button>
+      </div>
+      <div class="bases-pagination">
+        <div data-carousel-counter></div>
+        <a class="gallery-btn gallery-btn--outline" href="#" target="_blank" rel="noopener" data-carousel-open>Open full size</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-sheet" data-studio-text-modal>
+    <div class="modal-card gemini-studio__text-modal-card">
+      <div class="bases-header-row">
+        <h2 class="bases-title">Full Gemini Request Text Compilation</h2>
+        <button class="gallery-btn gallery-btn--outline" type="button" data-studio-text-close>Close</button>
+      </div>
+      <p class="text-body-secondary mb-2" data-studio-text-meta>Loading...</p>
+      <textarea
+        class="form-control gemini-studio__text-modal-field"
+        data-studio-text-content
+        rows="18"
+        readonly
+        spellcheck="false"
+      >Loading complete compiled text...</textarea>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('mockups_admin.static', filename='js/gemini_studio.js') }}"></script>
+{% endblock %}

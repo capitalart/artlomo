@@ -1,0 +1,55 @@
+{% extends 'admin_base.html' %}
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mockups_admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+{% endblock %}
+{% block admin_content %}
+<h1 class="h4 mb-2">Upload Mockup Bases</h1>
+<p class="text-body-secondary">Upload raw mockup PNG bases; coordinates will be generated automatically after upload.</p>
+
+<form method="post" enctype="multipart/form-data" action="{{ url_for('mockups_admin.upload_bases') }}" class="row gy-3 mt-2">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="col-md-6">
+    <label for="tpl-slug" class="form-label">Slug (optional)</label>
+    <input id="tpl-slug" name="slug" type="text" class="form-control" value="{{ form_data.slug }}" placeholder="Defaults to filename when left blank; duplicates are auto-suffixed">
+  </div>
+  <div class="col-md-6">
+    <label for="tpl-category" class="form-label">Category (optional)</label>
+    <input id="tpl-category" name="category" list="category-list" type="text" class="form-control" value="{{ form_data.category }}" placeholder="Defaults to uncategorised">
+    <datalist id="category-list">
+      {% for cat in categories %}
+        <option value="{{ cat }}"></option>
+      {% endfor %}
+    </datalist>
+  </div>
+  <div class="col-md-4">
+    <label for="tpl-aspect" class="form-label">Aspect ratio (optional)</label>
+    <input id="tpl-aspect" name="aspect_ratio" type="text" list="aspect-list" class="form-control" value="{{ form_data.aspect_ratio }}" placeholder="Leave blank to detect later">
+    <datalist id="aspect-list">
+      {% for aspect in aspects %}
+        <option value="{{ aspect }}"></option>
+      {% endfor %}
+    </datalist>
+  </div>
+  <div class="col-12">
+    <label class="form-label" for="tpl-base">Base PNGs (RGBA)</label>
+    <div class="upload-dropzone" data-upload-dropzone data-upload-max="25">
+      <p class="upload-hint">Drag &amp; drop mockup PNGs here or click to select</p>
+      <p class="upload-constraints" data-upload-constraints>PNG only • transparency required • max 25 per batch</p>
+      <p class="upload-constraints">Coordinates will be generated automatically.</p>
+      <p class="upload-constraints" data-upload-selection>No files selected yet.</p>
+      <input id="tpl-base" name="base_images" type="file" accept="image/png" data-upload-input multiple hidden aria-label="Select mockup PNG files">
+    </div>
+  </div>
+  <div class="col-12">
+    <button class="btn btn-primary" type="submit">Upload mockup bases</button>
+    <a class="btn btn-link" href="{{ url_for('mockups_admin.bases', status='missing_coordinates') }}">Back to mockup bases</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/mockup_upload.js') }}"></script>
+{% endblock %}

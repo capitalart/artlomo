@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/stairs/stairs_5x4_var1_20260313_025409_236898.png",
+  "generated_at": "2026-03-13T02:54:09.347261Z",
+  "points": [
+    {
+      "x": 777,
+      "y": 550
+    },
+    {
+      "x": 1313,
+      "y": 550
+    },
+    {
+      "x": 1312,
+      "y": 1448
+    },
+    {
+      "x": 777,
+      "y": 1447
+    }
+  ]
+}

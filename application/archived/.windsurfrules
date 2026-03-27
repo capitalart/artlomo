@@ -1,0 +1,203 @@
+# ArtLomo Windsurf Operating Protocol (Cascade Edition)
+
+Last Updated: Feb 19, 2026
+
+This file is the startup contract for Windsurf/Cascade sessions in this repository.
+If a rule here conflicts with ad-hoc preferences, this file wins.
+
+---
+
+## 0) Mandatory Startup Context (Always First)
+
+Before significant edits (especially multi-file or structural changes), read:
+
+1. `/srv/artlomo/README.md`
+2. `/srv/artlomo/application/docs/ARCHITECTURE_INDEX.md`
+3. `/srv/artlomo/application/docs/SYSTEM_MAP.md`
+4. `/srv/artlomo/application/docs/DEFINITION_OF_DONE.md`
+5. `/srv/artlomo/application/docs/rules-&-parameters.md`
+
+If responsibilities, boundaries, or ownership change, update architecture docs in the same task.
+
+---
+
+## 1) Windsurf Agent Workflow (Golden Loop)
+
+### Phase A — Pre-Flight
+
+- Identify workflow scope (upload, analysis, artwork, mockups, manual, export, admin).
+- Confirm ownership and allowed dependencies before writing code.
+- For conceptual discovery, search codebase first; avoid blind edits.
+
+### Phase B — Execution
+
+- Keep fixes minimal and root-cause oriented.
+- Business logic belongs in Services.
+- Routes orchestrate request/response only.
+- UI/templates/JS/CSS must not contain business/domain logic.
+
+### Phase C — Post-Flight
+
+- Run fast verification (syntax/tests relevant to touched files).
+- Confirm behavior against `DEFINITION_OF_DONE.md`.
+- If architecture changed, update architecture docs in same task.
+
+---
+
+## 2) Architecture & Dependency Rules (Non-Negotiable)
+
+- Workflow isolation is mandatory.
+- Shared dependencies allowed only through:
+  - `application/common`
+  - `application/utils`
+  - shared config (`application/config.py`)
+- No cross-workflow direct imports.
+- No global UI handlers without explicit scope guards.
+- Do not introduce legacy routes or legacy path conventions.
+
+---
+
+## 3) File-System & Lifecycle Invariants
+
+A slug exists in exactly one state at a time:
+
+- `lab/unprocessed/<slug>/`
+- `lab/processed/<slug>/`
+- `lab/locked/<slug>/`
+
+Rules:
+
+- Promotions are atomic moves (`shutil.move`), never copy+delete workflows.
+- Re-analysis edits in place; do not fork duplicate slug folders.
+
+---
+
+## 4) Data, Image, and Video Standards
+
+- Use constants from `application/config.py` (no hardcoded dimensions).
+- Standard derivatives:
+  - ANALYSE: long edge 2048
+  - THUMB: 500x500 center-crop
+  - MOCKUP: long edge 2048
+  - DETAIL: 2048 output
+- Coordinates must remain normalized where required (0.0–1.0).
+- Keep file metadata + index/database state in sync after writes.
+
+---
+
+## 5) Detail Closeup Contract (v2.1)
+
+- Proxy long edge is 7200 (aspect preserved).
+- Frontend normalization uses rendered dimensions (`offsetWidth`/`offsetHeight`), never natural dimensions.
+- Save endpoint uses normalized `norm_x`, `norm_y` and returns cache-busted URL.
+- Focal-point zoom must stay mathematically stable (no jump on zoom).
+- No debug vandalism in production (alerts, banners, noisy route prints).
+
+---
+
+## 6) Clean-Room Workspace UI Contract
+
+- Maintain 45/55 workspace split.
+- Preserve sticky action bar and linear, context-aware flow.
+- Mockup cards must support:
+  - category selector
+  - swap action
+  - loading overlay during swap/generation
+  - animated arrows icon:
+    `application/common/ui/static/icons/arrows-clockwise-dark.svg`
+
+---
+
+## 7) Security & Request Safety
+
+- Mutating endpoints must enforce CSRF.
+- Mutating frontend requests must send CSRF headers per project conventions.
+- Validate slug/path with safe helpers.
+- Log security-sensitive actions in security logging paths.
+
+---
+
+## 8) Mockup Perspective Contract (Non-Negotiable)
+
+### Canonical Paths
+
+- Base root:
+  `application/mockups/catalog/assets/mockups/bases/`
+- Required structure:
+  `application/mockups/catalog/assets/mockups/bases/<aspect>/<category>/`
+- Do not alter folder semantics (admin/inventory depends on this layout).
+
+### Coordinate Schema (v2)
+
+- Generated coordinate JSON must follow perspective v2:
+  - `format_version: "2.0"`
+  - `zones: [ { points: [ {x,y}, {x,y}, {x,y}, {x,y} ] } ]`
+- Point order must be strict clockwise:
+  TL -> TR -> BR -> BL
+- Normalize ordering via `_order_points_tl_tr_br_bl`.
+
+### Bow-Tie Prevention
+
+- Never allow crossed quads into renderer output.
+
+### Alpha-First Clean-Slate
+
+- If coordinate JSON is missing for a base PNG:
+  - run high-fidelity alpha detection immediately
+  - do not fall back to legacy rectangle logic
+  - do not restore legacy payload formats
+
+### Bleed & Compositing
+
+- Maintain 4px outward bleed on generated coordinates.
+- Composite order is fixed:
+  1. artwork first
+  2. base PNG last
+
+### Catalog Metadata
+
+- After successful high-fidelity generation, set:
+  - `coordinate_type: "Perspective"`
+
+### Aspect Validation
+
+- Validate image dimensions match folder aspect before writing coordinates.
+- Aspect mismatch = validation error (no write).
+
+### Migration Safety
+
+- Regenerate in sequential groups of 20.
+- Never delete `.png`/`.jpg` in coordinate migrations.
+- Only coordinate `.json` files are eligible for clean-slate wipes.
+
+---
+
+## 9) Windsurf Coding Conduct
+
+- Prefer targeted diffs; avoid broad rewrites unless requested.
+- Do not revert unrelated local changes.
+- Keep imports at top of file and preserve existing style.
+- Add comments only where logic is genuinely non-obvious.
+- For bug fixes: identify root cause first, then patch minimally.
+
+---
+
+## 10) Operational Commands (Known)
+
+- Restart service:
+  - `sudo systemctl restart artlomo.service`
+
+---
+
+## 11) Clean-Slate JSON-Only Commands (Destructive)
+
+- Dry-run count:
+  - `find /srv/artlomo/application/mockups/catalog/assets/mockups/bases -type f -name '*.json' | wc -l`
+- Backup JSON files:
+  - `tar -czf /srv/artlomo/legacy_coords_backup.tar.gz \
+      -C /srv/artlomo/application/mockups/catalog/assets/mockups/bases \
+      $(find /srv/artlomo/application/mockups/catalog/assets/mockups/bases -type f -name '*.json' -printf '%P\n')`
+- Delete JSON only:
+  - `find /srv/artlomo/application/mockups/catalog/assets/mockups/bases -type f -name '*.json' -delete`
+- Post-delete verify:
+  - `find /srv/artlomo/application/mockups/catalog/assets/mockups/bases -type f -name '*.json' | wc -l`

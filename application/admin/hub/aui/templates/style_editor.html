@@ -1,0 +1,26 @@
+{% extends 'admin_base.html' %}
+{% block extra_css %}{{ super() }}
+<link rel="stylesheet" href="{{ url_for('hub.static', filename='css/admin.css') }}">{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('hub.static', filename='js/style_editor.js') }}"></script>
+<script src="{{ url_for('hub.static', filename='js/style_editor_toggle.js') }}"></script>
+{% endblock %}
+{% block admin_content %}
+<h1 class="artlomo-page-title">Style Presets</h1>
+<p class="artlomo-page-subtitle">Dual-mode Darkroom editor. Presets are stored in JSON and compiled into modular CSS
+  under <code>common/ui/static/css/presets/</code>.</p>
+
+<div class="theme-form__actions theme-actions-spaced">
+  <button class="artlomo-btn" type="button" id="darkroom-import-btn">Import Preset</button>
+  <button class="artlomo-btn" type="button" id="darkroom-export-btn">Export Preset</button>
+  <input type="file" id="darkroom-import-input" accept="application/json,.json" hidden>
+  
+  <!-- Style Editor CSS Toggle -->
+  <div class="style-editor-toggle-row">
+    <label class="style-editor-toggle-label" for="style-editor-toggle">Style Editor CSS:</label>
+    <input type="checkbox" id="style-editor-toggle" class="style-editor-toggle-input">
+    <span id="style-editor-status" class="style-editor-toggle-status">Loading...</span>
+  </div>
+</div>
+<div id="darkroom-workspace" class="darkroom-container"></div>
+{% endblock %}

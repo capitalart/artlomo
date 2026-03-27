@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center auth-shell">
+  <div class="auth-card">
+    <h1 class="h4 mb-3 auth-title">Login</h1>
+
+    <form method="post" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-3">
+        <label class="form-label auth-label" for="username">Username</label>
+        <input class="form-control auth-input" id="username" name="username" type="text" autocomplete="username"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label auth-label" for="password">Password</label>
+        <input class="form-control auth-input" id="password" name="password" type="password"
+          autocomplete="current-password" required>
+      </div>
+
+      <button class="btn btn-dark w-100 auth-submit" type="submit">Login</button>
+
+      <p class="small text-body-secondary mt-3 mb-0">
+        <a href="{{ url_for('auth.forgot_password') }}" class="auth-link">Forgot Password?</a>
+      </p>
+
+      {% if request.args.get('next') %}
+      <p class="small text-body-secondary mt-2 mb-0">After login you will be sent to: <span class="text-monospace">{{
+          request.args.get('next') }}</span></p>
+      {% endif %}
+    </form>
+  </div>
+</div>
+{% endblock %}

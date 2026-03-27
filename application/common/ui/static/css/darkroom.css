@@ -1,0 +1,143 @@
+/* application/common/ui/static/css/darkroom.css */
+/* High-Contrast Light Mode UI Hardening */
+
+/* =========================================
+   Light Theme - High Contrast Borders
+   ========================================= */
+
+:root,
+html[data-theme="light"] {
+  /* Increase border visibility for Light Mode */
+  --color-border-subtle: rgba(0, 0, 0, 0.2); /* Was 0.1, now 0.2 for clear definition */
+  --color-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --checkbox-border: #333333; /* Darker border for the box itself */
+}
+
+/* =========================================
+   Dark Theme - Subtle Borders (maintained)
+   ========================================= */
+
+html[data-theme="dark"] {
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --checkbox-border: var(--color-white);
+}
+
+/* =========================================
+   Carousel - Minimalist Museum Style
+   ========================================= */
+
+/* Backdrop with enhanced blur effect */
+.modal-sheet[data-carousel-modal] {
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+/* Remove container borders and background boxiness */
+.modal-sheet[data-carousel-modal] .modal-card {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers the image wrapper */
+  max-width: none !important;
+  width: auto !important;
+  padding: 40px 20px !important;
+}
+
+/* Center the image specifically */
+.modal-sheet[data-carousel-modal] .position-relative {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.modal-sheet[data-carousel-modal] [data-carousel-image] {
+  max-height: 80vh;
+  width: auto !important;
+  border: none !important; /* Lose the image border */
+  display: block;
+  border-radius: 0 !important;
+}
+
+/* Left-align text below the image */
+.modal-sheet[data-carousel-modal] .d-flex {
+  width: 100%;
+  max-width: 800px; /* Or match the width of the image */
+  text-align: left;
+  padding: 0 20px;
+  align-self: flex-start; /* Aligns the panel to the left of the centered container */
+}
+
+.modal-sheet[data-carousel-modal] [data-carousel-title] {
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.modal-sheet[data-carousel-modal] [data-carousel-counter] {
+  color: var(--text-primary);
+}
+
+/* =========================================
+   Carousel - High-Visibility Close Button
+   ========================================= */
+
+[data-carousel-close] {
+  position: fixed !important;
+  top: 30px !important;
+  right: 40px !important;
+  background: rgba(255, 44, 44, 0.9) !important; /* ArtLomo Red */
+  color: white !important;
+  padding: 10px 20px !important;
+  border-radius: 0 !important;
+  border: none !important;
+  cursor: pointer;
+  z-index: 2100 !important;
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900 !important;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  transition: transform 0.2s ease, background 0.2s ease !important;
+  font-size: 0; /* Hide original "Close" text */
+}
+
+[data-carousel-close]:hover {
+  transform: scale(1.1) !important;
+  background: #ff0000 !important;
+}
+
+[data-carousel-close]::before {
+  content: "✕"; /* The Cross */
+  font-size: 20px;
+}
+
+[data-carousel-close]::after {
+  content: "CLOSE"; /* The Text */
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* Navigation buttons - ensure visibility */
+.modal-sheet[data-carousel-modal] [data-carousel-prev],
+.modal-sheet[data-carousel-modal] [data-carousel-next] {
+  background: rgba(0, 0, 0, 0.7) !important;
+  color: white !important;
+  border: 2px solid white !important;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px 15px !important;
+  transition: all 0.2s ease;
+  z-index: 2050;
+}
+
+.modal-sheet[data-carousel-modal] [data-carousel-prev]:hover,
+.modal-sheet[data-carousel-modal] [data-carousel-next]:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: black !important;
+  transform: scale(1.1);
+}
+

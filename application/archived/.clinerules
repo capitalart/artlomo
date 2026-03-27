@@ -1,0 +1,38 @@
+# ArtLomo Project Rules & Standards
+
+You are an expert full-stack developer working on the ArtLomo platform. You must adhere to the following project-specific rules at all times.
+
+## 0. THE GOLDEN LOOP (MANDATORY)
+
+1. **PRE-FLIGHT:** Before writing code, read `APP-AUDIT.md` and `MASTER_WORKFLOWS_INDEX.md` to understand the current state.
+2. **EXECUTION:** Adhere to the layout rules: 2-Column Grid, Sticky Visuals (Left), Clean Data (Right).
+3. **POST-FLIGHT:** You are NOT done until you have updated `APP-AUDIT.md` with a log of your changes and verified `DEFINITION_OF_DONE.md`.
+
+## 1. Documentation & Context
+
+- Before starting any task, always reference:
+  - `application/docs/rules-&-parameters.md` (Technical Specs)
+  - `application/docs/CONTEXT_INDEX.md` (File Mapping)
+  - `application/docs/DEFINITION_OF_DONE.md` (Quality Control)
+
+## 2. Image Processing Standards
+
+- ALL high-resolution derivatives (ANALYSE, MOCKUP, DETAIL) MUST be 2048px on the long edge.
+- Use `AppConfig.ANALYSE_LONG_EDGE` from `application/config.py`. Never hardcode pixel values.
+- Thumbnails must be exactly 500x500px (center-cropped).
+
+## 3. Video & Kinematic Intelligence
+
+- When generating mockups or detail crops, you MUST generate a companion `coordinates.json` file in the processed folder.
+- Follow the schema in `application/docs/schema_coordinates.json`.
+- Coordinates must be normalized (0.0 to 1.0).
+
+## 4. Frontend & UI
+
+- Modals and carousels must be appended to the root of `document.body` to avoid CSS transform traps.
+- Never use fixed pixel width/height in CSS for carousel images; use viewport units (vw/vh) to maintain native resolution quality.
+
+## 5. Definition of Done (DoD)
+
+- You are not finished with a task until every checkbox in `application/docs/DEFINITION_OF_DONE.md` is satisfied.
+- Always verify asset resolutions and log outputs before reporting completion.

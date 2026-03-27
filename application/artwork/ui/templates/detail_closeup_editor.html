@@ -1,0 +1,105 @@
+{% extends 'base.html' %} {% block content %}
+<div class="detail-closeup-container" id="detailCloseupApp" data-slug="{{ slug }}">
+  <div class="detail-closeup-header">
+    <div class="header-left">
+      <h1>Detail Closeup Editor</h1>
+      <p class="slug-info">Artwork: {{ slug }}</p>
+    </div>
+    <div class="header-right">
+      <a href="/artwork/{{ slug }}/review/{{ provider }}" class="artlomo-btn artlomo-btn--secondary detail-link-hidden">
+        ← Back to Analysis Review
+      </a>
+    </div>
+  </div>
+
+  <div class="detail-closeup-editor">
+    <div class="detail-closeup-left">
+      <!-- Viewport: 2000x2000 square -->
+      <div class="detail-viewport-wrapper">
+        <div class="detail-viewport" id="detailViewport">
+          <div class="detail-loading-overlay" id="detailLoadingOverlay">
+            <img src="{{ url_for('static', filename='icons/arrows-clockwise-dark.svg') }}" class="detail-loading-icon"
+              alt="Loading..." />
+          </div>
+          <div id="detailDebug" class="detail-debug-overlay">
+            Waiting for interaction...
+          </div>
+          <img id="detailProxyImage" src="{{ proxy_url }}" alt="Detail closeup proxy preview"
+            class="detail-viewport-image detail-image-absolute" />
+          <!-- Crosshair overlay -->
+          <div class="detail-crosshair"></div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="detail-controls">
+        <div class="detail-controls-row">
+          <button class="artlomo-btn" id="zoomOutBtn" type="button">
+            <span aria-hidden="true">−</span> Zoom Out
+          </button>
+          <span class="detail-scale-display" id="scaleDisplay">3.5%</span>
+          <button class="artlomo-btn" id="zoomInBtn" type="button">
+            <span aria-hidden="true">+</span> Zoom In
+          </button>
+        </div>
+
+        <div class="detail-controls-row">
+          <select id="zoomLevelSelect" class="detail-zoom-select">
+            <option value="">Custom Zoom</option>
+            <option value="1.0">Fit (3.5%)</option>
+            <option value="7.03125">Direct Cut (24.4%)</option>
+            <option value="14.4">Macro Zoom (50%)</option>
+          </select>
+          <button class="artlomo-btn artlomo-btn--secondary" id="directCutBtn" type="button"
+            title="View exactly 2048px (ideal for 2048x2048 crop)">
+            🔍 Direct Cut
+          </button>
+          <button class="artlomo-btn artlomo-btn--secondary" id="snap1to1Btn" type="button"
+            title="View actual print pixels (1:1 mapping)">
+            🔍 1:1 Pixels
+          </button>
+        </div>
+
+        <div class="detail-controls-row">
+          <button class="artlomo-btn artlomo-btn--primary" id="saveBtn" type="button">
+            💾 SAVE Detail Closeup
+          </button>
+          <button class="artlomo-btn artlomo-btn--secondary" id="updatePreviewBtn" type="button"
+            title="Update the preview without closing">
+            🔄 Update Preview
+          </button>
+        </div>
+
+        <div class="detail-hint">
+          <strong>Hint:</strong> Drag to pan. Use buttons to zoom.
+          <strong>"Direct Cut"</strong> shows 2048px frame for cropping.
+          <strong>"1:1 Pixels"</strong> shows actual print resolution.
+        </div>
+
+        <div class="detail-controls-row detail-controls-divider">
+          <a href="/artwork/{{ slug }}/review/{{ provider }}" class="artlomo-btn artlomo-btn--secondary detail-back-link">
+            ← Back to Analysis Review
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-closeup-right">
+      <h2>Preview</h2>
+
+      <div class="detail-result-panel">
+        <div class="result-image-wrapper">
+          <img id="liveResultImage" src="" alt="Waiting for save..." class="detail-result-image" />
+          <p id="resultStatus" class="detail-result-status">
+            Make a selection and click Save to generate.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/detail_closeup.css') }}?v=20260311-01" />
+<script src="{{ url_for('static', filename='js/detail_closeup.js') }}?v=FINAL_FIX"></script>
+<script src="{{ url_for('static', filename='js/detail_closeup_init.js') }}"></script>
+{% endblock %}

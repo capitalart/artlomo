@@ -1,0 +1,88 @@
+{% extends 'admin_base.html' %}
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mockups_admin.css') }}">
+{% endblock %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+  <div>
+    <h1 class="h4 mb-1">Category Manager</h1>
+    <p class="text-body-secondary mb-0">Creates/removes category folders across all aspect folders.</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary" href="{{ url_for('mockups_admin.bases') }}">Back to Mockup Bases</a>
+  </div>
+</div>
+
+<div class="mb-3 small text-body-secondary">Base root: <span class="text-monospace">{{ base_root }}</span></div>
+
+<div class="row gy-3 gx-3">
+  <div class="col-12 col-lg-6">
+    <div class="mockup-manager-card">
+      <div class="fw-semibold mb-2">Create category</div>
+      <form method="post" class="row gy-2 gx-2 align-items-end">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="action" value="create">
+        <div class="col-12 col-md-8">
+          <label class="form-label" for="category-create">Category</label>
+          <input id="category-create" name="category" type="text" class="form-control" list="known-categories"
+            placeholder="e.g. living-room">
+          <datalist id="known-categories">
+            {% for c in known_categories %}
+            <option value="{{ c }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end">
+          <button class="btn btn-primary w-100" type="submit">Create</button>
+        </div>
+      </form>
+      <div class="mt-2 small text-body-secondary">Creates <span
+          class="text-monospace">&lt;aspect&gt;/&lt;category&gt;</span> under every aspect folder.</div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="mockup-manager-card">
+      <div class="fw-semibold mb-2">Delete category</div>
+      <form method="post" class="row gy-2 gx-2 align-items-end">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="action" value="delete">
+        <div class="col-12 col-md-8">
+          <label class="form-label" for="category-delete">Category</label>
+          <select id="category-delete" name="category" class="form-select" required>
+            <option value="" selected disabled>Choose category</option>
+            {% for c in categories %}
+            <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end">
+          <button class="btn btn-danger w-100" type="submit">Delete</button>
+        </div>
+      </form>
+      <div class="mt-2 small text-body-secondary">Deletion is blocked if any files exist in the category folder of any
+        aspect.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="fw-semibold">Current categories</div>
+    <div class="small text-body-secondary">{{ categories | length }} total</div>
+  </div>
+  <div class="template-grid">
+    {% for c in categories %}
+    <div class="mockup-card">
+      <div class="fw-semibold">{{ c }}</div>
+      <div class="small text-body-secondary">Across {{ aspects | length }} aspects</div>
+    </div>
+    {% endfor %}
+    {% if not categories %}
+    <div class="mockup-card">
+      <div class="text-body-secondary">No category folders found yet.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

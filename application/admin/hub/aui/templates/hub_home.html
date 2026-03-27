@@ -1,0 +1,60 @@
+{% extends 'admin_base.html' %}
+{% block admin_content %}
+<h1 class="artlomo-page-title">Admin Hub</h1>
+<p>Minimal control centre for the clean-room workflows.</p>
+
+<div class="artlomo-workstation-grid" role="navigation" aria-label="Admin control panel">
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('hub.style_editor') }}">
+    <div class="artlomo-nav-card__title">Style Presets</div>
+    <div class="artlomo-nav-card__body">Edit Light/Dark palettes, typography, buttons, and custom CSS overrides.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('analysis_management.analysis_management_hub') }}">
+    <div class="artlomo-nav-card__title">Analysis Management</div>
+    <div class="artlomo-nav-card__body">Configure and test AI analysis presets. Upload JSON files to refine prompts and test analysis.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('analysis_management.analysis_jobs_admin_page') }}">
+    <div class="artlomo-nav-card__title">Analysis Jobs</div>
+    <div class="artlomo-nav-card__body">List queued/running/completed jobs and cancel with cleanup.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('admin_settings.settings_page') }}">
+    <div class="artlomo-nav-card__title">Settings</div>
+    <div class="artlomo-nav-card__body">Application and workflow configuration.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('upload.upload_page') }}">
+    <div class="artlomo-nav-card__title">Upload Artwork</div>
+    <div class="artlomo-nav-card__body">Upload new artwork for analysis and processing.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('upload.unprocessed') }}">
+    <div class="artlomo-nav-card__title">Unprocessed Artwork</div>
+    <div class="artlomo-nav-card__body">Review and prepare items awaiting processing.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('upload.processed') }}">
+    <div class="artlomo-nav-card__title">Processed Artwork</div>
+    <div class="artlomo-nav-card__body">Browse completed output and downstream actions.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('upload.locked') }}">
+    <div class="artlomo-nav-card__title">Locked Artwork</div>
+    <div class="artlomo-nav-card__body">Items blocked from processing (permission / failure / review).</div>
+  </a>
+</div>
+
+<h2>Mockups</h2>
+<div class="artlomo-workstation-grid" role="navigation" aria-label="Mockup tools">
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('mockups_admin.upload_bases') }}">
+    <div class="artlomo-nav-card__title">Upload Mockup Bases</div>
+    <div class="artlomo-nav-card__body">Add new mockup template base images to the system library.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('mockups_admin.bases') }}">
+    <div class="artlomo-nav-card__title">Mockup Bases</div>
+    <div class="artlomo-nav-card__body">Browse and manage existing mockup bases.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('mockups_admin.category_manager') }}">
+    <div class="artlomo-nav-card__title">Category Manager</div>
+    <div class="artlomo-nav-card__body">Organise mockup categories and assignment rules.</div>
+  </a>
+  <a class="artlomo-data-card artlomo-nav-card" href="{{ url_for('mockup_generator.mockup_generator_prompt_settings') }}">
+    <div class="artlomo-nav-card__title">Mockup Prompt Settings</div>
+    <div class="artlomo-nav-card__body">Edit prompt prefix/suffix content and generation canvas ratio for Gemini mockup generation.</div>
+  </a>
+</div>
+{% endblock %}

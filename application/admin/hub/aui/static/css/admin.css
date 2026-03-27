@@ -1,0 +1,83 @@
+.admin-body,
+body {
+  font-family: var(--font-family-main) !important;
+}
+
+.darkroom-container {
+  margin-top: 16px;
+}
+
+.theme-form .form-label {
+  font-family: 'Outfit', var(--font-family-main) !important;
+  font-weight: 600;
+}
+
+.theme-form input[type='color'] {
+  height: 42px;
+  border: none;
+  padding: 0;
+  width: 100%;
+  display: block;
+}
+
+.theme-form input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.theme-form input[type='color']::-webkit-color-swatch {
+  border: none;
+}
+
+.theme-form input[type='color']::-moz-color-swatch {
+  border: none;
+}
+
+.darkroom-pane__title,
+.darkroom-pane .form-label {
+  font-family: 'Outfit', var(--font-family-main) !important;
+}
+
+.darkroom-pane__fields .theme-form__field {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.darkroom-pane__fields .theme-form__field .form-label {
+  margin: 0;
+}
+
+.darkroom-pane__fields .theme-form__field .form-control {
+  height: 42px;
+}
+
+.style-editor-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.style-editor-toggle-label {
+  font-weight: 500;
+}
+
+.style-editor-toggle-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.style-editor-toggle-status {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.style-editor-toggle-status--enabled {
+  color: var(--accent-orange);
+}
+
+.style-editor-toggle-status--disabled {
+  color: var(--danger-red);
+}

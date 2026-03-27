@@ -1,0 +1,709 @@
+{% extends 'admin_base.html' %} {% block workflow_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('mockups_admin.static', filename='css/mockups_admin.css') }}"
+/>
+{% endblock %} {% block admin_content %} {% set search_term = filters.search if
+filters.search is defined else '' %}
+{% set split_view = 'staging_queue' if filters.status in ['disabled', 'staging_queue'] else 'live_catalog' %}
+
+<section class="bases-page">
+  <!-- Header -->
+  <header class="bases-header">
+    <div class="bases-header-row">
+      <div class="bases-heading">
+        <nav class="bases-breadcrumbs" aria-label="Breadcrumb">
+          <a class="bases-crumb" href="{{ url_for('mockups_admin.bases') }}">Mockups</a>
+          <span class="bases-crumb-sep">/</span>
+          <span>Bases</span>
+        </nav>
+        <h1 class="bases-title">Mockup Bases</h1>
+      </div>
+      <div class="bases-header-actions">
+        <p class="bases-subtitle">Review uploaded mockup bases, keep works-in-progress in Staging, and publish approved bases to Live Catalog.</p>
+        <a class="gallery-btn gallery-btn--primary" href="{{ url_for('mockups_admin.upload_bases') }}">Upload Mockup Bases</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="bases-toolbar bases-toolbar--spaced">
+    <div class="batch-toolbar" data-visible="1">
+      <a
+        class="gallery-btn {% if split_view == 'live_catalog' %}gallery-btn--primary{% else %}gallery-btn--outline{% endif %}"
+        href="{{ url_for('mockups_admin.bases', status='live_catalog', category=filters.category, aspect=filters.aspect, sort=filters.sort, per_page=filters.per_page, search=search_term, page=1) }}"
+      >
+        Live Catalog <span class="badge-soft badge-soft--tight">{{ total_live_count }}</span>
+      </a>
+      <a
+        class="gallery-btn {% if split_view == 'staging_queue' %}gallery-btn--primary{% else %}gallery-btn--outline{% endif %}"
+        href="{{ url_for('mockups_admin.bases', status='staging_queue', category=filters.category, aspect=filters.aspect, sort=filters.sort, per_page=filters.per_page, search=search_term, page=1) }}"
+      >
+        Staging Queue <span class="badge-soft badge-soft--tight">{{ total_staged_count }}</span>
+      </a>
+      <span class="badge-soft" title="Total bases in catalog">Total: {{ total_live_count + total_staged_count }}</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="bases-toolbar">
+    <div
+      class="batch-toolbar"
+      data-batch-toolbar
+      data-visible="1"
+      data-endpoint-bulk="{{ url_for('mockups_admin.bulk_update_bases') }}"
+      data-endpoint-generate-async="{{ url_for('mockups_admin.generate_coordinates_async') }}"
+      data-endpoint-generation-progress="{{ url_for('mockups_admin.generation_progress') }}"
+      data-status-labels="{{ status_labels | tojson }}"
+      data-aspects="{{ aspects | tojson }}"
+      data-categories="{{ categories | tojson }}"
+      data-batch-max="250"
+    >
+      <a
+        class="gallery-btn gallery-btn--outline"
+        href="{{ url_for('mockups_admin.bases', status='missing_coordinates') }}"
+        >Back to Mockup Bases</a
+      >
+      <button class="gallery-btn" type="button" data-sanitize-sync>
+        Sanitize &amp; Sync
+      </button>
+      <button class="gallery-btn" type="button" data-generate-thumbs>
+        Generate Thumbnails
+      </button>
+      <span class="badge-soft"
+        ><span data-selected-count>0</span> selected</span
+      >
+      <button class="gallery-btn" type="button" data-select-visible>
+        Select filtered
+      </button>
+      <button class="gallery-btn" type="button" data-select-all>
+        Select all
+      </button>
+      <button class="gallery-btn" type="button" data-deselect-all>
+        Deselect all
+      </button>
+      <button class="gallery-btn" type="button" data-open-modal="move">
+        Move to category
+      </button>
+      <button class="gallery-btn" type="button" data-open-modal="aspect">
+        Change aspect
+      </button>
+      <button
+        class="gallery-btn gallery-btn--danger"
+        type="button"
+        data-open-modal="delete"
+      >
+        Delete
+      </button>
+      <button class="gallery-btn gallery-btn--primary" type="button" data-open-modal="generate" data-generate-trigger>
+        Generate coordinates
+      </button>
+    </div>
+    <div class="batch-warning" data-batch-limit-warning hidden>
+      Max 250 items per coordinate run.
+    </div>
+  </div>
+
+  <!-- Filter Form -->
+  <form
+    class="filter-section"
+    method="get"
+    action="{{ url_for('mockups_admin.bases') }}"
+  >
+    <div class="filter-grid">
+      <div class="filter-field">
+        <label for="filter-category">Mockup Category</label>
+        <select id="filter-category" name="category" class="gallery-select">
+          <option value="">All Categories</option>
+          {% for cat in categories %}<option value="{{ cat }}" {% if filters.category==cat %}selected{% endif %}>{{ cat }} ({{ category_counts.get(cat, 0) }})</option>{% endfor %}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-aspect">Mockup Base Aspect Ratio</label>
+        <select id="filter-aspect" name="aspect" class="gallery-select">
+          <option value="">All Aspects</option>
+          {% for aspect in aspects %}<option value="{{ aspect }}" {% if filters.aspect==aspect %}selected{% endif %}>{{ 'No aspect yet' if aspect == 'UNSET' else aspect }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-status">Status</label>
+        <select id="filter-status" name="status" class="gallery-select">
+          {% for value, label in status_options %}<option value="{{ value }}" {% if filters.status==value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-sort">Sort by</label>
+        <select id="filter-sort" name="sort" class="gallery-select">
+          <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest first</option>
+          <option value="oldest" {% if filters.sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="per-page">Per page</label>
+        <select id="per-page" name="per_page" class="gallery-select">
+          {% for opt in filters.per_page_choices %}<option value="{{ opt }}" {% if filters.per_page==opt %}selected{% endif %}>{{ opt }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-search">Search</label>
+        <input id="filter-search" name="search" type="search" class="gallery-input" value="{{ search_term }}" placeholder="Search slug" />
+      </div>
+      <div class="filter-field filter-submit">
+        <input type="hidden" name="page" value="1" />
+        <button class="gallery-btn" type="submit">Filter</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Content -->
+  {% if not bases %}
+  <div class="empty-state">
+    <p>No mockup bases found for this filter.</p>
+  </div>
+  {% else %}
+  <div class="mockup-grid">
+    {% for base in bases %}
+    <article
+      class="art-card mockup-card"
+      data-mockup-card
+      data-mockup-id="{{ base.id }}"
+      data-mockup-slug="{{ base.slug }}"
+      data-mockup-status="{{ base.status }}"
+      data-mockup-aspect="{{ base.aspect_ratio }}"
+      data-mockup-category="{{ base.category }}"
+      data-mockup-aspect-source="{{ base.aspect_source }}"
+      data-endpoint-delete="{{ url_for('mockups_admin.delete_base', mockup_id=base.id) }}"
+      data-endpoint-regenerate="{{ url_for('mockups_admin.regenerate_base', mockup_id=base.id) }}"
+      data-endpoint-category="{{ url_for('mockups_admin.update_base_category', mockup_id=base.id) }}"
+      data-endpoint-aspect="{{ url_for('mockups_admin.override_base_aspect', mockup_id=base.id) }}"
+      data-endpoint-publication="{{ url_for('mockups_admin.update_base_publication', mockup_id=base.id) }}"
+    >
+      <!-- Thumbnail Section -->
+      <div class="mockup-thumb template-thumb">
+        <label class="card-checkbox" for="select-{{ base.id }}">
+          <input
+            id="select-{{ base.id }}"
+            type="checkbox"
+            value="{{ base.id }}"
+            data-mockup-checkbox
+          />
+          <span>Select</span>
+        </label>
+        <img
+          src="{{ base.thumb_url }}"
+          alt="{{ base.slug }} base image"
+          loading="lazy"
+          data-mockup-thumb
+          data-full-image="{{ base.image_url }}"
+          data-mockup-name="{{ base.slug }}"
+        />
+        <span class="state-pill" data-perspective-pill hidden>4P</span>
+        {% if base.is_incomplete %}
+        <span class="state-pill incomplete" data-incomplete-pill
+          >Incomplete</span
+        >
+        {% endif %} {% if base.status in ['missing_coordinates',
+        'needs_regeneration'] %}
+        <span class="state-pill mandatory thumb-badge" data-needs-coords-pill
+          >Needs Coordinates</span
+        >
+        {% endif %} {% if base.is_size_chart %}
+        <span class="state-pill size-chart" data-size-chart-pill
+          >Size Chart</span
+        >
+        {% endif %}
+      </div>
+
+      <!-- Body Section -->
+      <div class="mockup-body">
+        <div class="mockup-meta">
+          <div class="mockup-slug">{{ base.slug }}</div>
+          <div class="mockup-data">
+            <div>
+              <span class="meta-label">Category:</span> {{ base.category }}
+            </div>
+            <div>
+              <span class="meta-label">Aspect:</span> {{ base.aspect_ratio }}
+            </div>
+            <div>
+              <span class="meta-label">Regions:</span> {{ base.region_count or
+              '—' }}
+            </div>
+          </div>
+          <div class="mockup-meta-summary" data-meta-summary>
+            Category {{ base.category }} · Aspect {{ base.aspect_ratio }} ·
+            Regions {{ base.region_count or '—' }}
+          </div>
+          <div class="mockup-meta-summary" data-meta-status></div>
+          <div class="mockup-date" title="{{ base.created_at }}">
+            Uploaded {{ (base.created_at[:16] | replace('T', ' ')) if base.created_at else 'N/A' }}
+          </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="mockup-controls">
+          <div class="control-group">
+            <label for="category-{{ base.id }}">Category</label>
+            <div class="control-inline">
+              <select id="category-{{ base.id }}" class="gallery-select" data-card-category>
+                {% for cat in categories %}<option value="{{ cat }}" {% if base.category==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}
+              </select>
+              <button
+                class="gallery-btn gallery-btn--compact"
+                type="button"
+                data-card-category-apply
+              >
+                Move
+              </button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="aspect-{{ base.id }}">Aspect Ratio</label>
+            <div class="control-inline">
+              <select id="aspect-{{ base.id }}" class="gallery-select" data-card-aspect>
+                {% for aspect in aspects %}<option value="{{ aspect }}" {% if aspect==base.aspect_ratio %}selected{% endif %}>{{ 'No aspect yet' if aspect == 'UNSET' else aspect }}</option>{% endfor %}
+              </select>
+              <button
+                class="gallery-btn gallery-btn--compact"
+                type="button"
+                data-card-aspect-apply
+              >
+                Override
+              </button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="live-toggle-{{ base.id }}">Live Catalog</label>
+            <div class="control-inline control-inline-live">
+              <label class="retry-flag retry-flag--flush">
+                <input
+                  id="live-toggle-{{ base.id }}"
+                  type="checkbox"
+                  data-card-live-toggle
+                  {% if base.is_live %}checked{% endif %}
+                >
+                <span data-live-state-text>{% if base.is_live %}Live{% else %}Staged (not live){% endif %}</span>
+              </label>
+              <button
+                class="gallery-btn gallery-btn--compact"
+                type="button"
+                data-card-live-apply
+              >
+                Save
+              </button>
+            </div>
+          </div>
+
+          <div class="mockup-actions">
+            <button
+              class="gallery-btn gallery-btn--compact"
+              type="button"
+              data-card-regenerate
+            >
+              Regenerate
+            </button>
+            <button
+              class="gallery-btn gallery-btn--compact"
+              type="button"
+              data-open-preview
+              data-mockup-id="{{ base.id }}"
+              data-mockup-slug="{{ base.slug }}"
+              data-mockup-aspect="{{ base.aspect_ratio }}"
+              data-preview-artworks='{{ base.preview_artwork_options | tojson }}'
+              data-preview-default="{{ base.preview_artwork_options[0].filename if base.preview_artwork_options else '' }}"
+              data-base-image="{{ base.image_url }}"
+            >
+              Preview
+            </button>
+            <button
+              class="gallery-btn gallery-btn--danger gallery-btn--compact"
+              type="button"
+              data-card-delete
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <div class="bases-footer">
+    {{ bases|length }} mockup base{{ 's' if bases|length != 1 else '' }}
+  </div>
+  {% endif %}
+
+  <!-- Pagination -->
+  {% if filters.pages and filters.pages > 1 %}
+  <div class="bases-pagination">
+    <div>
+      Page {{ filters.page }} of {{ filters.pages }} ({{ filters.total }} total)
+    </div>
+    <div class="bases-pagination-actions">
+      {% set prev_page = filters.page - 1 if filters.page > 1 else 1 %} {% set
+      next_page = filters.page + 1 if filters.page < filters.pages else
+      filters.pages %}
+      <a
+        class="gallery-btn gallery-btn--outline {% if filters.page == 1 %}disabled{% endif %}"
+        href="{{ url_for('mockups_admin.bases', category=filters.category, aspect=filters.aspect, status=filters.status, per_page=filters.per_page, search=search_term, page=prev_page) }}"
+      >
+        Previous
+      </a>
+      {% for page_link in filters.page_links %}
+        {% if page_link is none %}
+          <span class="gallery-btn gallery-btn--outline disabled" aria-hidden="true">...</span>
+        {% else %}
+          <a
+            class="gallery-btn {% if page_link == filters.page %}gallery-btn--primary{% else %}gallery-btn--outline{% endif %}"
+            href="{{ url_for('mockups_admin.bases', category=filters.category, aspect=filters.aspect, status=filters.status, per_page=filters.per_page, search=search_term, page=page_link) }}"
+          >
+            {{ page_link }}
+          </a>
+        {% endif %}
+      {% endfor %}
+      <a
+        class="gallery-btn gallery-btn--outline {% if filters.page == filters.pages %}disabled{% endif %}"
+        href="{{ url_for('mockups_admin.bases', category=filters.category, aspect=filters.aspect, status=filters.status, per_page=filters.per_page, search=search_term, page=next_page) }}"
+      >
+        Next
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+<!-- Modals -->
+
+<!-- Delete Modal -->
+<div class="modal-sheet" data-modal="delete">
+  <div class="modal-card">
+    <h2>Delete selected mockups</h2>
+    <p class="bases-subtitle">
+      This removes the catalog entries and their base/coordinate files. This
+      cannot be undone.
+    </p>
+    <div class="actions">
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-close-modal
+      >
+        Cancel
+      </button>
+      <button
+        class="gallery-btn gallery-btn--danger"
+        type="button"
+        data-confirm-delete
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Move Modal -->
+<div class="modal-sheet" data-modal="move">
+  <div class="modal-card">
+    <h2>Move to category</h2>
+    <p class="bases-subtitle">
+      Choose the target category for all selected mockups.
+    </p>
+    <div class="filter-field">
+      <label for="move-category">Mockup Category</label>
+      <select id="move-category" class="gallery-select" data-move-category>
+        {% for cat in categories %}
+        <option value="{{ cat }}">
+          {{ cat }} ({{ category_counts.get(cat, 0) }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="actions">
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-close-modal
+      >
+        Cancel
+      </button>
+      <button class="gallery-btn" type="button" data-confirm-move>Move</button>
+    </div>
+  </div>
+</div>
+
+<!-- Aspect Modal -->
+<div class="modal-sheet" data-modal="aspect">
+  <div class="modal-card">
+    <h2>Change aspect ratio</h2>
+    <p class="bases-subtitle">
+      Aspect changes will reset coordinates and mark bases as missing.
+    </p>
+    <div class="filter-field">
+      <label for="aspect-select">Mockup Base Aspect Ratio</label>
+      <select id="aspect-select" class="gallery-select" data-aspect-select>
+        {% for aspect in aspects %}
+        <option value="{{ aspect }}">
+          {{ 'No aspect yet' if aspect == 'UNSET' else aspect }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="actions">
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-close-modal
+      >
+        Cancel
+      </button>
+      <button class="gallery-btn" type="button" data-confirm-aspect>
+        Apply
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Modal -->
+<div class="modal-sheet" data-modal="generate">
+  <div class="modal-card">
+    <h2>Generate coordinates</h2>
+    <p class="bases-subtitle" data-generate-progress>Processing 0 of 0</p>
+    <div class="progress bulk-generate-progress" aria-hidden="true">
+      <div
+        class="progress-bar bulk-generate-progress-bar"
+        role="progressbar"
+        data-generate-progress-bar
+      ></div>
+    </div>
+    <div class="bases-subtitle" data-generate-batch-status></div>
+    <div class="modal-status-row">
+      <img
+        src="{{ url_for('static', filename='icons/arrows-clockwise-light.svg') }}"
+        alt=""
+        class="processing-icon spinning"
+        aria-hidden="true"
+        data-theme-spinner
+      />
+      <span class="bases-subtitle"
+        >This may take a few seconds. Do not close the page.</span
+      >
+    </div>
+    <div class="actions">
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-close-modal
+        data-generate-close
+        disabled
+      >
+        Close
+      </button>
+      <button
+        class="gallery-btn"
+        type="button"
+        data-generate-ack
+        hidden
+        disabled
+      >
+        Acknowledge
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal-sheet" data-preview-modal>
+  <div class="modal-card">
+    <h2>Preview composite</h2>
+    <div class="preview-layout">
+      <div>
+        <img
+          data-preview-base
+          class="mockup-preview__base"
+          alt="Base preview"
+        />
+      </div>
+      <div class="mockup-preview__sidebar">
+        <label for="preview-artwork">Preview artwork</label>
+        <select
+          id="preview-artwork"
+          class="gallery-select"
+          data-preview-artwork
+        ></select>
+        <div class="bases-subtitle" data-preview-artwork-hint>
+          Looking for &lt;aspect&gt;.jpg in mockup-tests/
+        </div>
+        <div class="bases-subtitle" data-preview-aspect-warning hidden>
+          Aspect not locked yet; showing all preview artworks.
+        </div>
+        <div class="bases-subtitle" data-preview-artwork-empty hidden>
+          No preview artworks found.
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="preview-status-row">
+        <img
+          src="{{ url_for('static', filename='icons/arrows-clockwise-light.svg') }}"
+          alt=""
+          class="processing-icon spinning"
+          aria-hidden="true"
+          data-preview-spinner
+          data-theme-spinner="1"
+          hidden
+        />
+        <span class="bases-subtitle" data-preview-status>Ready</span>
+      </div>
+      <div class="mockup-preview__stage">
+        <img
+          data-preview-output
+          alt="Preview composite"
+          class="mockup-preview__output"
+        />
+        <div class="bases-subtitle" data-preview-placeholder>
+          Generate to view the composite.
+        </div>
+      </div>
+      <div class="preview-actions" data-preview-actions hidden>
+        <a
+          class="gallery-btn gallery-btn--outline"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          data-preview-open
+          >Open in new tab</a
+        >
+        <button class="gallery-btn" type="button" data-preview-regenerate>
+          Regenerate
+        </button>
+      </div>
+    </div>
+    <div class="actions">
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-close-preview
+      >
+        Close
+      </button>
+      <button class="gallery-btn" type="button" data-preview-generate>
+        Generate preview
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Sanitize Modal -->
+<div class="modal-sheet" data-sanitize-modal>
+  <div class="modal-card">
+    <h2>Sanitize &amp; Sync</h2>
+    <p class="bases-subtitle" data-sanitize-status>Preparing...</p>
+    <div class="modal-status-row">
+      <img
+        src="{{ url_for('static', filename='icons/arrows-clockwise-light.svg') }}"
+        alt=""
+        class="processing-icon spinning"
+        aria-hidden="true"
+        data-theme-spinner="1"
+      />
+      <span class="bases-subtitle"
+        >This may take a minute. Do not close the page.</span
+      >
+    </div>
+    <div class="actions" data-sanitize-actions hidden>
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-sanitize-close
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Thumbs Modal -->
+<div class="modal-sheet" data-generate-thumbs-modal>
+  <div class="modal-card">
+    <h2>Generate Thumbnails</h2>
+    <p class="bases-subtitle" data-generate-thumbs-status>Preparing...</p>
+    <div class="modal-status-row">
+      <img
+        src="{{ url_for('static', filename='icons/arrows-clockwise-light.svg') }}"
+        alt=""
+        class="processing-icon spinning"
+        aria-hidden="true"
+        data-theme-spinner="1"
+      />
+      <span class="bases-subtitle"
+        >This scans the mockup base folders and generates missing JPG
+        thumbs.</span
+      >
+    </div>
+    <div class="actions" data-generate-thumbs-actions hidden>
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-generate-thumbs-close
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Carousel Modal -->
+<div class="modal-sheet" data-carousel-modal>
+  <div class="modal-card mockup-carousel__card">
+    <div class="bases-header-row">
+      <h2 class="bases-title" data-carousel-title>Base preview</h2>
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-carousel-close
+      >
+        Close
+      </button>
+    </div>
+    <div class="mockup-carousel__frame">
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-carousel-prev
+      >
+        &lsaquo;
+      </button>
+      <img
+        data-carousel-image
+        class="mockup-carousel__image"
+        alt="Base image"
+      />
+      <button
+        class="gallery-btn gallery-btn--outline"
+        type="button"
+        data-carousel-next
+      >
+        &rsaquo;
+      </button>
+    </div>
+    <div class="bases-pagination">
+      <div data-carousel-counter></div>
+      <a
+        class="gallery-btn gallery-btn--outline"
+        href="#"
+        target="_blank"
+        rel="noopener"
+        data-carousel-open
+        >Open full size</a
+      >
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/mockup_selection.js') }}"></script>
+<script src="{{ url_for('mockups_admin.static', filename='js/mockup_preview.js') }}"></script>
+<script src="{{ url_for('static', filename='js/mockup_carousel.js') }}?v=201"></script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{
+  "comment": "Example artwork_data.json structure after saving Director Suite settings",
+  "comment2": "Location: /srv/artlomo/application/lab/processed/<slug>/artwork_data.json",
+  "comment3": "All video settings are stored under the 'video_suite' key to avoid overwriting other artwork data",
+  
+  "created_at": "2026-02-24T15:30:00",
+  "updated_at": "2026-02-24T16:45:30",
+  
+  "video_suite": {
+    "video_zoom_intensity": 1.1,
+    "video_panning_enabled": false,
+    "video_duration": 15,
+    "artwork_zoom_duration": 3.0,
+    "artwork_zoom_intensity": 1.1,
+    "artwork_pan_enabled": false,
+    "artwork_pan_direction": "up",
+    
+    "mockup_zoom_intensity": 1.1,
+    "mockup_zoom_duration": 2.0,
+    "mockup_pan_enabled": false,
+    "mockup_pan_direction": "right",
+    "mockup_pan_auto_alternate": false,
+    
+    "selected_mockups": [
+      "mu-artwork-slug-123-01.jpg",
+      "mu-artwork-slug-123-02.jpg",
+      "mu-artwork-slug-123-03.jpg"
+    ],
+    "video_mockup_order": [
+      "mu-artwork-slug-123-01",
+      "mu-artwork-slug-123-02",
+      "mu-artwork-slug-123-03"
+    ],
+    
+    "video_fps": 24,
+    "video_output_size": 1024,
+    "video_encoder_preset": "fast",
+    "video_artwork_source": "auto",
+    
+    "video_mockup_shots": [
+      {
+        "id": "mu-artwork-slug-123-01",
+        "pan_enabled": true,
+        "pan_direction": "left"
+      },
+      {
+        "id": "mu-artwork-slug-123-02",
+        "pan_enabled": true,
+        "pan_direction": "right"
+      },
+      {
+        "id": "mu-artwork-slug-123-03",
+        "pan_enabled": false,
+        "pan_direction": "none"
+      }
+    ]
+  },
+  
+  "other_artwork_data": {
+    "comment": "Other keys can exist here without being affected by video_suite updates"
+  }
+}

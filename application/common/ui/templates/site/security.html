@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="artlomo-panel">
+  <h2 class="artlomo-panel__title">Security</h2>
+  <p class="artlomo-panel__sub">A practical overview of how ArtLomo protects your data.</p>
+
+  <h3>Encryption</h3>
+  <ul>
+    <li>SSL/TLS is used for data in transit.</li>
+  </ul>
+
+  <h3>Storage</h3>
+  <ul>
+    <li>Artwork files are stored in a secured Linux environment.</li>
+    <li>Access is restricted to the application and authorized administrators.</li>
+  </ul>
+
+  <h3>AI Safety</h3>
+  <ul>
+    <li>API connections are configured to not index user data into training sets (where supported by provider policy and configuration).</li>
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="artlomo-panel">
+  <h1 class="artlomo-page-title">Site Map</h1>
+  <p class="artlomo-page-subtitle">Pro placeholder</p>
+</div>
+
+<div class="artlomo-control-grid" role="navigation" aria-label="Site map">
+  <a href="{{ url_for('home') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Home</span>
+    <span class="artlomo-btn__desc">Main entrypoint.</span>
+  </a>
+  <a href="{{ url_for('site.about') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">About</span>
+    <span class="artlomo-btn__desc">Mission and heritage context.</span>
+  </a>
+  <a href="{{ url_for('site.artists') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Artists</span>
+    <span class="artlomo-btn__desc">Directory (future).</span>
+  </a>
+  <a href="{{ url_for('site.contact') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Contact</span>
+    <span class="artlomo-btn__desc">Get in touch.</span>
+  </a>
+  <a href="{{ url_for('site.resources') }}" class="artlomo-btn artlomo-btn--tile">
+    <span class="artlomo-btn__title">Resources</span>
+    <span class="artlomo-btn__desc">Guides and references.</span>
+  </a>
+</div>
+{% endblock %}

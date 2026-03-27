@@ -1,0 +1,231 @@
+# ArtLomo Chat Kickoff Contract
+
+**Last Updated:** Mar 9, 2026
+
+This is the streamlined startup contract for conversations in the
+ArtLomo repository.
+If any rule here conflicts with `/srv/artlomo/.windsurfrules`,
+the Windsurf rules win.
+
+## 1) Mandatory Startup Context
+
+Before significant edits (especially multi-file or structural changes), read:
+
+1. `/srv/artlomo/README.md`
+2. `/srv/artlomo/application/docs/ARCHITECTURE_INDEX.md`
+3. `/srv/artlomo/application/docs/SYSTEM_MAP.md`
+4. `/srv/artlomo/application/docs/DEFINITION_OF_DONE.md`
+5. `/srv/artlomo/application/docs/rules-&-parameters.md`
+6. `/srv/artlomo/CHANGELOG.md`
+
+For tooling/ops documentation tasks, also read:
+
+1. `/srv/artlomo/application/docs/TOOLS_SH_COVERAGE_REPORT_2026-03-07.md`
+
+If changing more than 2 files, explicitly state this exact line
+before proposing edits:
+
+"I am referencing MASTER_FILE_INDEX.md and SYSTEM_MAP.md to ensure
+structural alignment."
+
+If ownership, boundaries, or architecture change, update
+`ARCHITECTURE_INDEX.md` in the same task.
+
+## 2) Golden Loop
+
+- Pre-flight: Identify workflow scope (`upload`, `analysis`, `artwork`,
+  `mockups`, `manual`, `export`, `admin`, `video`), confirm
+  ownership/dependencies, and search before editing.
+- Execution: Keep fixes minimal and root-cause oriented. Business logic
+  belongs in services. Routes orchestrate HTTP only. UI contains no
+  business logic.
+- Post-flight: Run targeted verification for touched code and validate
+  against Definition of Done.
+
+## 3) Layered Architecture (Non-Negotiable)
+
+- Layer 1: Core (`application/utils`, `application/common/utilities`, config)
+- Layer 2: Services (business logic)
+- Layer 3: Routes (HTTP orchestration)
+- Layer 4: UI (templates/static)
+
+Rules:
+
+- Dependency direction only `4 -> 3 -> 2 -> 1`
+- No cross-workflow imports at Layer 2
+- Shared logic goes in `application/common` or `application/utils`
+- `application/utils` must not import workflow/domain logic
+
+## 4) Workflow Isolation
+
+Each workflow owns its routes, services, UI, and domain models in its folder.
+No unscoped global UI handlers.
+Delete UX is workflow-owned (no global delete handlers).
+
+## 5) Critical Invariants
+
+### Artwork Single-State Invariant
+
+A slug exists in exactly one location:
+
+- `lab/unprocessed/{slug}/`
+- `lab/processed/{slug}/`
+- `lab/locked/{slug}/`
+
+Promotions must be atomic moves (`shutil.move`), never copy and delete.
+Reanalysis edits in place; never duplicate slug folders.
+
+### Database Sync Invariant
+
+Any analysis promotion (OpenAI/Gemini/Manual) must set DB status to `processed`.
+
+## 6) Image, Mockup, and Detail-Closeup Standards
+
+Use config constants only (no hardcoded dimensions).
+
+- ANALYSE: 2048 long edge
+- THUMB: 500x500 center crop
+- MOCKUP COMPOSITE: 2048 long edge
+- DETAIL CLOSEUP: 2048 output
+- DETAIL PROXY: 7200 long edge at 90% quality
+
+Detail closeup v2.1:
+
+- Frontend normalization uses `offsetWidth` and `offsetHeight`
+- Save endpoint uses `norm_x` and `norm_y` in `[0.0, 1.0]`, default `0.5`
+- Zoom must preserve center pixel (no jump)
+- No debug noise in production
+
+Mockup coordinates v2.0:
+
+- `format_version: "2.0"`
+- `zones[].points`: exactly 4 points in order `TL, TR, BR, BL`
+- No crossed quads (bow-ties)
+- 4px outward bleed required
+- Composite order: artwork first, base PNG last
+
+Mockup base source of truth:
+
+- `application/mockups/catalog/assets/mockups/bases/{aspect}/{category}/`
+- Admin category counts derive from filesystem `*.png`
+- Sanitize and Sync normalizes filenames and generates 500x500 thumbs
+
+## 7) UI and Styling Contract (Strict)
+
+- No inline styles
+- No inline JavaScript (`<script>...</script>` blocks in templates)
+- No inline event handlers (`onclick`, `onchange`, `onsubmit`, etc.)
+- No hardcoded hex colors in HTML or JS
+- No utility classes that break theme toggles
+
+Use global CSS variables only:
+
+- Background: `var(--bg-main)` and `var(--bg-card)`
+- Text: `var(--text-main)` and `var(--text-muted)`
+- Borders: `1px solid var(--border-color)`
+- Keep UI flat and structural, no heavy blurred shadows
+- Primary actions: `var(--accent-orange)`
+- Destructive actions only: `var(--danger-red)`
+
+Layout rules:
+
+- Keep hierarchy compact and high-density
+- Header bars use flex with breadcrumb/title on one row
+
+## 8) Jinja2 Preservation
+
+- Preserve all Jinja2 logic (`{% ... %}`, `{{ ... }}`)
+- Do not alter backend loops to force frontend layout
+- Do not replace existing template variables with placeholders
+
+## 9) Async and Polling Behavior
+
+Upload polling:
+
+- Status file: `lab/unprocessed/{slug}/processing_status.json`
+- UI endpoint: `/artworks/{slug}/status` every 1000ms
+- No percent progress bars (stage labels only)
+
+Analysis loading:
+
+- Use `analysis-loading.js` and `analysis-loading.css`
+- Poll `/api/analysis/status/{slug}` until done
+- Redirect to `/artwork/{slug}/review/{provider}`
+
+## 10) Security Requirements
+
+- All mutating endpoints enforce CSRF (`require_csrf_or_400`)
+- `fetch` requests must send `X-CSRFToken`
+- Validate slug/path with safe helpers (`slug_sku`)
+- Log security-sensitive actions via `logger_utils.log_security_event`
+
+## 11) Logging and Completion
+
+- Log success and failure to `/srv/artlomo/logs/` where appropriate
+- Clean up temporary files after image and video processing
+- A task is complete only when `DEFINITION_OF_DONE.md` is satisfied
+
+## 12) Editing Conduct
+
+- Prefer targeted diffs over broad rewrites
+- Keep imports at top
+- Add comments only for non-obvious logic
+- Never revert unrelated local changes
+
+## 13) Markdown Authoring and Lint Contract (Mandatory for All `.md` Files)
+
+Markdown changes are not complete until lint is clean for touched files.
+
+Authoring rules (must follow while writing):
+
+- Use ATX headings only (`#`, `##`, `###`) with one space after `#`.
+- Keep one blank line before and after headings, lists, tables,
+  and fenced code blocks.
+- Use fenced code blocks with an explicit language
+  (` ```bash`, ` ```python`, ` ```json`, etc.).
+- Use `-` for unordered lists; keep list indentation consistent
+  (`0` or `2` spaces only where structurally required).
+- Ordered lists must be sequential (`1.`, `2.`, `3.`),
+  never repeated `1.` style.
+- Wrap prose to 80 characters where practical to satisfy line-length checks
+  (reflow sentences instead of leaving long lines).
+- Avoid duplicate headings at the same level in a file;
+  make headings unique and descriptive.
+- No trailing spaces and no tabs.
+- In table cells, do not use raw `|` as text content.
+  Use commas, `\\|`, or inline code that does not break cell count.
+- Do not emit placeholder text like `TBD`, `TODO`,
+  `lorem ipsum`, or `...` in final docs.
+
+Mandatory markdownlint rules to satisfy:
+
+- MD007, MD009, MD013, MD022, MD024, MD026, MD029, MD031, MD032,
+  MD040, MD056, MD060
+
+Required verification workflow for any touched `.md` files:
+
+1. Run auto-fix first:
+  `npx markdownlint-cli2 --fix <touched-markdown-files>`
+2. Run validation second:
+  `npx markdownlint-cli2 <touched-markdown-files>`
+3. If any errors remain, manually correct them and re-run validation
+  until zero errors.
+
+Safety constraints:
+
+- Do not run recursive markdown fixers across the whole repository
+  unless explicitly requested.
+- Prefer targeted file lists over broad scans.
+- If a file cannot be made clean without major semantic rewriting,
+  stop and call out the exact blocking lines.
+
+## 14) Navigation References
+
+- `application/docs/MASTER_FILE_INDEX.md`
+- `application/docs/MASTER_WORKFLOWS_INDEX.md`
+- `application/docs/CONTEXT_INDEX.md`
+- `application/docs/SYSTEM_MAP.md`
+- `application/docs/APP-AUDIT.md`
+- `application/docs/STRUCTURAL_VERIFICATION_REPORT.md`
+- `application/docs/closeup-detail-generator.md`
+- `application/docs/schema_coordinates.json`

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}?v=1.2">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload_gallery.css') }}?v=20260311-01">
+{% endblock %}
+
+{% block content %}
+<div class="upload-panel"
+     id="upload-panel"
+  data-upload-endpoint="{{ url_for('upload.handle_upload') }}">
+  <p class="text-body-secondary">JPG only, max {{ constraints.max_mb }}MB. Metadata is captured later during analysis.</p>
+
+  <div id="upload-dropzone"
+       class="upload-dropzone"
+       data-upload-dropzone
+       data-upload-endpoint="{{ url_for('upload.handle_upload') }}"
+       role="button"
+       tabindex="0"
+       aria-label="Upload JPG files via click or drag and drop">
+    <p class="upload-hint">Drag & drop files here or click to select</p>
+    <p class="upload-constraints">JPG only, max 50MB per file</p>
+  </div>
+
+  <input type="file"
+         id="upload-input"
+         name="artwork"
+         data-upload-input
+         accept="image/jpeg,image/jpg"
+         multiple
+         hidden
+         aria-label="Upload JPG files">
+
+  <div id="uploadStatus" class="upload-status" aria-live="polite"></div>
+  <div id="uploadResults" class="upload-results" aria-live="polite"></div>
+</div>
+
+<div id="processing-modal" class="processing-overlay hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Uploading and Processing Artworks">
+  <div class="processing-overlay-backdrop"></div>
+  <div class="processing-overlay-dialog">
+    <div class="processing-overlay-header">
+      <h2 class="h5 mb-0">Uploading &amp; Processing Artworks</h2>
+      <div class="processing-overlay-actions">
+        <button type="button" class="btn btn-outline-secondary" id="processingCloseBtn" aria-label="Close processing modal">Close</button>
+        <button type="button" class="btn btn-secondary" id="processingBackgroundBtn">Run in background</button>
+      </div>
+    </div>
+    <div class="processing-message" id="processingMessage" aria-live="polite">
+      <img src="{{ url_for('static', filename='icons/arrows-clockwise-light.svg') }}" alt="Processing" class="processing-icon spinning" aria-hidden="true">
+      <span class="processing-message-text" id="processingMessageText">Preparing uploads…</span>
+    </div>
+    <div id="processing-list" class="upload-processing" aria-live="polite"></div>
+    <p class="processing-overlay-note text-body-secondary">Processing your uploads, this can take a while, this window auto-closes when all artworks are uploaded.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

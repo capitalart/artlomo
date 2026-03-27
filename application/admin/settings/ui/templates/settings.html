@@ -1,0 +1,82 @@
+{% extends 'admin_base.html' %}
+{% block admin_content %}
+<p class="artlomo-page-subtitle">Manage AI model stacks stored in the repo .env file.</p>
+
+<form method="post" action="{{ url_for('admin_settings.settings_page') }}" class="vstack gap-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div>
+    <label class="form-label" for="openai_model_stack">OpenAI Model Stack</label>
+    <div class="text-body-secondary small mb-2">Comma separated. Example: <code>gpt-5.2,gpt-5.1,gpt-4o-mini</code></div>
+    <textarea class="form-control" id="openai_model_stack" name="openai_model_stack" rows="3">{{ current_openai_stack or openai_model_stack }}</textarea>
+  </div>
+
+  <div>
+    <label class="form-label" for="gemini_model_stack">Gemini Model Stack</label>
+    <div class="text-body-secondary small mb-2">Comma separated. Example: <code>gemini-1.5-pro-002,gemini-1.5-flash,gemini-2.0-flash</code></div>
+    <textarea class="form-control" id="gemini_model_stack" name="gemini_model_stack" rows="3">{{ current_gemini_stack or gemini_model_stack }}</textarea>
+  </div>
+
+  <div class="theme-form__actions">
+    <button class="artlomo-btn artlomo-btn--save" type="submit">Save</button>
+    <button class="artlomo-btn" type="button" id="check-latest">Check Latest</button>
+    <a class="artlomo-btn" href="{{ url_for('hub.home') }}">Back to Hub</a>
+  </div>
+
+  <div id="latest-results" class="mt-2 latest-results-hidden">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Available Models</h2>
+        <div class="row g-3">
+          <div class="col-12 col-lg-6">
+            <div class="fw-semibold mb-1">OpenAI</div>
+            <div class="text-body-secondary small" id="openai-error"></div>
+            <pre class="mb-0" id="openai-models"></pre>
+          </div>
+          <div class="col-12 col-lg-6">
+            <div class="fw-semibold mb-1">Gemini</div>
+            <div class="text-body-secondary small" id="gemini-error"></div>
+            <pre class="mb-0" id="gemini-models"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<hr class="settings-divider">
+
+<h2 class="artlomo-page-title">Storage Management</h2>
+<p class="artlomo-page-subtitle">Manage temporary files and export cache.</p>
+
+<div class="vstack gap-3 storage-management-container">
+  <div class="storage-management-panel">
+    <h3>Export Cache</h3>
+    <p>
+      Clear exported artwork ZIP files. By default, only files older than 60 minutes are removed.
+    </p>
+    <div class="storage-management-actions">
+      <form method="post" action="{{ url_for('admin_settings.clear_export_cache') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="artlomo-btn">Clear Old Exports (60+ min)</button>
+      </form>
+      <form method="post" action="{{ url_for('admin_settings.clear_export_cache') }}" data-clear-all-exports>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="force" value="true">
+        <button type="submit" class="artlomo-btn artlomo-btn--danger">Clear All Exports</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% block workflow_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}
+
+{% endblock %}

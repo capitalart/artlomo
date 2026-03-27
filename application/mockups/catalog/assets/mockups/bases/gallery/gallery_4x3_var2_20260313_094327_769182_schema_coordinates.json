@@ -1,0 +1,23 @@
+{
+  "format_version": "1.0",
+  "image_path": "/srv/artlomo/application/mockups/catalog/assets/mockups/bases/gallery/gallery_4x3_var2_20260313_094327_769182.png",
+  "generated_at": "2026-03-13T09:43:28.186995Z",
+  "points": [
+    {
+      "x": 160,
+      "y": 215
+    },
+    {
+      "x": 920,
+      "y": 124
+    },
+    {
+      "x": 920,
+      "y": 648
+    },
+    {
+      "x": 155,
+      "y": 645
+    }
+  ]
+}

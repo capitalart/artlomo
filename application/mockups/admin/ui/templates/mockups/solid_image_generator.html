@@ -1,0 +1,98 @@
+{% extends 'admin_base.html' %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/mockups_admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('mockups_admin.static', filename='css/solid_image_generator.css') }}">
+{% endblock %}
+
+{% block admin_content %}
+<div class="solid-image-container">
+  <div class="solid-image-header">
+    <h1 class="solid-image-title">Solid Image Generator</h1>
+    <p class="solid-image-subtitle">Generate solid color placeholder images for testing and reference</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          <div class="alert-title">
+            {% if category == 'error' %}Error{% else %}{{ category|capitalize }}{% endif %}
+          </div>
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="info-box">
+    <div class="info-box-title">How it works</div>
+    <div>
+      Select an aspect ratio and color, then download a high-resolution solid color image
+      perfect for testing and mockup reference. The default matte cyan color matches our
+      artwork placeholder standard.
+    </div>
+  </div>
+
+  <form method="post" class="form-section">
+    <div class="form-group">
+      <label for="aspect-ratio" class="form-label">
+        Aspect Ratio
+        <span class="form-label-hint">Select one of the 13 supported mockup aspect ratios</span>
+      </label>
+      <select id="aspect-ratio" name="aspect_ratio" class="form-select" required>
+        <option value="" selected disabled>Choose an aspect ratio...</option>
+        {% for ratio in aspect_ratios %}
+          <option value="{{ ratio }}">{{ ratio }} ({{ ratio.split('x')[0] }}:{{ ratio.split('x')[1] }} pixels)</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="color" class="form-label">
+        Color
+        <span class="form-label-hint">Select a hex color or accept default matte cyan</span>
+      </label>
+      <div class="color-picker-wrapper">
+        <div class="form-group">
+          <input
+            type="color"
+            id="color"
+            name="color"
+            class="color-picker-input"
+            value="#{{ default_color }}"
+          >
+          <span class="color-value" id="color-value">#{{ default_color }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-title">Preview</div>
+      <div
+        class="color-preview"
+        id="preview-color"
+        data-default-color="#{{ default_color }}"
+      ></div>
+      <div class="aspect-info">
+        Selected: <span id="selected-ratio">None</span>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button type="submit" class="btn btn-primary">Download Image</button>
+      <a href="{{ url_for('hub.home') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+
+  <div class="technical-info">
+    <p>High-resolution images generated on-demand using Pillow (PIL)</p>
+    <p>Maximum dimension: 5000 pixels (capped for memory safety)</p>
+    <p>Output format: PNG with lossless compression</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('mockups_admin.static', filename='js/solid_image_generator.js') }}"></script>
+{% endblock %}

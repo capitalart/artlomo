@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block workflow_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}?v=1.2">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload_gallery.css') }}?v=20260311-01">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/trash.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="trash-banner">
+  <span class="trash-banner__icon">⚠️</span>
+  <div class="trash-banner__text">
+    <strong>Items in Trash are permanently removed after 14 days.</strong><br>
+    Restore items to recover them, or delete forever to free up space immediately.
+  </div>
+</div>
+
+<div data-gallery-minimal>
+
+  {% if not items %}
+  <p class="text-body-secondary">Trash is empty. Deleted artworks will appear here.</p>
+  {% else %}
+  <div class="toolbar hub-controls gallery-toolbar-inline">
+    <button type="button" class="artlomo-btn" data-bulk-select-all>Select All</button>
+    <button type="button" class="artlomo-btn" data-bulk-deselect-all>Deselect All</button>
+    <span class="artwork-subtext gallery-toolbar-count" data-bulk-count hidden></span>
+    <div class="gallery-toolbar-spacer"></div>
+    <button type="button" class="artlomo-btn" data-bulk-restore-trigger disabled>Restore Selected</button>
+    <button type="button" class="artlomo-btn artlomo-btn--danger" data-bulk-permanent-delete-trigger disabled>Delete
+      Forever</button>
+  </div>
+
+  <div class="artwork-grid">
+    {% for item in items %}
+    {% set thumb_src = '' %}
+    {% if item.previous_status == 'processed' %}
+    {% set thumb_src = url_for('upload.processed_thumb', slug=item.slug) %}
+    {% elif item.previous_status == 'locked' %}
+    {% set thumb_src = url_for('upload.locked_thumb', slug=item.slug) %}
+    {% else %}
+    {% set thumb_src = url_for('upload.thumb', slug=item.slug) %}
+    {% endif %}
+    {% set uploaded = item.upload_date_display or '' %}
+    {% set qc = item.qc or {} %}
+    {% set dims = qc.get('dimensions', {}) %}
+    {% set aspect_obj = qc.get('aspect_ratio') %}
+    {% set aspect_label = aspect_obj.label if aspect_obj else 'n/a' %}
+    {% set resolution = dims.get('width', 'n/a') ~ '×' ~ dims.get('height', 'n/a') %}
+    {% set display_title = (item.meta.display_title if item.meta and item.meta.display_title else item.sku) %}
+    {% set artist_name = item.artist_display or '' %}
+
+    <div class="gallery-card art-card trash-card" data-slug="{{ item.slug }}" data-sku="{{ item.sku }}"
+      data-title="{{ display_title | e }}" data-previous-status="{{ item.previous_status | e }}">
+
+      <div class="deleted-badge">Deleted</div>
+      <div class="previous-status-badge">Was: {{ item.previous_status | title }}</div>
+      {% if item.deleted_at %}
+      {% set deleted_date = item.deleted_at[:10] if item.deleted_at is string else item.deleted_at.strftime('%Y-%m-%d')
+      %}
+      {% set days_left = item.days_left if item.days_left is defined else 14 %}
+      <div class="days-left-badge{% if days_left <= 3 %} urgent{% endif %}">
+        {% if days_left <= 0 %}Expiring soon{% elif days_left==1 %}1 day left{% else %}{{ days_left }} days left{% endif
+          %} </div>
+          {% endif %}
+
+          <label class="card-select" aria-label="Select {{ item.slug }}">
+            <input type="checkbox" class="card-checkbox" data-bulk-select data-slug="{{ item.slug }}">
+          </label>
+
+          <div class="artwork-visual">
+            {% if thumb_src %}
+            <img src="{{ thumb_src }}" alt="{{ item.slug }} thumbnail" class="thumb-image" loading="lazy"
+              data-thumb-fallback="true">
+            <div class="thumb-placeholder thumb-placeholder-hidden">No thumbnail</div>
+            {% else %}
+            <div class="thumb-placeholder">No thumbnail</div>
+            {% endif %}
+          </div>
+
+          <div class="artwork-info">
+            <div class="artwork-text">
+              <h2 class="artwork-title">{{ display_title }}</h2>
+              {% if artist_name %}
+              <p class="artwork-subtext">Artist: {{ artist_name }}</p>
+              {% endif %}
+              <p class="artwork-subtext">ID {{ item.sku }}</p>
+              {% if item.deleted_at %}
+              <p class="artwork-subtext delete-date-danger">Deleted: {{ item.deleted_at[:10] if item.deleted_at else
+                'Unknown' }}</p>
+              {% endif %}
+              {% if qc %}
+              <ul class="artwork-meta">
+                {% if uploaded %}<li>Uploaded: {{ uploaded }}</li>{% endif %}
+                <li>Aspect Ratio: {{ aspect_label }}</li>
+                <li>Resolution: {{ resolution }}</li>
+              </ul>
+              {% endif %}
+            </div>
+
+            <div class="artwork-actions">
+              <div class="action-row action-row-single">
+                <button class="artlomo-btn" type="button" data-restore-trigger data-slug="{{ item.slug }}"
+                  data-sku="{{ item.sku }}"
+                  data-restore-url="{{ url_for('upload.restore_from_trash', slug=item.slug) }}">
+                  Restore
+                </button>
+              </div>
+              <div class="action-row action-row-single">
+                <button class="artlomo-btn artlomo-btn--danger" type="button" data-permanent-delete-trigger
+                  data-slug="{{ item.slug }}" data-sku="{{ item.sku }}"
+                  data-delete-url="{{ url_for('upload.permanent_delete', slug=item.slug) }}">
+                  Delete Forever
+                </button>
+              </div>
+            </div>
+          </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="upload-modal delete-modal hidden" id="permanentDeleteModal" role="dialog" aria-modal="true"
+      aria-hidden="true" aria-label="Confirm permanent deletion">
+      <div class="upload-modal-backdrop" data-delete-dismiss></div>
+      <div class="upload-modal-dialog" role="document">
+        <button type="button" class="upload-modal-close" aria-label="Close" data-delete-dismiss>×</button>
+
+        <div class="delete-modal__body">
+          <div class="delete-modal__content delete-modal-content-center">
+            <div class="delete-modal-icon">🗑️</div>
+            <p class="delete-modal__warning delete-modal-warning">
+              This will PERMANENTLY delete the artwork files.<br>This action cannot be undone!
+            </p>
+            <p class="delete-modal__meta delete-modal-meta">
+              <strong>Selected Items: <span data-delete-count>0</span></strong>
+            </p>
+            <label class="delete-modal__label delete-modal-label-block" for="permanentDeleteInput">
+              Type <strong>DELETE FOREVER</strong> to confirm
+            </label>
+            <input id="permanentDeleteInput" type="text" class="delete-modal__input delete-modal-input-centered"
+              autocomplete="off" data-permanent-delete-input placeholder="DELETE FOREVER"
+              aria-label="Type DELETE FOREVER to confirm">
+            <div class="delete-modal__error" data-delete-error role="alert" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="delete-modal__actions">
+          <button type="button" class="artlomo-btn" data-delete-dismiss>Cancel</button>
+          <button type="button" class="artlomo-btn artlomo-btn--danger" data-permanent-delete-confirm disabled>Delete
+            Forever</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  {% endblock %}
+
+  {% block extra_js %}
+  <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/trash.js') }}"></script>
+  {% endblock %}
