@@ -42,9 +42,6 @@
               {{ overlay_link('Mockup Library', url_for('mockups_admin.bases'), ep.startswith('mockups_admin.') and 'bases' in ep or path.startswith('/admin/mockups/bases')) }}
               {{ overlay_link('Category Manager', url_for('mockups_admin.category_manager'), ep == 'mockups_admin.category_manager' or path.startswith('/admin/mockups/categories')) }}
               {{ overlay_link('Locked', url_for('upload.locked'), ep == 'upload.locked' or path.startswith('/artworks/locked')) }}
-               {{ overlay_link('Mockup Generator', url_for('mockup_generator.mockup_generator_dashboard'), ep == 'mockup_generator.mockup_generator_dashboard' or path.startswith('/admin/mockups/mockup-generator')) }}
-              {{ overlay_link('Mockup Queue Admin', url_for('mockup_generator.mockup_generator_queue_admin_page'), ep == 'mockup_generator.mockup_generator_queue_admin_page' or path.startswith('/admin/mockups/mockup-generator/queue-admin')) }}
-              {{ overlay_link('Mockup Prompt Settings', url_for('mockup_generator.mockup_generator_prompt_settings'), ep == 'mockup_generator.mockup_generator_prompt_settings' or path.startswith('/admin/mockups/mockup-generator/prompt-settings')) }}
                {{ overlay_link('Solid Image Utility', url_for('utility.solid_image_generator_form'), ep == 'utility.solid_image_generator_form' or path.startswith('/admin/mockups/solid-image-generator')) }}
               {{ overlay_link('Trash', url_for('upload.trash'), ep == 'upload.trash' or path.startswith('/artworks/trash')) }}
             </ul>

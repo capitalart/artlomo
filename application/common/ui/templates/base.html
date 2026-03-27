@@ -127,36 +127,6 @@
           <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-upload"></i></span>
           <span class="sidebar-nav__label">Upload Bases</span>
         </a>
-        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/gemini-studio') %} is-active{% endif %}"
-          href="{{ url_for('mockups_admin.gemini_studio') }}">
-          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
-          <span class="sidebar-nav__label">Gemini Mockup Studio</span>
-        </a>
-        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/basic-mockups') %} is-active{% endif %}"
-          href="{{ url_for('mockups_admin.basic_mockups') }}">
-          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-images"></i></span>
-          <span class="sidebar-nav__label">Basic Mockups</span>
-        </a>
-        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/ezy-mockups') %} is-active{% endif %}"
-          href="{{ url_for('mockups_admin.ezy_mockups') }}">
-          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
-          <span class="sidebar-nav__label">Ezy Mockups (Alpha)</span>
-        </a>
-        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/mockup-generator') %} is-active{% endif %}"
-          href="{{ url_for('mockup_generator.mockup_generator_dashboard') }}">
-          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-cubes"></i></span>
-          <span class="sidebar-nav__label">Mockup Generator</span>
-        </a>
-        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/mockup-generator/queue-admin') %} is-active{% endif %}"
-          href="{{ url_for('mockup_generator.mockup_generator_queue_admin_page') }}">
-          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-server"></i></span>
-          <span class="sidebar-nav__label">Mockup Queue Admin</span>
-        </a>
-        <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/precision-mockups') %} is-active{% endif %}"
-          href="{{ url_for('mockups_admin.precision_mockups') }}">
-          <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i></span>
-          <span class="sidebar-nav__label">Precision Mockups</span>
-        </a>
         <a class="sidebar-nav__link{% if _path.startswith('/admin/mockups/aspects') %} is-active{% endif %}"
           href="{{ url_for('mockups_admin.aspect_manager') }}">
           <span class="sidebar-nav__icon" aria-hidden="true"><i class="fa-solid fa-expand"></i></span>

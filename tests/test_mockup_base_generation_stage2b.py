@@ -188,22 +188,6 @@ class TestSolidImageService:
             assert pixel == expected_rgb
 
 
-class TestGeneratorRoutes:
-    """Test suite for mockup generator dashboard routes."""
-
-    def test_dashboard_route_exists(self, client):
-        """Verify dashboard route is accessible."""
-        response = client.get("/admin/mockups/mockup-generator")
-        # Should return 200 or redirect based on auth
-        assert response.status_code in (200, 302)
-
-    def test_generator_status_api_route_exists(self, client):
-        """Verify status API endpoint exists."""
-        response = client.get("/admin/mockups/mockup-generator/status")
-        # Should return JSON
-        assert response.status_code in (200, 302, 401)
-
-
 class TestUtilityRoutes:
     """Test suite for solid image utility routes."""
 
