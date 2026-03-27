@@ -17,7 +17,7 @@ from .analysis.api.routes import analysis_api_bp
 from .analysis.api.job_routes import job_api_bp
 from .analysis.routes import analysis_bp
 from .export.api.routes import export_api_bp
-from .mockups.admin.routes import mockups_admin_bp, manual_artworks_bp, forge_bp, mockup_generator_bp, utility_bp
+from .mockups.admin.routes import mockups_admin_bp, manual_artworks_bp, forge_bp, utility_bp
 from .mockups.routes import mockups_bp
 from .admin.settings.routes.settings_routes import settings_bp
 from .admin.profile.routes.profile_routes import profile_bp
@@ -147,7 +147,6 @@ def create_app(config_obj: AppConfig | None = None) -> Flask:
     app.register_blueprint(profile_bp, url_prefix="/admin")
     app.register_blueprint(users_bp, url_prefix="/admin")
     app.register_blueprint(mockups_admin_bp, url_prefix="/admin/mockups")
-    app.register_blueprint(mockup_generator_bp, url_prefix="/admin/mockups")
     app.register_blueprint(utility_bp, url_prefix="/admin/mockups")
     app.register_blueprint(forge_bp)
     app.register_blueprint(manual_artworks_bp, url_prefix="")
