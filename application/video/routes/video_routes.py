@@ -10,6 +10,7 @@ from pathlib import Path
 from flask import Blueprint, abort, current_app, jsonify, render_template, request, url_for
 
 from application.config import AppConfig
+from application import config as app_config
 from application.routes.auth_routes import login_required
 from application.common.utilities import slug_sku
 from application.utils.csrf import require_csrf_or_400
@@ -313,7 +314,7 @@ def _normalize_video_settings(raw: dict | None) -> dict:
 
 
 def _storyboard_category_options() -> list[str]:
-    bases_root = Path("/srv/artlomo/application/mockups/catalog/assets/mockups/bases")
+    bases_root = app_config.BASE_DIR / "application" / "mockups" / "catalog" / "assets" / "mockups" / "bases"
     if not bases_root.exists() or not bases_root.is_dir():
         return []
     categories: set[str] = set()
@@ -486,7 +487,7 @@ def video_workspace(slug: str):
     storyboard_entries = _storyboard_entries(slug_clean, processed_dir, list(video_settings.get("selected_mockups") or []))
     storyboard_categories = _storyboard_category_options()
 
-    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path("/srv/artlomo/logs"))
+    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))
     video_path = svc._get_video_output_path(slug_clean)
     has_video = video_path.exists() and video_path.is_file() and video_path.stat().st_size > 0
 
@@ -548,7 +549,7 @@ def generate_kinematic_video(slug: str):
         config = AppConfig()
         video_service = VideoService(
             processed_root=config.LAB_PROCESSED_DIR,
-            logs_dir=Path("/srv/artlomo/logs"),
+            logs_dir=Path(app_config.LOGS_DIR),
         )
 
         # Generate video
@@ -590,7 +591,7 @@ def video_status(slug: str):
         config = AppConfig()
         video_service = VideoService(
             processed_root=config.LAB_PROCESSED_DIR,
-            logs_dir=Path("/srv/artlomo/logs"),
+            logs_dir=Path(app_config.LOGS_DIR),
         )
 
         has_video = video_service.has_kinematic_video(slug)

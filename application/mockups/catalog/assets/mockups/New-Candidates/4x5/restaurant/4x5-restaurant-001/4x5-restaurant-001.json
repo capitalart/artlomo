@@ -1,0 +1,215 @@
+{
+  "aspect_ratio": "4x5",
+  "asset_slug": "4x5-restaurant-001",
+  "batch_context": {
+    "batch_id": "013303b913274e5eb708b9b732e3d2d2",
+    "batch_index": 5,
+    "batch_size": 5
+  },
+  "category": "Restaurant",
+  "coordinates": {
+    "available": true,
+    "data": {
+      "confidence_score": 0.8455,
+      "height": 2048,
+      "normalized_points": [
+        {
+          "x": 0.348692,
+          "y": 0.148128
+        },
+        {
+          "x": 0.651235,
+          "y": 0.148708
+        },
+        {
+          "x": 0.651112,
+          "y": 0.561602
+        },
+        {
+          "x": 0.348458,
+          "y": 0.561591
+        }
+      ],
+      "point_order": [
+        "TL",
+        "TR",
+        "BR",
+        "BL"
+      ],
+      "points": [
+        {
+          "x": 714.1208,
+          "y": 303.366
+        },
+        {
+          "x": 1333.7302,
+          "y": 304.555
+        },
+        {
+          "x": 1333.4781,
+          "y": 1150.161
+        },
+        {
+          "x": 713.6425,
+          "y": 1150.1389
+        }
+      ],
+      "width": 2048
+    },
+    "source_path": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/coordinates.json"
+  },
+  "exported_asset_id": "ff8ef5f8-aa38-440a-a12c-91def8c02f05",
+  "file_metadata": {
+    "exported_at_utc": "2026-03-28T05:02:20.804462+00:00",
+    "exported_png_filename": "4x5-restaurant-001.png",
+    "exported_png_path": "/srv/dreamartmachine/var/exports/bases/4x5/restaurant/4x5-restaurant-001/4x5-restaurant-001.png",
+    "file_size_bytes": 8403958,
+    "has_alpha": true,
+    "png_checksum": "sha256:201400848d44e01313410372fc97af3a6036ac6b82d9a2c5633acbff7fe157a1"
+  },
+  "generation_source": {
+    "model": "gemini-3.1-flash-image-preview"
+  },
+  "import_contract": {
+    "import_ready": true,
+    "import_source": "export_bases",
+    "import_timestamp_utc": null,
+    "imported": false
+  },
+  "job_id": "0757814c1d004870ad14cf71c7facc83",
+  "management_readiness": {
+    "management_status": "exported",
+    "qa_status": "pending",
+    "review_required": false
+  },
+  "metadata_snapshot": {
+    "artwork_region_method": "cyan_border",
+    "aspect_ratio": "4x5",
+    "asset_state": {
+      "cleaned_production_base": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/production_base_cleaned.png",
+      "finished_composite_output": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/composite_preview.jpg",
+      "raw_generated_candidate": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/candidate_raw.jpg"
+    },
+    "auto_preview_composite": true,
+    "batch_id": "013303b913274e5eb708b9b732e3d2d2",
+    "batch_index": 5,
+    "batch_size": 5,
+    "candidate_expect_artwork_visible": false,
+    "candidate_expect_blank_placeholder_visible": false,
+    "candidate_expect_cyan_visible": true,
+    "candidate_observed_signals": {
+      "artwork_visible": true,
+      "blank_placeholder_visible": false,
+      "blank_ratio": 0.222351,
+      "cyan_ratio": 0.010986,
+      "cyan_visible": true,
+      "vivid_ratio": 0.487823
+    },
+    "candidate_sanity_check": {
+      "expected": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "cyan_visible": true
+      },
+      "mismatch": true,
+      "mismatch_fields": [
+        "artwork_visible"
+      ],
+      "observed": {
+        "artwork_visible": true,
+        "blank_placeholder_visible": false,
+        "blank_ratio": 0.222351,
+        "cyan_ratio": 0.010986,
+        "cyan_visible": true,
+        "vivid_ratio": 0.487823
+      },
+      "preview_artwork_source": "internal_placeholder",
+      "prompt_strategy_used": "cyan_border_v1",
+      "selected_method": "cyan_border"
+    },
+    "category": "Restaurant",
+    "category_item_number": 1,
+    "colour_mood": "warm-tones",
+    "composite_edge_expansion_px": 2,
+    "composite_generated": true,
+    "composite_generated_at": "2026-03-28T01:19:01.068067Z",
+    "composite_path": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/composite_preview.jpg",
+    "composite_thumbnail_path": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/composite_thumbnail.jpg",
+    "coordinate_confidence": 0.8455105250395345,
+    "coordinates_debug_mask_path": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/coordinates_debug_mask.png",
+    "coordinates_json_path": "/srv/dreamartmachine/var/jobs/0757814c1d004870ad14cf71c7facc83/coordinates.json",
+    "frame_label": "Natural Oak",
+    "frame_style": "natural_oak",
+    "frame_style_requested": "auto-by-category",
+    "frame_style_source": "auto-category-frame-mapping",
+    "generated_image_actual_height": 2048,
+    "generated_image_actual_width": 2048,
+    "generated_image_dimensions": {
+      "actual_height": 2048,
+      "actual_width": 2048,
+      "contract_status": "matched",
+      "enforcement_mode": "normalize",
+      "final_height": 2048,
+      "final_width": 2048,
+      "normalized": false,
+      "requested_aspect_ratio": "1:1",
+      "requested_image_size": "2K",
+      "target_height": 2048,
+      "target_width": 2048
+    },
+    "generated_image_final_height": 2048,
+    "generated_image_final_width": 2048,
+    "generation_scope": "selected",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "japandi",
+    "jobs_per_category": 1,
+    "mat_label": "No Mat",
+    "mat_style": "none",
+    "mat_style_requested": "auto-by-category",
+    "mat_style_source": "auto-category-mat-mapping",
+    "model": "gemini-3.1-flash-image-preview",
+    "presentation_phrase": "Display the artwork as a fine art print in a natural oak timber picture frame with no mat.",
+    "preview_artwork_aspect_ratio": "4x5",
+    "preview_artwork_path": "/srv/dreamartmachine/artworks/4x5-artwork-placeholder.png",
+    "preview_artwork_source": "internal_placeholder",
+    "prompt_input_display": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "prompt_strategy_used": "cyan_border_v1",
+    "raw_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "room_feel": "lived-in",
+    "selected_categories": [
+      "Bedroom Adults",
+      "Cafe",
+      "Dining",
+      "Living Room",
+      "Restaurant"
+    ],
+    "source": "studio",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual",
+    "visual_direction_value_origin": "manual"
+  },
+  "prompt": {
+    "compiled_prompt": null,
+    "display_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "raw_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "strategy": "cyan_border_v1"
+  },
+  "render": {
+    "aspect_ratio": "4x5",
+    "colour_mood": "warm-tones",
+    "frame_label": "Natural Oak",
+    "frame_style": "natural_oak",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "japandi",
+    "mat_label": "No Mat",
+    "mat_style": "none",
+    "room_feel": "lived-in",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual"
+  },
+  "schema_version": "2.0",
+  "source_job": {
+    "finished_at": "2026-03-28T01:19:00.428613Z",
+    "state": "base_ready"
+  }
+}

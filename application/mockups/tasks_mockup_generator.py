@@ -57,8 +57,10 @@ from application.mockups.services.chromakey_bridge_service import (
 
 
 logger = logging.getLogger(__name__)
-CONTROL_STATE_PATH = Path("/srv/artlomo/var/state/mockup_generator_control.json")
-PROMPT_SETTINGS_PATH = Path("/srv/artlomo/var/state/mockup_generator_prompt_settings.json")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+APPLICATION_ROOT = PROJECT_ROOT / "application"
+CONTROL_STATE_PATH = PROJECT_ROOT / "var" / "state" / "mockup_generator_control.json"
+PROMPT_SETTINGS_PATH = PROJECT_ROOT / "var" / "state" / "mockup_generator_prompt_settings.json"
 MAX_CYAN_REGEN_ATTEMPTS = 2
 MOCKUP_CANVAS_ASPECT_RATIO = "1x1"
 MOCKUP_GEMINI_TASK_RATE_LIMIT = os.getenv("MOCKUP_GEMINI_TASK_RATE_LIMIT", "8/m")
@@ -75,7 +77,7 @@ GENERATION_MODE_ARTWORK_TROJAN = "artwork_trojan"
 GENERATION_MODE_ARTWORK_ONLY_COMPOSITE = "artwork_only_composite"
 CHROMAKEY_TARGET_HEX = os.getenv("MOCKUP_CHROMAKEY_HEX", "#00FFCC").strip() or "#00FFCC"
 STUDIO_CANVAS_ASPECT_RATIO = "1x1"
-THOUGHT_SIGNATURE_STATE_PATH = Path("/srv/artlomo/var/state/mockup_generator_thought_signatures.json")
+THOUGHT_SIGNATURE_STATE_PATH = PROJECT_ROOT / "var" / "state" / "mockup_generator_thought_signatures.json"
 
 # Reference-guided editing prompt (used when a reference image is provided to edit_image)
 MATTE_REFERENCE_GUIDED_PROMPT_TEMPLATE = (
@@ -138,15 +140,15 @@ SEASON_OPTIONS = (
     "Any",
 )
 TROJAN_ARTWORK_DIR = Path(
-    "/srv/artlomo/application/mockups/catalog/assets/mockups/reference-guides/outlined-artworks"
+    APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "reference-guides" / "outlined-artworks"
 )
 ARTWORK_ONLY_GUIDE_DIR = Path(
-    "/srv/artlomo/application/mockups/catalog/assets/mockups/reference-guides/artwork-only"
+    APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "reference-guides" / "artwork-only"
 )
 LEGACY_TROJAN_ARTWORK_DIR = Path(
-    "/srv/artlomo/application/mockups/catalog/assets/mockups/reference-guides/trojan-artworks"
+    APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "reference-guides" / "trojan-artworks"
 )
-GEMINI_STUDIO_ROOT = Path("/srv/artlomo/var/studio")
+GEMINI_STUDIO_ROOT = PROJECT_ROOT / "var" / "studio"
 GEMINI_STUDIO_OUTPUT_DIR = GEMINI_STUDIO_ROOT / "outputs"
 STUDIO_OUTPUT_TARGET_PX = int(os.getenv("MOCKUP_STUDIO_OUTPUT_TARGET_PX", "2048"))
 EZY_MOCKUP_ROOT = GEMINI_STUDIO_ROOT / "ezy"

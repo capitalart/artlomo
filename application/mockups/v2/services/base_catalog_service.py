@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from db import MockupBaseGenerationJob, SessionLocal
 
@@ -22,7 +22,7 @@ class BaseCatalogService:
 
     def __init__(self, catalog_path: Path | None = None):
         self._catalog_path = Path(
-            catalog_path or "/srv/artlomo/var/state/mockup_base_catalog_v2.json"
+            catalog_path or (Path(__file__).resolve().parents[4] / "var" / "state" / "mockup_base_catalog_v2.json")
         )
 
     def set_state(
@@ -42,12 +42,16 @@ class BaseCatalogService:
             if not job:
                 raise CatalogRegistrationError(f"Job not found for state update: {job_id}")
 
-            job.status = state.value
-            job.reason = reason
-            job.error_message = error_message
-            job.updated_at = datetime.utcnow()
+            # SQLAlchemy models in db.py use legacy Column attributes, so cast the
+            # instance locally to avoid false-positive attribute assignment errors.
+            job_record = cast(Any, job)
+
+            job_record.status = state.value
+            job_record.reason = reason
+            job_record.error_message = error_message
+            job_record.updated_at = datetime.utcnow()
             if state in {CatalogState.CATALOG_READY, CatalogState.FAILED}:
-                job.finished_at = datetime.utcnow()
+                job_record.finished_at = datetime.utcnow()
             session.commit()
 
     def register_if_complete(

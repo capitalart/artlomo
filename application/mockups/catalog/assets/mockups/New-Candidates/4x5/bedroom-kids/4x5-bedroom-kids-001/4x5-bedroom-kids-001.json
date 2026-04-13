@@ -1,0 +1,231 @@
+{
+  "aspect_ratio": "4x5",
+  "asset_slug": "4x5-bedroom-kids-001",
+  "batch_context": {
+    "batch_id": "813a0b314b4e475ba041e34609946876",
+    "batch_index": 3,
+    "batch_size": 23
+  },
+  "category": "Bedroom Kids",
+  "coordinates": {
+    "available": true,
+    "data": {
+      "confidence_score": 0.7531,
+      "height": 2048,
+      "normalized_points": [
+        {
+          "x": 0.427191,
+          "y": 0.179221
+        },
+        {
+          "x": 0.618716,
+          "y": 0.201399
+        },
+        {
+          "x": 0.619272,
+          "y": 0.502741
+        },
+        {
+          "x": 0.426969,
+          "y": 0.510918
+        }
+      ],
+      "point_order": [
+        "TL",
+        "TR",
+        "BR",
+        "BL"
+      ],
+      "points": [
+        {
+          "x": 874.8875,
+          "y": 367.0439
+        },
+        {
+          "x": 1267.1294,
+          "y": 412.4653
+        },
+        {
+          "x": 1268.2684,
+          "y": 1029.6127
+        },
+        {
+          "x": 874.4328,
+          "y": 1046.3594
+        }
+      ],
+      "width": 2048
+    },
+    "source_path": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/coordinates.json"
+  },
+  "exported_asset_id": "81bf7b46-2ae8-4a85-afeb-c0a46a33b889",
+  "file_metadata": {
+    "exported_at_utc": "2026-03-29T01:02:25.349661+00:00",
+    "exported_png_filename": "4x5-bedroom-kids-001.png",
+    "exported_png_path": "/srv/dreamartmachine/var/exports/bases/4x5/bedroom-kids/4x5-bedroom-kids-001/4x5-bedroom-kids-001.png",
+    "file_size_bytes": 7573920,
+    "has_alpha": true,
+    "png_checksum": "sha256:a8ff85698aafa71c8ad852f0258db17fd61f07101206bab7f5f4f82e02c9e340"
+  },
+  "generation_source": {
+    "model": "gemini-3.1-flash-image-preview"
+  },
+  "import_contract": {
+    "import_ready": true,
+    "import_source": "export_bases",
+    "import_timestamp_utc": null,
+    "imported": false
+  },
+  "job_id": "792d603d1d42423eb2f8e3017f1574a3",
+  "management_readiness": {
+    "management_status": "exported",
+    "qa_status": "pending",
+    "review_required": false
+  },
+  "metadata_snapshot": {
+    "artwork_region_method": "cyan_border",
+    "aspect_ratio": "4x5",
+    "asset_state": {
+      "cleaned_production_base": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/production_base_cleaned.png",
+      "finished_composite_output": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/composite_preview.jpg",
+      "raw_generated_candidate": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/candidate_raw.jpg"
+    },
+    "auto_preview_composite": true,
+    "batch_id": "813a0b314b4e475ba041e34609946876",
+    "batch_index": 3,
+    "batch_size": 23,
+    "candidate_expect_artwork_visible": false,
+    "candidate_expect_blank_placeholder_visible": false,
+    "candidate_expect_cyan_visible": true,
+    "candidate_observed_signals": {
+      "artwork_visible": false,
+      "blank_placeholder_visible": false,
+      "blank_ratio": 0.204239,
+      "cyan_ratio": 0.007645,
+      "cyan_visible": true,
+      "vivid_ratio": 0.068207
+    },
+    "candidate_sanity_check": {
+      "expected": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "cyan_visible": true
+      },
+      "mismatch": false,
+      "mismatch_fields": [],
+      "observed": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "blank_ratio": 0.204239,
+        "cyan_ratio": 0.007645,
+        "cyan_visible": true,
+        "vivid_ratio": 0.068207
+      },
+      "preview_artwork_source": "internal_placeholder",
+      "prompt_strategy_used": "cyan_border_v1",
+      "selected_method": "cyan_border"
+    },
+    "category": "Bedroom Kids",
+    "category_item_number": 1,
+    "colour_mood": "rich-moody-tones",
+    "composite_edge_expansion_px": 3,
+    "composite_generated": true,
+    "composite_generated_at": "2026-03-28T23:56:44.606303Z",
+    "composite_path": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/composite_preview.jpg",
+    "composite_thumbnail_path": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/composite_thumbnail.jpg",
+    "coordinate_confidence": 0.7530730080760505,
+    "coordinates_debug_mask_path": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/coordinates_debug_mask.png",
+    "coordinates_json_path": "/srv/dreamartmachine/var/jobs/792d603d1d42423eb2f8e3017f1574a3/coordinates.json",
+    "frame_label": "Canvas Stretcher (Front)",
+    "frame_style": "canvas_stretcher",
+    "frame_style_requested": "auto-by-category",
+    "frame_style_source": "auto-category-frame-mapping",
+    "generated_image_actual_height": 2048,
+    "generated_image_actual_width": 2048,
+    "generated_image_dimensions": {
+      "actual_height": 2048,
+      "actual_width": 2048,
+      "contract_status": "matched",
+      "enforcement_mode": "normalize",
+      "final_height": 2048,
+      "final_width": 2048,
+      "normalized": false,
+      "requested_aspect_ratio": "1:1",
+      "requested_image_size": "2K",
+      "target_height": 2048,
+      "target_width": 2048
+    },
+    "generated_image_final_height": 2048,
+    "generated_image_final_width": 2048,
+    "generation_scope": "all-categories",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "jobs_per_category": 1,
+    "mat_label": "No Mat",
+    "mat_style": "none",
+    "mat_style_requested": "auto-by-category",
+    "mat_style_source": "auto-category-mat-mapping",
+    "model": "gemini-3.1-flash-image-preview",
+    "presentation_phrase": "Display the artwork as a gallery-wrapped canvas stretched over wooden stretcher bars, no outer frame.",
+    "preview_artwork_aspect_ratio": "4x5",
+    "preview_artwork_path": "/srv/dreamartmachine/artworks/4x5-artwork-placeholder.png",
+    "preview_artwork_source": "internal_placeholder",
+    "prompt_input_display": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "prompt_strategy_used": "cyan_border_v1",
+    "raw_prompt": "Create a high-quality, photorealistic kids bedroom mockup scene with family-friendly styling and a clear artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "room_feel": "lived-in",
+    "selected_categories": [
+      "Bathroom",
+      "Bedroom Adults",
+      "Bedroom Kids",
+      "Cafe",
+      "Closeup",
+      "Dining",
+      "Display",
+      "Gallery",
+      "Games",
+      "Gift",
+      "Hallway",
+      "Kitchen",
+      "Living Room",
+      "Meeting Room",
+      "Music Room",
+      "Nursery",
+      "Outdoors",
+      "Restaurant",
+      "Sitting-Room",
+      "Stairs",
+      "Study",
+      "Waiting Room",
+      "Workplace"
+    ],
+    "source": "studio",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual",
+    "visual_direction_value_origin": "manual"
+  },
+  "prompt": {
+    "compiled_prompt": null,
+    "display_prompt": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "raw_prompt": "Create a high-quality, photorealistic kids bedroom mockup scene with family-friendly styling and a clear artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "strategy": "cyan_border_v1"
+  },
+  "render": {
+    "aspect_ratio": "4x5",
+    "colour_mood": "rich-moody-tones",
+    "frame_label": "Canvas Stretcher (Front)",
+    "frame_style": "canvas_stretcher",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "mat_label": "No Mat",
+    "mat_style": "none",
+    "room_feel": "lived-in",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual"
+  },
+  "schema_version": "2.0",
+  "source_job": {
+    "finished_at": "2026-03-28T23:56:43.976726Z",
+    "state": "base_ready"
+  }
+}

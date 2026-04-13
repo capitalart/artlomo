@@ -88,3 +88,42 @@ def test_upsert_generated_base_deduplicates_existing_slug_collisions(tmp_path):
     slugs = [entry.get("slug") for entry in catalog_payload.get("bases", []) if isinstance(entry, dict)]
     assert slugs.count(duplicate_slug) == 1
     assert slugs.count("5x4-bathroom-mu-1") == 1
+
+
+def test_add_base_uses_uploaded_coordinates_payload(tmp_path):
+    catalog_dir = tmp_path / "catalog"
+    catalog_path = catalog_dir / "catalog.json"
+    service = CatalogAdminService(catalog_path=catalog_path)
+
+    image_path = tmp_path / "sample.png"
+    Image.new("RGBA", (120, 80), (255, 255, 255, 0)).save(image_path, format="PNG")
+
+    record = service.add_base(
+        slug="4x5-display-001",
+        original_filename="4x5-display-001.png",
+        category="display",
+        aspect_ratio="4x5",
+        base_image_bytes=image_path.read_bytes(),
+        coords_payload={
+            "corners": [
+                {"x": 10, "y": 10},
+                {"x": 110, "y": 10},
+                {"x": 10, "y": 70},
+                {"x": 110, "y": 70},
+            ]
+        },
+    )
+
+    assert record.slug == "4x5-display-001"
+
+    catalog_payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+    assert len(catalog_payload["bases"]) == 1
+    entry = catalog_payload["bases"][0]
+    coords_path = catalog_dir / entry["coordinates_path"]
+    coords_payload = json.loads(coords_path.read_text(encoding="utf-8"))
+
+    assert entry["coordinate_type"] == "Perspective"
+    assert entry["status"] == "coordinates_ready"
+    assert entry["region_count"] == 1
+    assert coords_payload["template"] == "4x5-display-001.png"
+    assert len(coords_payload["zones"]) == 1

@@ -170,7 +170,7 @@ class DetailCloseupService:
         for candidate in (
             f"/usr/bin/{binary}",
             f"/usr/local/bin/{binary}",
-            f"/srv/artlomo/node_modules/.bin/{binary}",
+            str((Path(__file__).resolve().parents[3] / "node_modules" / ".bin" / binary)),
         ):
             path = Path(candidate)
             if path.exists() and path.is_file():

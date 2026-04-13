@@ -149,12 +149,12 @@ def validate_description(description: str | Any) -> EtsyValidationResult:
         )
     
     # Check 7: Technical specifications mentioned
-    if "14,400px" not in desc and "14400px" not in desc:
-        result.add_warning("Description should mention 14,400px resolution for credibility")
+    if "14,400px" not in desc and "14400px" not in desc and "7,200px" not in desc and "7200px" not in desc:
+        result.add_warning("Description should mention print resolution (7,200px or 14,400px) for credibility")
     if "300 DPI" not in desc and "300 dpi" not in desc.lower():
         result.add_warning("Description should mention 300 DPI for clarity")
-    if "48" not in desc:
-        result.add_warning("Description should mention 48-inch print size")
+    if "48" not in desc and "24" not in desc:
+        result.add_warning("Description should mention print size (24-inch or 48-inch)")
     
     # Check 8: No quotation marks (should use single quotes)
     if '"' in desc:
@@ -266,7 +266,7 @@ def validate_title(title: str | Any) -> EtsyValidationResult:
     
     Checks:
     1. Max 140 characters
-    2. Contains key elements (location, "48 Inch", artist name)
+    2. Contains key elements (location, "48 Inch" or "24 Inch", artist name)
     3. Uses pipe separators
     4. Proper capitalization
     
@@ -291,8 +291,8 @@ def validate_title(title: str | Any) -> EtsyValidationResult:
         result.add_warning(f"Title very short: {len(title)} chars (aim for 50-140)")
     
     # Check for key elements
-    if "48" not in title and "48-inch" not in title.lower():
-        result.add_warning("Title should mention '48' (for print size)")
+    if "48" not in title and "48-inch" not in title.lower() and "24" not in title and "24-inch" not in title.lower():
+        result.add_warning("Title should mention print size ('48' or '24' for inches)")
     
     if "Digital" not in title and "Download" not in title:
         result.add_warning("Title should indicate it's a Digital Download")

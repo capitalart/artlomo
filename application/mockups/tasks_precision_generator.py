@@ -33,7 +33,7 @@ from application.mockups.tasks_mockup_generator import (
 
 logger = logging.getLogger(__name__)
 
-PRECISION_MOCKUP_ROOT = Path("/srv/artlomo/var/studio/precision")
+PRECISION_MOCKUP_ROOT = Path(__file__).resolve().parents[2] / "var" / "studio" / "precision"
 PRECISION_ROOM_OUTPUT_DIR = PRECISION_MOCKUP_ROOT / "rooms"
 PRECISION_TRANSPARENT_OUTPUT_DIR = PRECISION_MOCKUP_ROOT / "transparent"
 PRECISION_ARTIST_MODEL = os.getenv("PRECISION_ARTIST_MODEL", "gemini-2.0-ultra-001")

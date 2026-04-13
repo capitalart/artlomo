@@ -16,6 +16,7 @@ click-repl==0.3.0
 distro==1.9.0
 Flask==3.1.2
 Flask-Login==0.6.3
+Flask-WTF==1.2.2
 google-api-core==2.25.1
 google-api-python-client==2.182.0
 google-auth==2.45.0
@@ -86,6 +87,7 @@ urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.13
 Werkzeug==3.1.3
+WTForms==3.2.1
 moviepy==1.0.3
 selenium==4.27.1
 webdriver-manager==4.0.2

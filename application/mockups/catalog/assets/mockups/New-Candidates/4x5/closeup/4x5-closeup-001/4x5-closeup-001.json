@@ -1,0 +1,216 @@
+{
+  "aspect_ratio": "4x5",
+  "asset_slug": "4x5-closeup-001",
+  "batch_context": {
+    "batch_id": "2bf0c338dee7419b873fac1dce3affd6",
+    "batch_index": 2,
+    "batch_size": 8
+  },
+  "category": "Closeup",
+  "coordinates": {
+    "available": true,
+    "data": {
+      "confidence_score": 0.7607,
+      "height": 2048,
+      "normalized_points": [
+        {
+          "x": 0.447201,
+          "y": 0.178487
+        },
+        {
+          "x": 0.689128,
+          "y": 0.194701
+        },
+        {
+          "x": 0.689251,
+          "y": 0.577945
+        },
+        {
+          "x": 0.447494,
+          "y": 0.582363
+        }
+      ],
+      "point_order": [
+        "TL",
+        "TR",
+        "BR",
+        "BL"
+      ],
+      "points": [
+        {
+          "x": 915.868,
+          "y": 365.5413
+        },
+        {
+          "x": 1411.3339,
+          "y": 398.747
+        },
+        {
+          "x": 1411.5861,
+          "y": 1183.6304
+        },
+        {
+          "x": 916.4677,
+          "y": 1192.6786
+        }
+      ],
+      "width": 2048
+    },
+    "source_path": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/coordinates.json"
+  },
+  "exported_asset_id": "581f6e3d-6a22-40f4-a6b7-6a076bd70a25",
+  "file_metadata": {
+    "exported_at_utc": "2026-03-28T05:02:20.938107+00:00",
+    "exported_png_filename": "4x5-closeup-001.png",
+    "exported_png_path": "/srv/dreamartmachine/var/exports/bases/4x5/closeup/4x5-closeup-001/4x5-closeup-001.png",
+    "file_size_bytes": 7434887,
+    "has_alpha": true,
+    "png_checksum": "sha256:ba3686db3d0d567f3be99c65b0aeacef5ec22305e420b8cb916bbc3a73944e1e"
+  },
+  "generation_source": {
+    "model": "gemini-3.1-flash-image-preview"
+  },
+  "import_contract": {
+    "import_ready": true,
+    "import_source": "export_bases",
+    "import_timestamp_utc": null,
+    "imported": false
+  },
+  "job_id": "d41a2fd3df9d43419032e1197148d99b",
+  "management_readiness": {
+    "management_status": "exported",
+    "qa_status": "pending",
+    "review_required": false
+  },
+  "metadata_snapshot": {
+    "artwork_region_method": "cyan_border",
+    "aspect_ratio": "4x5",
+    "asset_state": {
+      "cleaned_production_base": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/production_base_cleaned.png",
+      "finished_composite_output": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/composite_preview.jpg",
+      "raw_generated_candidate": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/candidate_raw.jpg"
+    },
+    "auto_preview_composite": true,
+    "batch_id": "2bf0c338dee7419b873fac1dce3affd6",
+    "batch_index": 2,
+    "batch_size": 8,
+    "candidate_expect_artwork_visible": false,
+    "candidate_expect_blank_placeholder_visible": false,
+    "candidate_expect_cyan_visible": true,
+    "candidate_observed_signals": {
+      "artwork_visible": false,
+      "blank_placeholder_visible": false,
+      "blank_ratio": 0.161774,
+      "cyan_ratio": 0.011993,
+      "cyan_visible": true,
+      "vivid_ratio": 0.076584
+    },
+    "candidate_sanity_check": {
+      "expected": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "cyan_visible": true
+      },
+      "mismatch": false,
+      "mismatch_fields": [],
+      "observed": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "blank_ratio": 0.161774,
+        "cyan_ratio": 0.011993,
+        "cyan_visible": true,
+        "vivid_ratio": 0.076584
+      },
+      "preview_artwork_source": "internal_placeholder",
+      "prompt_strategy_used": "cyan_border_v1",
+      "selected_method": "cyan_border"
+    },
+    "category": "Closeup",
+    "category_item_number": 1,
+    "colour_mood": "dark-luxury",
+    "composite_edge_expansion_px": 2,
+    "composite_generated": true,
+    "composite_generated_at": "2026-03-28T01:21:30.353986Z",
+    "composite_path": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/composite_preview.jpg",
+    "composite_thumbnail_path": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/composite_thumbnail.jpg",
+    "coordinate_confidence": 0.7606890399916912,
+    "coordinates_debug_mask_path": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/coordinates_debug_mask.png",
+    "coordinates_json_path": "/srv/dreamartmachine/var/jobs/d41a2fd3df9d43419032e1197148d99b/coordinates.json",
+    "frame_label": "Classic Ornate Gold",
+    "frame_style": "ornate_gold",
+    "frame_style_requested": "ornate_gold",
+    "frame_style_source": "manual-frame-style",
+    "generated_image_actual_height": 2048,
+    "generated_image_actual_width": 2048,
+    "generated_image_dimensions": {
+      "actual_height": 2048,
+      "actual_width": 2048,
+      "contract_status": "matched",
+      "enforcement_mode": "normalize",
+      "final_height": 2048,
+      "final_width": 2048,
+      "normalized": false,
+      "requested_aspect_ratio": "1:1",
+      "requested_image_size": "2K",
+      "target_height": 2048,
+      "target_width": 2048
+    },
+    "generated_image_final_height": 2048,
+    "generated_image_final_width": 2048,
+    "generation_scope": "selected",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "luxury-contemporary",
+    "jobs_per_category": 1,
+    "mat_label": "Double White / Gold Inner",
+    "mat_style": "double_white_gold_inner",
+    "mat_style_requested": "double_white_gold_inner",
+    "mat_style_source": "manual-mat-style",
+    "model": "gemini-3.1-flash-image-preview",
+    "presentation_phrase": "Display the artwork as a fine art print in a classic ornate carved gold picture frame with a double white mat with a gold inner border.",
+    "preview_artwork_aspect_ratio": "4x5",
+    "preview_artwork_path": "/srv/dreamartmachine/artworks/4x5-artwork-placeholder.png",
+    "preview_artwork_source": "internal_placeholder",
+    "prompt_input_display": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "prompt_strategy_used": "cyan_border_v1",
+    "raw_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "room_feel": "lived-in",
+    "selected_categories": [
+      "Bedroom Adults",
+      "Closeup",
+      "Gallery",
+      "Kitchen",
+      "Meeting Room",
+      "Stairs",
+      "Study",
+      "Waiting Room"
+    ],
+    "source": "studio",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual",
+    "visual_direction_value_origin": "manual"
+  },
+  "prompt": {
+    "compiled_prompt": null,
+    "display_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "raw_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "strategy": "cyan_border_v1"
+  },
+  "render": {
+    "aspect_ratio": "4x5",
+    "colour_mood": "dark-luxury",
+    "frame_label": "Classic Ornate Gold",
+    "frame_style": "ornate_gold",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "luxury-contemporary",
+    "mat_label": "Double White / Gold Inner",
+    "mat_style": "double_white_gold_inner",
+    "room_feel": "lived-in",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual"
+  },
+  "schema_version": "2.0",
+  "source_job": {
+    "finished_at": "2026-03-28T01:21:29.745613Z",
+    "state": "base_ready"
+  }
+}

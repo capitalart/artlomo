@@ -108,7 +108,7 @@
 
   function normalizeMainPanDirection(value, fallback = 'up') {
     const normalized = String(value || '').trim().toLowerCase();
-    return ['up', 'down', 'left', 'right'].includes(normalized) ? normalized : fallback;
+    return ['center', 'top-left', 'top-right', 'bottom-right', 'bottom-left', 'up', 'down', 'left', 'right'].includes(normalized) ? normalized : fallback;
   }
 
   function readPersistedMainPanDirection(suite, fallback = 'up') {
@@ -209,7 +209,7 @@
     return currentShots.find((shot) => shot.id === id);
   };
 
-  const PAN_DIRECTIONS = new Set(['none', 'aim', 'up', 'down', 'left', 'right']);
+  const PAN_DIRECTIONS = new Set(['none', 'aim', 'center', 'top-left', 'top-right', 'bottom-right', 'bottom-left', 'up', 'down', 'left', 'right']);
   
   const setShotById = (id, panDirection, zoomEnabled = true, zoomIntensity = null) => {
     let normalizedPanDirection = panDirection;
@@ -314,7 +314,11 @@
   const computeTimingBreakdown = (orderedMockupIds) => {
     const totalDuration = safeNumber(currentSettings.video_duration || 15, 15);
     const mainSeconds = Math.max(1.0, Math.min(10.0, mainArtworkSeconds));
-    const availableForMockups = Math.max(0, totalDuration - mainSeconds);
+    // Mirror backend timing math: each mockup crossfade contributes 0.5s overlap,
+    // so usable mockup time includes crossfade savings.
+    const crossfadeSeconds = 0.5;
+    const crossfadeSavings = orderedMockupIds.length * crossfadeSeconds;
+    const availableForMockups = Math.max(0, totalDuration - mainSeconds + crossfadeSavings);
     
     let lockedSum = 0;
     let lockedIds = [];
@@ -1135,6 +1139,11 @@
       const panOptions = [
         { value: 'none', label: 'None' },
         { value: 'aim', label: 'Aim Toward Artwork' },
+        { value: 'center', label: 'Center' },
+        { value: 'top-left', label: 'Top Left' },
+        { value: 'top-right', label: 'Top Right' },
+        { value: 'bottom-right', label: 'Bottom Right' },
+        { value: 'bottom-left', label: 'Bottom Left' },
         { value: 'up', label: 'Up' },
         { value: 'down', label: 'Down' },
         { value: 'left', label: 'Left' },

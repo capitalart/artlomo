@@ -137,7 +137,8 @@ def _normalize_video_settings(raw: dict[str, Any] | None) -> dict[str, Any]:
         duration = int(float(duration_raw))
     except Exception:
         duration = VIDEO_DURATION_DEFAULT
-    duration = max(5, min(60, duration))
+    if duration not in (10, 15, 20):
+        duration = VIDEO_DURATION_DEFAULT
 
     artwork_zoom_raw = payload.get("artwork_zoom_duration", ARTWORK_ZOOM_DURATION_DEFAULT)
     try:
@@ -155,7 +156,7 @@ def _normalize_video_settings(raw: dict[str, Any] | None) -> dict[str, Any]:
         artwork_pan_enabled = bool(panning_raw)
 
     artwork_pan_direction = str(payload.get("artwork_pan_direction", "up") or "up").strip().lower()
-    if artwork_pan_direction not in {"up", "down", "left", "right"}:
+    if artwork_pan_direction not in {"center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right"}:
         artwork_pan_direction = "up"
 
     mockup_zoom_intensity_raw = payload.get("mockup_zoom_intensity", 1.1)
@@ -181,7 +182,7 @@ def _normalize_video_settings(raw: dict[str, Any] | None) -> dict[str, Any]:
         mockup_pan_enabled = bool(mockup_pan_raw)
 
     mockup_pan_direction = str(payload.get("mockup_pan_direction", "up") or "up").strip().lower()
-    if mockup_pan_direction not in {"up", "down", "left", "right"}:
+    if mockup_pan_direction not in {"center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right"}:
         mockup_pan_direction = "up"
 
     mockup_auto_raw = payload.get("mockup_pan_auto_alternate", False)
@@ -343,7 +344,7 @@ def _normalize_mockup_shots(raw: Any) -> list[dict[str, Any]]:
         # Pan direction (default "up" to match JavaScript)
         # Now supports "aim" for auto-aim toward artwork center
         pan_direction_raw = str(item.get("pan_direction", "up") or "up").strip().lower()
-        if pan_direction_raw not in {"none", "aim", "up", "down", "left", "right"}:
+        if pan_direction_raw not in {"none", "aim", "center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right"}:
             pan_direction_raw = "up"
         
         # Rule: If direction is "none", force pan_enabled to False
@@ -1193,7 +1194,7 @@ def _video_generate_worker(app_obj, slug: str) -> None:
 
         try:
             _write_video_status(status="processing", percent=5, stage="initializing", message="Starting render")
-            svc = VideoService(processed_root=processed_root, logs_dir=Path("/srv/artlomo/logs"))
+            svc = VideoService(processed_root=processed_root, logs_dir=Path(cfg["LOGS_DIR"]))
             ok = svc.generate_kinematic_video(slug)
             if ok:
                 _write_video_status(status="success", percent=100, stage="complete", message="Video generation complete")
@@ -1238,7 +1239,15 @@ def video_generate(slug: str):
     payload = request.get_json(silent=True) or {}
     if isinstance(payload, dict) and "selected_mockups" in payload:
         normalized = _normalize_video_settings({"selected_mockups": payload.get("selected_mockups")})
-        _write_artwork_data(artwork_dir, {"selected_mockups": normalized.get("selected_mockups") or []})
+        # Persist selection inside video_suite to match the canonical settings contract.
+        _write_artwork_data(
+            artwork_dir,
+            {
+                "video_suite": {
+                    "selected_mockups": normalized.get("selected_mockups") or [],
+                }
+            },
+        )
 
     status_path = artwork_dir / "video_status.json"
     try:
@@ -1257,6 +1266,14 @@ def video_generate(slug: str):
         )
     except Exception:
         current_app.logger.exception("Failed to write initial video status for slug=%s", slug_clean)
+
+    # Clear stale ffmpeg frame progress from previous runs before the new worker starts.
+    render_status_path = artwork_dir / "video_render_status.json"
+    try:
+        if render_status_path.exists() and render_status_path.is_file():
+            render_status_path.unlink()
+    except Exception:
+        current_app.logger.exception("Failed to clear stale render status for slug=%s", slug_clean)
 
     app_obj = current_app._get_current_object()  # type: ignore[attr-defined]
     thread = threading.Thread(target=_video_generate_worker, args=(app_obj, slug_clean), daemon=True)
@@ -1277,7 +1294,7 @@ def video_view(slug: str):
 
     cfg = current_app.config
     processed_dir = Path(cfg["LAB_PROCESSED_DIR"]) / slug
-    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path("/srv/artlomo/logs"))._get_video_output_path(slug)
+    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))._get_video_output_path(slug)
 
     if not slug_sku.is_safe_slug(str(slug or "").strip()):
         abort(404)
@@ -1313,7 +1330,7 @@ def video_delete(slug: str):
     if not processed_dir.exists() or not processed_dir.is_dir():
         return {"status": "error", "message": "Artwork not found"}, 404
 
-    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path("/srv/artlomo/logs"))
+    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))
     video_path = svc._get_video_output_path(slug_clean)
     if not video_path.exists() or not video_path.is_file():
         return {"status": "error", "message": "Video not found"}, 404
@@ -1361,12 +1378,12 @@ def video_status(slug: str):
                 "message": "Invalid status payload",
             }
 
-    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path("/srv/artlomo/logs"))._get_video_output_path(slug)
+    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))._get_video_output_path(slug)
     payload["has_video"] = video_path.exists() and video_path.stat().st_size > 0 if video_path.exists() else False
     payload["video_url"] = url_for("artwork.video_view", slug=slug) if payload["has_video"] else None
     payload["slug"] = slug
 
-    render_status_path = Path("/srv/artlomo/application/common/ui/static/temp/render_status.json")
+    render_status_path = processed_dir / "video_render_status.json"
     if render_status_path.exists() and render_status_path.is_file():
         try:
             render_raw = json.loads(render_status_path.read_text(encoding="utf-8"))

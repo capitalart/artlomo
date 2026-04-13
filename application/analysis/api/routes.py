@@ -20,6 +20,7 @@ from application.utils.csrf import require_csrf_or_400
 
 from application.analysis.openai import OpenAIAnalysisError, run_openai_analysis_for_slug
 from application.analysis.gemini import GeminiAnalysisError, run_gemini_analysis_for_slug
+from application import config as app_config
 from application.analysis.services import AnalysisPresetService
 from application.analysis.services.response_contract import validate_analysis_response
 from application.common.utilities.files import ensure_dir
@@ -128,7 +129,7 @@ def _append_analysis_failure_log(
     error_code: str,
 ) -> None:
     cfg = current_app.config
-    logs_dir = Path(cfg.get("LOGS_DIR") or "/srv/artlomo/logs")
+    logs_dir = Path(cfg.get("LOGS_DIR") or app_config.LOGS_DIR)
     ensure_dir(logs_dir)
     log_path = logs_dir / "artwork-analysis-errors.log"
     line = (

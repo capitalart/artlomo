@@ -412,12 +412,12 @@ def derive_qc_tags(qc_data: dict[str, Any]) -> list[str]:
 
     if long_edge >= 14400:
         tags.append("print:large-format")
-    elif long_edge >= 9000:
+    elif long_edge >= 7200:
         tags.append("print:poster")
     else:
         tags.append("print:small")
 
-    if dpi >= 300 and long_edge >= 14400:
+    if dpi >= 300 and long_edge >= 7200:
         tags.append("print:ready")
 
     # QC status

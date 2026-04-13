@@ -1,7 +1,7 @@
 """Prepare bordered outlined-artwork reference images for mockup generation.
 
 This utility reads artwork placeholder images from:
-    /srv/artlomo/application/mockups/catalog/assets/mockups/artwork-placeholders/artwork-placeholders-V1/
+    <project>/application/mockups/catalog/assets/mockups/artwork-placeholders/artwork-placeholders-V1/
 
 For each source image it adds a strict 60px fiducial border with stripes:
     - 30px inner black (#000000)
@@ -11,7 +11,7 @@ It also neutralizes cyan-like pixels inside the artwork itself before bordering
 to avoid accidental cyan detections from image content.
 
 Outputs are written to:
-    /srv/artlomo/application/mockups/catalog/assets/mockups/reference-guides/outlined-artworks/
+    <project>/application/mockups/catalog/assets/mockups/reference-guides/outlined-artworks/
 
 Output naming follows the worker expectation:
     <aspect>-outlined-artwork.png
@@ -26,12 +26,9 @@ from typing import Iterable
 
 from PIL import Image, ImageOps
 
-SOURCE_DIR = Path(
-    "/srv/artlomo/application/mockups/catalog/assets/mockups/artwork-placeholders/artwork-placeholders-V1"
-)
-OUTPUT_DIR = Path(
-    "/srv/artlomo/application/mockups/catalog/assets/mockups/reference-guides/outlined-artworks"
-)
+_APPLICATION_ROOT = Path(__file__).resolve().parents[2]
+SOURCE_DIR = _APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "artwork-placeholders" / "artwork-placeholders-V1"
+OUTPUT_DIR = _APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "reference-guides" / "outlined-artworks"
 
 # Explicit input list requested by operator.
 INPUT_FILES = (

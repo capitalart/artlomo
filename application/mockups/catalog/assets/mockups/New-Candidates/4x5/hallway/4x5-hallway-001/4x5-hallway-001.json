@@ -1,0 +1,233 @@
+{
+  "aspect_ratio": "4x5",
+  "asset_slug": "4x5-hallway-001",
+  "batch_context": {
+    "batch_id": "6b185c3d5d074f7d81b210ee182f8f0c",
+    "batch_index": 11,
+    "batch_size": 23
+  },
+  "category": "Hallway",
+  "coordinates": {
+    "available": true,
+    "data": {
+      "confidence_score": 0.8223,
+      "height": 2048,
+      "normalized_points": [
+        {
+          "x": 0.367634,
+          "y": 0.254721
+        },
+        {
+          "x": 0.554126,
+          "y": 0.254567
+        },
+        {
+          "x": 0.554016,
+          "y": 0.521691
+        },
+        {
+          "x": 0.367818,
+          "y": 0.521329
+        }
+      ],
+      "point_order": [
+        "TL",
+        "TR",
+        "BR",
+        "BL"
+      ],
+      "points": [
+        {
+          "x": 752.915,
+          "y": 521.6678
+        },
+        {
+          "x": 1134.8492,
+          "y": 521.3527
+        },
+        {
+          "x": 1134.6243,
+          "y": 1068.4225
+        },
+        {
+          "x": 753.2911,
+          "y": 1067.6812
+        }
+      ],
+      "width": 2048
+    },
+    "source_path": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/coordinates.json"
+  },
+  "exported_asset_id": "3c2f031b-6f16-44a0-b3d8-8cdd02fdb2db",
+  "file_metadata": {
+    "exported_at_utc": "2026-03-29T03:45:36.884982+00:00",
+    "exported_png_filename": "4x5-hallway-001.png",
+    "exported_png_path": "/srv/dreamartmachine/var/exports/bases/4x5/hallway/4x5-hallway-001/4x5-hallway-001.png",
+    "file_size_bytes": 6593924,
+    "has_alpha": true,
+    "png_checksum": "sha256:b336b26b4e44548dcb934001c52b4e9b4fd1cceeab2b954fde0a15558665c1e7"
+  },
+  "generation_source": {
+    "model": "gemini-3.1-flash-image-preview"
+  },
+  "import_contract": {
+    "import_ready": true,
+    "import_source": "export_bases",
+    "import_timestamp_utc": null,
+    "imported": false
+  },
+  "job_id": "57768dd8b9a84a9280079039144ecfd3",
+  "management_readiness": {
+    "management_status": "exported",
+    "qa_status": "pending",
+    "review_required": false
+  },
+  "metadata_snapshot": {
+    "artwork_region_method": "cyan_border",
+    "aspect_ratio": "4x5",
+    "asset_state": {
+      "cleaned_production_base": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/production_base_cleaned.png",
+      "finished_composite_output": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/composite_preview.jpg",
+      "raw_generated_candidate": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/candidate_raw.jpg"
+    },
+    "auto_preview_composite": true,
+    "batch_id": "6b185c3d5d074f7d81b210ee182f8f0c",
+    "batch_index": 11,
+    "batch_size": 23,
+    "candidate_expect_artwork_visible": false,
+    "candidate_expect_blank_placeholder_visible": false,
+    "candidate_expect_cyan_visible": true,
+    "candidate_observed_signals": {
+      "artwork_visible": false,
+      "blank_placeholder_visible": true,
+      "blank_ratio": 0.383728,
+      "cyan_ratio": 0.004807,
+      "cyan_visible": true,
+      "vivid_ratio": 0.069031
+    },
+    "candidate_sanity_check": {
+      "expected": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "cyan_visible": true
+      },
+      "mismatch": true,
+      "mismatch_fields": [
+        "blank_placeholder_visible"
+      ],
+      "observed": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": true,
+        "blank_ratio": 0.383728,
+        "cyan_ratio": 0.004807,
+        "cyan_visible": true,
+        "vivid_ratio": 0.069031
+      },
+      "preview_artwork_source": "internal_placeholder",
+      "prompt_strategy_used": "cyan_border_v1",
+      "selected_method": "cyan_border"
+    },
+    "category": "Hallway",
+    "category_item_number": 1,
+    "colour_mood": "neutral-tones",
+    "composite_edge_expansion_px": 2,
+    "composite_generated": true,
+    "composite_generated_at": "2026-03-29T03:42:51.817958Z",
+    "composite_path": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/composite_preview.jpg",
+    "composite_thumbnail_path": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/composite_thumbnail.jpg",
+    "coordinate_confidence": 0.8223291140455173,
+    "coordinates_debug_mask_path": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/coordinates_debug_mask.png",
+    "coordinates_json_path": "/srv/dreamartmachine/var/jobs/57768dd8b9a84a9280079039144ecfd3/coordinates.json",
+    "frame_label": "Natural Oak",
+    "frame_style": "natural_oak",
+    "frame_style_requested": "auto-by-category",
+    "frame_style_source": "auto-category-frame-mapping",
+    "generated_image_actual_height": 2048,
+    "generated_image_actual_width": 2048,
+    "generated_image_dimensions": {
+      "actual_height": 2048,
+      "actual_width": 2048,
+      "contract_status": "matched",
+      "enforcement_mode": "normalize",
+      "final_height": 2048,
+      "final_width": 2048,
+      "normalized": false,
+      "requested_aspect_ratio": "1:1",
+      "requested_image_size": "2K",
+      "target_height": 2048,
+      "target_width": 2048
+    },
+    "generated_image_final_height": 2048,
+    "generated_image_final_width": 2048,
+    "generation_scope": "all-categories",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "jobs_per_category": 1,
+    "mat_label": "Single Off-White Mat",
+    "mat_style": "single_off_white",
+    "mat_style_requested": "auto-by-category",
+    "mat_style_source": "auto-category-mat-mapping",
+    "model": "gemini-3.1-flash-image-preview",
+    "presentation_phrase": "Display the artwork as a fine art print in a natural oak timber picture frame with a single off-white mat.",
+    "preview_artwork_aspect_ratio": "4x5",
+    "preview_artwork_path": "/srv/dreamartmachine/artworks/4x5-artwork-placeholder.png",
+    "preview_artwork_source": "internal_placeholder",
+    "prompt_input_display": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "prompt_strategy_used": "cyan_border_v1",
+    "raw_prompt": "Create a high-quality, photorealistic hallway mockup scene with elegant styling and a clear artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "room_feel": "clean-tidy",
+    "selected_categories": [
+      "Bathroom",
+      "Bedroom Adults",
+      "Bedroom Kids",
+      "Cafe",
+      "Closeup",
+      "Dining",
+      "Display",
+      "Gallery",
+      "Games",
+      "Gift",
+      "Hallway",
+      "Kitchen",
+      "Living Room",
+      "Meeting Room",
+      "Music Room",
+      "Nursery",
+      "Outdoors",
+      "Restaurant",
+      "Sitting-Room",
+      "Stairs",
+      "Study",
+      "Waiting Room",
+      "Workplace"
+    ],
+    "source": "studio",
+    "visual_direction_mode": "auto",
+    "visual_direction_source": "auto-mapping",
+    "visual_direction_value_origin": "auto-mapping"
+  },
+  "prompt": {
+    "compiled_prompt": null,
+    "display_prompt": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "raw_prompt": "Create a high-quality, photorealistic hallway mockup scene with elegant styling and a clear artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "strategy": "cyan_border_v1"
+  },
+  "render": {
+    "aspect_ratio": "4x5",
+    "colour_mood": "neutral-tones",
+    "frame_label": "Natural Oak",
+    "frame_style": "natural_oak",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "mat_label": "Single Off-White Mat",
+    "mat_style": "single_off_white",
+    "room_feel": "clean-tidy",
+    "visual_direction_mode": "auto",
+    "visual_direction_source": "auto-mapping"
+  },
+  "schema_version": "2.0",
+  "source_job": {
+    "finished_at": "2026-03-29T03:42:51.150255Z",
+    "state": "base_ready"
+  }
+}

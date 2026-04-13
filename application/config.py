@@ -49,9 +49,9 @@ _logs_dir_raw = os.getenv("LOGS_DIR")
 _logs_candidate: Path = (
     (BASE_DIR / _logs_dir_raw)
     if (_logs_dir_raw and not Path(_logs_dir_raw).is_absolute())
-    else Path(_logs_dir_raw or "/srv/artlomo/logs")
+    else Path(_logs_dir_raw or (BASE_DIR / "logs"))
 )
-LOGS_DIR: Path = Path("/srv/artlomo/logs") if str(_logs_candidate).endswith("application/logs") else _logs_candidate
+LOGS_DIR: Path = _logs_candidate
 STATE_DIR: Path = Path(os.getenv("STATE_DIR", VAR_DIR / "state"))
 DB_DIR: Path = Path(os.getenv("DB_DIR", VAR_DIR / "db"))
 DATA_DIR: Path = Path(os.getenv("DATA_DIR", BASE_DIR / "data"))
@@ -235,7 +235,7 @@ class AppConfig:
         self.THEME_GENERATED_CSS: Path = self.COMMON_STATIC / "css" / "darkroom.css"
 
         self.ALLOWED_EXTENSIONS: Set[str] = {"jpg", "jpeg"}
-        self.REQUIRED_LONG_EDGE_PX: int = 14400
+        self.REQUIRED_LONG_EDGE_PX: int = 7200
         self.REQUIRED_DPI: int = 300
         self.THUMB_SIZE: tuple[int, int] = (500, 500)
         self.ANALYSE_LONG_EDGE: int = 2400

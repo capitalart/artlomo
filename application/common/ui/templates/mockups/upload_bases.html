@@ -7,6 +7,7 @@
 {% block admin_content %}
 <h1 class="h4 mb-2">Upload Mockup Bases</h1>
 <p class="text-body-secondary">Upload raw mockup PNG bases; coordinates will be generated automatically after upload.</p>
+<p class="text-body-secondary">Bulk folder import also supports paired PNG + JSON files from nested aspect/category folders.</p>
 
 <form method="post" enctype="multipart/form-data" action="{{ url_for('mockups_admin.upload_bases') }}" class="row gy-3 mt-2">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -37,9 +38,13 @@
     <div class="upload-dropzone" data-upload-dropzone data-upload-max="25">
       <p class="upload-hint">Drag &amp; drop mockup PNGs here or click to select</p>
       <p class="upload-constraints" data-upload-constraints>PNG only • transparency required • max 25 per batch</p>
-      <p class="upload-constraints">Coordinates will be generated automatically.</p>
+      <p class="upload-constraints">Optional: choose a folder tree containing matching .png + .json pairs.</p>
       <p class="upload-constraints" data-upload-selection>No files selected yet.</p>
       <input id="base-files" name="base_images" type="file" accept="image/png" data-upload-input multiple hidden aria-label="Select mockup PNG files">
+      <input id="base-directory-files" type="file" accept=".png,.json,application/json,image/png" data-upload-directory-input webkitdirectory directory multiple hidden aria-label="Select mockup base folders">
+      <div class="mt-2 d-flex gap-2 flex-wrap">
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-upload-directory-trigger>Select folder tree</button>
+      </div>
     </div>
   </div>
   <div class="col-12">
