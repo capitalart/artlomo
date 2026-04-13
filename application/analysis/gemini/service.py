@@ -510,7 +510,7 @@ def _normalize_gemini_payload(raw_payload: dict[str, Any]) -> dict[str, Any]:
         "Digital Download",
         "High-Res JPG",
         "300 DPI",
-        "14400px File",
+        "7200-14400px File",
         "Museum Quality Digital",
         "Instant Download",
         "Printable Art",
@@ -1041,8 +1041,8 @@ def run_gemini_analysis_for_slug(
     if len(blocks) >= 7:
         tech_block = blocks[6]
         tech_upper = tech_block.upper()
-        if "14400" not in tech_upper or "300" not in tech_upper or "DPI" not in tech_upper:
-            logging.getLogger("ai_processing").warning("[%s] Gemini Pioneer description block 7 missing hero metrics (14400px/300 DPI).", sku)
+        if ("14400" not in tech_upper and "7200" not in tech_upper) or "300" not in tech_upper or "DPI" not in tech_upper:
+            logging.getLogger("ai_processing").warning("[%s] Gemini Pioneer description block 7 missing hero metrics (7200–14400px/300 DPI).", sku)
     payload["etsy_description"] = "\n---\n".join(blocks)
 
     metadata_out = {

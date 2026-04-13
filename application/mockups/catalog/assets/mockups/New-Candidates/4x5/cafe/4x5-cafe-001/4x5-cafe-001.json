@@ -1,0 +1,233 @@
+{
+  "aspect_ratio": "4x5",
+  "asset_slug": "4x5-cafe-001",
+  "batch_context": {
+    "batch_id": "813a0b314b4e475ba041e34609946876",
+    "batch_index": 4,
+    "batch_size": 23
+  },
+  "category": "Cafe",
+  "coordinates": {
+    "available": true,
+    "data": {
+      "confidence_score": 0.796,
+      "height": 2048,
+      "normalized_points": [
+        {
+          "x": 0.419034,
+          "y": 0.245425
+        },
+        {
+          "x": 0.578814,
+          "y": 0.244977
+        },
+        {
+          "x": 0.578702,
+          "y": 0.486779
+        },
+        {
+          "x": 0.418833,
+          "y": 0.48709
+        }
+      ],
+      "point_order": [
+        "TL",
+        "TR",
+        "BR",
+        "BL"
+      ],
+      "points": [
+        {
+          "x": 858.1826,
+          "y": 502.6294
+        },
+        {
+          "x": 1185.411,
+          "y": 501.7119
+        },
+        {
+          "x": 1185.182,
+          "y": 996.9227
+        },
+        {
+          "x": 857.7691,
+          "y": 997.5607
+        }
+      ],
+      "width": 2048
+    },
+    "source_path": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/coordinates.json"
+  },
+  "exported_asset_id": "8c91af33-30f2-470c-a812-c87fd0a342ff",
+  "file_metadata": {
+    "exported_at_utc": "2026-03-29T01:02:25.449235+00:00",
+    "exported_png_filename": "4x5-cafe-001.png",
+    "exported_png_path": "/srv/dreamartmachine/var/exports/bases/4x5/cafe/4x5-cafe-001/4x5-cafe-001.png",
+    "file_size_bytes": 8376564,
+    "has_alpha": true,
+    "png_checksum": "sha256:89ba9fbb410d2d6b983de0d9f897f52fd1938fd54665a547b2650804baabd453"
+  },
+  "generation_source": {
+    "model": "gemini-3.1-flash-image-preview"
+  },
+  "import_contract": {
+    "import_ready": true,
+    "import_source": "export_bases",
+    "import_timestamp_utc": null,
+    "imported": false
+  },
+  "job_id": "b69fc352146e4ccca028bbbd7df63841",
+  "management_readiness": {
+    "management_status": "exported",
+    "qa_status": "pending",
+    "review_required": false
+  },
+  "metadata_snapshot": {
+    "artwork_region_method": "cyan_border",
+    "aspect_ratio": "4x5",
+    "asset_state": {
+      "cleaned_production_base": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/production_base_cleaned.png",
+      "finished_composite_output": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/composite_preview.jpg",
+      "raw_generated_candidate": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/candidate_raw.jpg"
+    },
+    "auto_preview_composite": true,
+    "batch_id": "813a0b314b4e475ba041e34609946876",
+    "batch_index": 4,
+    "batch_size": 23,
+    "candidate_expect_artwork_visible": false,
+    "candidate_expect_blank_placeholder_visible": false,
+    "candidate_expect_cyan_visible": true,
+    "candidate_observed_signals": {
+      "artwork_visible": false,
+      "blank_placeholder_visible": false,
+      "blank_ratio": 0.117584,
+      "cyan_ratio": 0.005142,
+      "cyan_visible": true,
+      "vivid_ratio": 0.104782
+    },
+    "candidate_sanity_check": {
+      "expected": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "cyan_visible": true
+      },
+      "mismatch": false,
+      "mismatch_fields": [],
+      "observed": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "blank_ratio": 0.117584,
+        "cyan_ratio": 0.005142,
+        "cyan_visible": true,
+        "vivid_ratio": 0.104782
+      },
+      "preview_artwork_source": "internal_placeholder",
+      "prompt_strategy_used": "cyan_border_v1",
+      "selected_method": "cyan_border"
+    },
+    "category": "Cafe",
+    "category_item_number": 1,
+    "colour_mood": "rich-moody-tones",
+    "composite_edge_expansion_px": 3,
+    "composite_generated": true,
+    "composite_generated_at": "2026-03-29T00:29:09.330071Z",
+    "composite_path": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/composite_preview.jpg",
+    "composite_thumbnail_path": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/composite_thumbnail.jpg",
+    "coordinate_confidence": 0.7960223391933586,
+    "coordinates_debug_mask_path": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/coordinates_debug_mask.png",
+    "coordinates_json_path": "/srv/dreamartmachine/var/jobs/b69fc352146e4ccca028bbbd7df63841/coordinates.json",
+    "frame_label": "Natural Oak",
+    "frame_style": "natural_oak",
+    "frame_style_requested": "auto-by-category",
+    "frame_style_source": "auto-category-frame-mapping",
+    "generated_image_actual_height": 2048,
+    "generated_image_actual_width": 2048,
+    "generated_image_dimensions": {
+      "actual_height": 2048,
+      "actual_width": 2048,
+      "contract_status": "matched",
+      "enforcement_mode": "normalize",
+      "final_height": 2048,
+      "final_width": 2048,
+      "normalized": false,
+      "requested_aspect_ratio": "1:1",
+      "requested_image_size": "2K",
+      "target_height": 2048,
+      "target_width": 2048
+    },
+    "generated_image_final_height": 2048,
+    "generated_image_final_width": 2048,
+    "generation_scope": "all-categories",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "jobs_per_category": 1,
+    "mat_label": "No Mat",
+    "mat_style": "none",
+    "mat_style_requested": "auto-by-category",
+    "mat_style_source": "auto-category-mat-mapping",
+    "model": "gemini-3.1-flash-image-preview",
+    "presentation_phrase": "Display the artwork as a fine art print in a natural oak timber picture frame with no mat.",
+    "preview_artwork_aspect_ratio": "4x5",
+    "preview_artwork_path": "/srv/dreamartmachine/artworks/4x5-artwork-placeholder.png",
+    "preview_artwork_source": "internal_placeholder",
+    "prompt_input_display": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "prompt_strategy_used": "cyan_border_v1",
+    "raw_prompt": "Create a high-quality, photorealistic cafe mockup scene with hospitality styling and a clear artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "review_reason_code": "failed_detection",
+    "review_reason_detail": "FailedDetection: expected 4 corners, found 8",
+    "room_feel": "lived-in",
+    "selected_categories": [
+      "Bathroom",
+      "Bedroom Adults",
+      "Bedroom Kids",
+      "Cafe",
+      "Closeup",
+      "Dining",
+      "Display",
+      "Gallery",
+      "Games",
+      "Gift",
+      "Hallway",
+      "Kitchen",
+      "Living Room",
+      "Meeting Room",
+      "Music Room",
+      "Nursery",
+      "Outdoors",
+      "Restaurant",
+      "Sitting-Room",
+      "Stairs",
+      "Study",
+      "Waiting Room",
+      "Workplace"
+    ],
+    "source": "studio",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual",
+    "visual_direction_value_origin": "manual"
+  },
+  "prompt": {
+    "compiled_prompt": null,
+    "display_prompt": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "raw_prompt": "Create a high-quality, photorealistic cafe mockup scene with hospitality styling and a clear artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "strategy": "cyan_border_v1"
+  },
+  "render": {
+    "aspect_ratio": "4x5",
+    "colour_mood": "rich-moody-tones",
+    "frame_label": "Natural Oak",
+    "frame_style": "natural_oak",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "mat_label": "No Mat",
+    "mat_style": "none",
+    "room_feel": "lived-in",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual"
+  },
+  "schema_version": "2.0",
+  "source_job": {
+    "finished_at": "2026-03-29T00:29:08.698350Z",
+    "state": "base_ready"
+  }
+}

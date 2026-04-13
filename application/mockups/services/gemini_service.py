@@ -51,7 +51,9 @@ from application.mockups.config import MockupBaseGenerationCatalog
 
 
 logger = logging.getLogger(__name__)
-CONTROL_STATE_PATH = Path("/srv/artlomo/var/state/mockup_generator_control.json")
+_ARTLOMO_BASE_DIR = Path(os.getenv("ARTLOMO_BASE_DIR") or Path(__file__).resolve().parents[3]).resolve()
+_APPLICATION_ROOT = _ARTLOMO_BASE_DIR / "application"
+CONTROL_STATE_PATH = _ARTLOMO_BASE_DIR / "var" / "state" / "mockup_generator_control.json"
 
 # Ensure environment variables from the project .env are available in worker contexts
 # (e.g., Celery service startup) before client initialization reads os.getenv().
@@ -99,27 +101,27 @@ class GeminiImageService:
     """Service for generating mockup background images via Google Gemini."""
 
     # Base directory for storing generated mockup images
-    MOCKUP_BASE_STORAGE_DIR = Path("/srv/artlomo/application/mockups/catalog/assets/mockups/bases")
+    MOCKUP_BASE_STORAGE_DIR = _APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "bases"
 
     # Canonical directory for per-aspect cyan placement guides used to steer
     # Gemini's artwork placement during mockup base generation.
     REFERENCE_GUIDE_STORAGE_DIR = Path(
-        "/srv/artlomo/application/mockups/catalog/assets/mockups/reference-guides/cyan-placement"
+        _APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "reference-guides" / "cyan-placement"
     )
 
     # Operator-selectable positional placeholders for guide testing.
     POSITIONAL_REFERENCE_GUIDE_STORAGE_DIR = Path(
-        "/srv/artlomo/application/mockups/catalog/assets/mockups/reference-guides/positional-placement"
+        _APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "reference-guides" / "positional-placement"
     )
 
     # Raw uploaded tester directory retained as an additional fallback source.
     POSITIONAL_REFERENCE_GUIDE_SOURCE_DIR = Path(
-        "/srv/artlomo/application/mockups/mockup-preview-tests"
+        _APPLICATION_ROOT / "mockups" / "mockup-preview-tests"
     )
 
     # Legacy source directory retained as a fallback during migration.
     LEGACY_REFERENCE_GUIDE_STORAGE_DIR = Path(
-        "/srv/artlomo/application/mockups/catalog/assets/mockups/cyan-art-bases"
+        _APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "cyan-art-bases"
     )
 
     # Gemini 3 image preview defaults for higher-fidelity mockup scene reasoning.
@@ -1440,7 +1442,7 @@ class GeminiImageService:
         """Save image bytes to disk in a category-specific directory.
 
         Directory structure:
-            /srv/artlomo/application/mockups/catalog/assets/mockups/bases/{category}/
+            <project>/application/mockups/catalog/assets/mockups/bases/{category}/
                 {category}_{aspect_ratio}_{variation_index}_{timestamp}.png
 
         Args:

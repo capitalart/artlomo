@@ -10,7 +10,7 @@ USER_FULL = """ARTWORK
 - Title: {title}
 - Slug: {slug}
 - Aspect: {aspect}
-- Technical Authority: The 14,400px / 300 DPI native resolution is the core requirement for museum-grade 48-inch prints. Format: JPEG, 11520 × 14400 px.
+- Technical Authority: Artwork files range from 7,200px (up to 24-inch prints) to 14,400px (museum-grade 48-inch prints) at 300 DPI. Format: JPEG.
 - Print sizes: 10×12.5\" (25×32 cm); 16×20\" (40×50 cm); 24×30\" (60×76 cm); 32×40\" (81×102 cm); 38.4×48\" (97.5×122 cm)
 - Artist Bio: Robin Custance is a descendant of the Boandik (Bunganditj) people, known as the People of the Reeds, from the Naracoorte - Mt Gambier Region of South Australia. Creating digital landscapes from Kaurna Country (Adelaide), Robin's connection to water, wetlands, and limestone country flows through each work. Each artwork is envisioned and generated through carefully crafted digital prompts, then meticulously upscaled, refined, and digitally signed.
 - Licensing: digital download; personal use only
@@ -94,12 +94,12 @@ This digital release is limited to 25 copies maximum.
 ---
 📏 TECHNICAL SPECIFICATIONS
 • File type: 1 × High-Resolution JPEG
-• Resolution: 14,400px (long edge) @ 300 DPI
-• Max print size: Up to 48 inches (121.9 cm) on the long edge
+• Resolution: 7,200–14,400px (long edge) @ 300 DPI
+• Max print size: Up to 48 inches (121.9 cm) at 14,400px; up to 24 inches (61 cm) at 7,200px
 • Aspect ratio: Print to your preferred proportions
 ---
 ✨ THE DIGITAL CRAFT BEHIND THE FILE
-While the vision for each artwork begins with AI-guided generation, what you receive is far more than an algorithm's output—it's a labor of digital craft. Every file undergoes my custom upscaling process, meticulously designed to achieve 14,400px resolution at 300 DPI, the museum-quality standard required for flawless 48-inch prints. I personally inspect each piece for clarity and tonal balance, making careful color corrections to ensure the file translates beautifully when printed by professional labs. This isn't a raw export—it's a refined, exhibition-ready digital artwork, digitally signed to guarantee authenticity. You're not just downloading pixels; you're receiving a piece that has been lovingly prepared to honor the landscape it represents.
+While the vision for each artwork begins with AI-guided generation, what you receive is far more than an algorithm's output—it's a labor of digital craft. Every file undergoes my custom upscaling process, meticulously designed to achieve 7,200–14,400px resolution at 300 DPI, enabling flawless prints from 24 to 48 inches. I personally inspect each piece for clarity and tonal balance, making careful color corrections to ensure the file translates beautifully when printed by professional labs. This isn't a raw export—it's a refined, exhibition-ready digital artwork, digitally signed to guarantee authenticity. You're not just downloading pixels; you're receiving a piece that has been lovingly prepared to honor the landscape it represents.
 ---
 🎨 ABOUT THE ARTIST
 I am Robin Custance, a South Australian digital artist and descendant of the Boandik (Bunganditj) people, known as the People of the Reeds, from the Naracoorte - Mt Gambier Region. My connection to water, wetlands, and limestone country flows through each work. Each artwork is envisioned and generated through carefully crafted digital prompts, then meticulously upscaled, refined, and digitally signed to museum-quality standards. My practice explores contemporary landscape through algorithmic patterns and modern digital abstraction.
@@ -112,7 +112,7 @@ Optimised for over 15 standard sizes including 18×24, 24×32, 30×40, and 36×4
 
 TECHNICAL_EXCELLENCE_BLOCK = """✨ THE DIGITAL CRAFT BEHIND THE FILE
 
-While the vision for each artwork begins with AI-guided generation, what you receive is far more than an algorithm's output—it's a labor of digital craft. Every file undergoes my custom upscaling process, meticulously designed to achieve 14,400px resolution at 300 DPI, the museum-quality standard required for flawless 48-inch prints.
+While the vision for each artwork begins with AI-guided generation, what you receive is far more than an algorithm's output—it's a labor of digital craft. Every file undergoes my custom upscaling process, meticulously designed to achieve up to 14,400px resolution at 300 DPI — the museum-quality standard for flawless 48-inch prints. Files start at 7,200px, enabling crisp 24-inch output at 300 DPI.
 
 I personally inspect each piece for clarity and tonal balance, making careful color corrections to ensure the file translates beautifully when printed by professional labs. This isn't a raw export—it's a refined, exhibition-ready digital artwork, digitally signed to guarantee authenticity. You're not just downloading pixels; you're receiving a piece that has been lovingly prepared to honor the landscape it represents."""
 

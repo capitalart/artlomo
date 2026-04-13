@@ -363,9 +363,10 @@ def _extract_stage2_payload(*, stage1_payload: dict[str, Any], provider_result: 
         seo_keywords = palette_terms[:10]
 
     sizes = [
-        'Up to 48" on the long edge',
+        'Up to 48" on the long edge (14,400px)',
+        'Up to 24" on the long edge (7,200px)',
         "300 DPI print-ready",
-        "14400px long edge master file",
+        "7200–14400px long edge master file",
     ]
 
     disclaimers = [
@@ -420,8 +421,8 @@ def _validate_stage2_payload(payload: Any) -> tuple[str, str | None, str | None]
     if "digital download" not in all_text and "digital file" not in all_text:
         review_issues.append("Missing digital-download clarity")
 
-    if not ("14400" in all_text or "48\"" in all_text or "48 inch" in all_text or "48”" in all_text):
-        review_issues.append("Missing print quality statement (14400px / up to 48\")")
+    if not ("14400" in all_text or "7200" in all_text or "48\"" in all_text or "48 inch" in all_text or "48”" in all_text or "24 inch" in all_text or "24\"" in all_text):
+        review_issues.append("Missing print quality statement (7200–14400px / up to 24–48\")")
 
     if "personal use" not in all_text and "copyright" not in all_text:
         review_issues.append("Missing personal-use/copyright statement")

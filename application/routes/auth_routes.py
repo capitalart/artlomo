@@ -11,6 +11,10 @@ import functools
 from typing import Callable
 import logging
 import time
+import json
+import base64
+import hmac
+import hashlib
 from urllib.parse import urlparse
 
 from flask import (
@@ -279,5 +283,88 @@ def reset_password() -> ResponseReturnValue:
 
 # Compatibility export for app.py
 bp = auth_bp
+
+
+def _decode_b64url_to_json(raw: str) -> dict | None:
+    try:
+        padding = "=" * ((4 - (len(raw) % 4)) % 4)
+        decoded = base64.urlsafe_b64decode((raw + padding).encode("ascii"))
+        payload = json.loads(decoded.decode("utf-8"))
+        return payload if isinstance(payload, dict) else None
+    except Exception:
+        return None
+
+
+def _verify_dream_bridge_token(token: str, secret: str) -> dict | None:
+    token_str = str(token or "").strip()
+    if not token_str or "." not in token_str:
+        return None
+
+    payload_b64, signature = token_str.rsplit(".", 1)
+    expected_sig = hmac.new(secret.encode("utf-8"), payload_b64.encode("utf-8"), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, expected_sig):
+        return None
+
+    payload = _decode_b64url_to_json(payload_b64)
+    if not payload:
+        return None
+
+    try:
+        exp = int(payload.get("exp") or 0)
+        iat = int(payload.get("iat") or 0)
+    except Exception:
+        return None
+
+    now_ts = int(time.time())
+    if exp <= now_ts or iat > now_ts + 30:
+        return None
+
+    subject = str(payload.get("sub") or "").strip()
+    if not subject:
+        return None
+    return payload
+
+
+@auth_bp.route("/dream-bridge", methods=["GET"])
+def dream_bridge_login() -> ResponseReturnValue:
+    """Trusted bridge login from DreamArtMachine via short-lived signed token."""
+    shared_secret = str(current_app.config.get("ARTLOMO_SSO_SHARED_SECRET") or "").strip()
+    if not shared_secret:
+        flash("Bridge login is not configured.", "warning")
+        return redirect(url_for("auth.login", next=_safe_next_url(request.args.get("next"), "/admin/")))
+
+    token = str(request.args.get("token") or "").strip()
+    payload = _verify_dream_bridge_token(token, shared_secret)
+    if not payload:
+        flash("Bridge login token is invalid or expired.", "danger")
+        return redirect(url_for("auth.login", next=_safe_next_url(request.args.get("next"), "/admin/")))
+
+    username = str(payload.get("sub") or "").strip()
+    is_admin = bool(payload.get("is_admin"))
+
+    # Session reset while preserving CSRF token behavior.
+    for key in ["user_id", "username", "role", "is_admin", "session_id", "login_ts", "last_activity_ts", "_fresh"]:
+        session.pop(key, None)
+
+    session.permanent = True
+    session["username"] = username
+    session["is_admin"] = is_admin
+    session["role"] = "admin" if is_admin else "viewer"
+    now_ts = float(time.time())
+    session["login_ts"] = now_ts
+    session["last_activity_ts"] = now_ts
+
+    if is_admin:
+        tracker = _tracker()
+        if tracker.is_at_limit(username):
+            tracker.clear_all(username)
+        info = tracker.add_session(username)
+        session["session_id"] = info.session_id
+        logger.info("[auth] dream bridge login success user=%s session_id=%s", username, info.session_id)
+    else:
+        logger.info("[auth] dream bridge login success user=%s role=viewer", username)
+
+    default_next = "/admin/" if is_admin else "/"
+    return redirect(_safe_next_url(request.args.get("next"), default_next))
 
 

@@ -45,7 +45,8 @@ def _resolve_binary_path(name: str) -> str | None:
     resolved = shutil.which(binary)
     if resolved:
         return resolved
-    for candidate in (f"/usr/bin/{binary}", f"/usr/local/bin/{binary}", f"/srv/artlomo/node_modules/.bin/{binary}"):
+    node_bin = Path(getattr(config, "BASE_DIR", Path(__file__).resolve().parents[2])) / "node_modules" / ".bin" / binary
+    for candidate in (f"/usr/bin/{binary}", f"/usr/local/bin/{binary}", str(node_bin)):
         path = Path(candidate)
         if path.exists() and path.is_file():
             return str(path)

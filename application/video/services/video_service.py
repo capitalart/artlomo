@@ -7,7 +7,7 @@ Per ArtLomo Constitution (.clinerules):
 - All videos must be 2048x2048px (matching ANALYSE_LONG_EDGE)
 - Must use coordinates.json (schema_coordinates.json) for positioning
 - Must use H.264 codec for web compatibility
-- Must log all operations to /srv/artlomo/logs/
+- Must log all operations to configured LOGS_DIR
 """
 
 from __future__ import annotations
@@ -24,6 +24,9 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+APPLICATION_ROOT = PROJECT_ROOT / "application"
+NODE_BIN_DIR = PROJECT_ROOT / "node_modules" / ".bin"
 VIDEO_WORKER_DIR = Path(__file__).resolve().parents[2] / "video_worker"
 
 # Video configuration (per .clinerules)
@@ -50,7 +53,7 @@ class VideoService:
 
         Args:
             processed_root: Path to processed artworks directory (lab/processed/)
-            logs_dir: Path to logs directory (/srv/artlomo/logs/)
+            logs_dir: Path to logs directory (from app config)
         """
         self.processed_root = Path(processed_root)
         self.logs_dir = Path(logs_dir)
@@ -225,12 +228,11 @@ class VideoService:
                 candidate = mockups_dir / Path(clean_name).name
                 if not candidate.exists() or not candidate.is_file():
                     logger.warning("Storyboard-selected mockup missing on disk for %s: %s", slug, clean_name)
-                    return []
-                if not self._has_matching_coordinate_json(slug, candidate):
-                    logger.warning("Storyboard-selected mockup missing coordinate JSON for %s: %s", slug, clean_name)
-                    return []
+                    continue
                 ordered_selected.append(candidate)
-            return ordered_selected
+            # Selected storyboard mockups remain renderable without coordinate JSON.
+            # The worker will fall back to derived zone targets or safe center framing.
+            return ordered_selected[: int(max_count)]
 
         candidates: list[Path] = []
         for slot in range(1, 26):
@@ -477,10 +479,10 @@ class VideoService:
         canonical = Path("/var/coordinates")
         if canonical.exists() and canonical.is_dir() and any(canonical.rglob("*.json")):
             return canonical
-        app_var = Path("/srv/artlomo/application/var/coordinates")
+        app_var = APPLICATION_ROOT / "var" / "coordinates"
         if app_var.exists() and app_var.is_dir() and any(app_var.rglob("*.json")):
             return app_var
-        return Path("/srv/artlomo/application/mockups/catalog/assets/mockups/bases")
+        return APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "bases"
 
     def _get_video_output_path(self, slug: str) -> Path:
         """Get path for output video file."""
@@ -549,7 +551,7 @@ class VideoService:
             artwork_pan_enabled = bool(artwork_pan_raw)
 
         artwork_pan_direction = str(artwork_settings.get("pan_direction") or suite.get("artwork_pan_direction", "up") or "up").strip().lower()
-        if artwork_pan_direction not in {"up", "down", "left", "right", "none"}:
+        if artwork_pan_direction not in {"center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right", "none"}:
             artwork_pan_direction = "up"
 
         # Mockup settings (from nested mockups or legacy payload)
@@ -576,7 +578,7 @@ class VideoService:
             mockup_pan_enabled = bool(mockup_pan_raw)
 
         mockup_pan_direction = str(mockups_settings.get("pan_direction") or suite.get("mockup_pan_direction", "up") or "up").strip().lower()
-        if mockup_pan_direction not in {"up", "down", "left", "right", "none", "aim"}:
+        if mockup_pan_direction not in {"center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right", "none", "aim"}:
             mockup_pan_direction = "up"
 
         mockup_auto_alternate_raw = mockups_settings.get("auto_alternate_pan") if "auto_alternate_pan" in mockups_settings else suite.get("mockup_pan_auto_alternate", False)
@@ -972,7 +974,7 @@ class VideoService:
             mu_idx = -1
         category = "-".join(parts[1:mu_idx]).lower() if mu_idx > 1 else ""
 
-        root = Path("/srv/artlomo/application/mockups/catalog/assets/mockups/bases")
+        root = APPLICATION_ROOT / "mockups" / "catalog" / "assets" / "mockups" / "bases"
         if not root.exists() or not root.is_dir():
             return None
 
@@ -996,7 +998,14 @@ class VideoService:
             except Exception:
                 return None
 
-        return self._image_dimensions_via_node(path)
+        try:
+            from PIL import Image as _PilImage
+            with _PilImage.open(str(path)) as _img:
+                w, h = _img.size
+                return (int(w), int(h)) if w > 0 and h > 0 else None
+        except Exception:
+            logger.debug("Failed reading PNG dimensions for template_slug=%s at %s", template_slug, path)
+            return None
 
     def _load_mockup_zone_target(self, slug: str, mockup_path: Path) -> Optional[Tuple[float, float]]:
         """Load target center from perspective zone JSON for a generated mockup."""
@@ -1195,18 +1204,19 @@ class VideoService:
 
         ffmpeg_bin = self._resolve_binary_path("ffmpeg")
         if not ffmpeg_bin:
-            self.last_error = "FFmpeg runtime not found (tried PATH, /usr/bin, /usr/local/bin, and /srv/artlomo/node_modules/.bin)"
+            self.last_error = f"FFmpeg runtime not found (tried PATH, /usr/bin, /usr/local/bin, and {NODE_BIN_DIR})"
             logger.error("%s", self.last_error)
             return False
 
         output_size = int(cinematic_settings.get("video_output_size") or VIDEO_OUTPUT_SIZE[0])
         fps = int(cinematic_settings.get("video_fps") or VIDEO_FRAMERATE)
+        requested_duration = int(cinematic_settings.get("duration_seconds") or VIDEO_DURATION_DEFAULT)
         encoder_preset = str(cinematic_settings.get("video_encoder_preset") or VIDEO_PRESET)
         artwork_source = str(cinematic_settings.get("video_artwork_source") or "auto")
         # Extract global mockup pan settings from cinematic settings
         mockup_pan_enabled = bool(cinematic_settings.get("mockup_pan_enabled") or False)
         mockup_pan_direction = str(cinematic_settings.get("mockup_pan_direction") or "up").strip().lower()
-        if mockup_pan_direction not in {"up", "down", "left", "right", "none", "aim"}:
+        if mockup_pan_direction not in {"center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right", "none", "aim"}:
             mockup_pan_direction = "up"
 
         # Build per-mockup shots, maintaining order of mockup_paths
@@ -1260,7 +1270,23 @@ class VideoService:
                 shot["coordinates"] = coords
                 logger.info("[COORD] Loaded coordinates for %s/%s: %s", slug, mockup_id, coords)
             else:
-                logger.debug("[COORD] No coordinates found for %s/%s", slug, mockup_id)
+                # If aim mode is set but no coordinates could be resolved (e.g., legacy
+                # assets.json with empty assets dict), inject center fallback so render.js
+                # gets hasTarget=true at (0.5, 0.5). This produces no visible pan drift but
+                # prevents a misleading wrong-direction pan in the Node worker.
+                if shot.get("pan_direction") == "aim" and shot.get("pan_enabled"):
+                    coords = {
+                        "artwork_rect_norm": {
+                            "x": 0.38,
+                            "y": 0.38,
+                            "w": 0.24,
+                            "h": 0.24,
+                        }
+                    }
+                    shot["coordinates"] = coords
+                    logger.info("[COORD] Aim center fallback injected for %s/%s (no zone target)", slug, mockup_id)
+                else:
+                    logger.debug("[COORD] No coordinates found for %s/%s", slug, mockup_id)
             
             mockup_shots.append(shot)
 
@@ -1338,7 +1364,7 @@ class VideoService:
             "processed_root": str(self.processed_root),
             "coordinates_root": str(self._coordinates_root_path()),
             "ffmpeg_bin": str(ffmpeg_bin),
-            "render_status_path": "/srv/artlomo/application/common/ui/static/temp/render_status.json",
+            "render_status_path": str(self._get_artwork_dir(slug) / "video_render_status.json"),
             "video": {
                 "width": int(output_size),
                 "height": int(output_size),
@@ -1351,7 +1377,7 @@ class VideoService:
                 "crf": int(VIDEO_CRF),
                 "zoom_intensity": artwork_zoom_intensity,
                 "panning_enabled": artwork_pan_enabled,
-                "duration_seconds": int(cinematic_settings.get("duration_seconds") or VIDEO_DURATION_DEFAULT),
+                "duration_seconds": int(requested_duration),
                 "main_artwork_seconds": float(main_artwork_seconds),
                 "artwork_zoom_duration": artwork_zoom_duration_val,
                 "include_master_slide": bool(include_master_slide),
@@ -1384,12 +1410,19 @@ class VideoService:
             cmd = worker_args
 
         try:
+            # Timeout scales with render complexity to reduce false negatives on heavier profiles.
+            # Baseline (10s @ 1024px @ 24fps) remains near 180s, with extra headroom for larger settings.
+            duration_factor = max(1.0, float(requested_duration) / 10.0)
+            size_factor = max(1.0, float(output_size) / 1024.0)
+            fps_factor = max(1.0, float(fps) / 24.0)
+            timeout_seconds = int(max(180, min(900, round(180 * duration_factor * size_factor * fps_factor))))
+
             env = os.environ.copy()
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=180,
+                timeout=timeout_seconds,
                 env=env,
             )
 
@@ -1409,7 +1442,7 @@ class VideoService:
             return True
 
         except subprocess.TimeoutExpired:
-            self.last_error = "Node video worker timeout after 180 seconds"
+            self.last_error = f"Node video worker timeout after {timeout_seconds} seconds"
             logger.error("%s", self.last_error)
             return False
         except Exception as e:
@@ -1430,7 +1463,7 @@ class VideoService:
         for candidate in (
             f"/usr/bin/{binary}",
             f"/usr/local/bin/{binary}",
-            f"/srv/artlomo/node_modules/.bin/{binary}",
+            str(NODE_BIN_DIR / binary),
         ):
             path = Path(candidate)
             if path.exists() and path.is_file():

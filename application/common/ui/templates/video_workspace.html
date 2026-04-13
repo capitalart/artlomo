@@ -248,7 +248,7 @@
             <span>Pan Direction</span>
           </label>
           <div class="direction-buttons" data-artwork-pan-direction>
-            {% for dir in ['up', 'down', 'left', 'right'] %}
+            {% for dir in ['center', 'top-left', 'top-right', 'bottom-right', 'bottom-left', 'up', 'down', 'left', 'right'] %}
             <button type="button" class="btn btn-xs {% if dir == video_settings.get('artwork_pan_direction', 'up') %}btn-dark{% else %}btn-outline-secondary{% endif %}"
               data-direction="{{ dir }}">{{ dir|upper }}</button>
             {% endfor %}

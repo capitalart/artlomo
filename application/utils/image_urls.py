@@ -27,8 +27,8 @@ def public_processed_url(rel_path: str) -> str:
     Build absolute URL for a path relative to static/, ensuring one leading slash.
     Example input: 'art-processing/processed-artwork/<slug>/<file>.jpg'
     """
-    base_raw = getattr(config, "BASE_URL", "https://artlomo.com")
-    base = str(base_raw).replace("http://", "https://").rstrip("/")
+    base_raw = getattr(config, "BASE_URL", "")
+    base = str(base_raw).rstrip("/")
     return f"{base}/static/{str(rel_path).lstrip('/')}"
 
 

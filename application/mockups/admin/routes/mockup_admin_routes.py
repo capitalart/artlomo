@@ -219,6 +219,59 @@ def _dedupe_slug(base_slug: str, reserved: Set[str], planned: Set[str]) -> str:
         suffix += 1
 
 
+def _coerce_dam_points_to_zones(payload: dict) -> dict:
+    """Normalize DAM point payloads to zones so CatalogAdminService can validate them."""
+    points = payload.get("points")
+    if not isinstance(points, list) or len(points) != 4:
+        return payload
+
+    normalized_points = []
+    for point in points:
+        if not isinstance(point, dict):
+            return payload
+        try:
+            x_val = float(point.get("x"))
+            y_val = float(point.get("y"))
+        except (TypeError, ValueError):
+            return payload
+        normalized_points.append({"x": x_val, "y": y_val})
+
+    normalized = dict(payload)
+    normalized["zones"] = [{"points": normalized_points}]
+    return normalized
+
+
+def _extract_upload_coordinates_payload(coords_upload_bytes: bytes | None) -> tuple[dict | bytes | str | None, dict[str, str]]:
+    """Extract coordinates payload from direct JSON or DAM export sidecar JSON."""
+    if not coords_upload_bytes:
+        return None, {}
+
+    try:
+        parsed = json.loads(coords_upload_bytes.decode("utf-8"))
+    except Exception:
+        return coords_upload_bytes, {}
+
+    if not isinstance(parsed, dict):
+        return parsed, {}
+
+    sidecar_meta: dict[str, str] = {}
+
+    if str(parsed.get("schema_version") or "").strip() == "2.0" and isinstance(parsed.get("coordinates"), dict):
+        coords_node = parsed.get("coordinates") or {}
+        coords_data = coords_node.get("data") if isinstance(coords_node, dict) else None
+        if isinstance(coords_data, dict):
+            payload = _coerce_dam_points_to_zones(coords_data)
+            aspect_ratio = str(parsed.get("aspect_ratio") or "").strip()
+            category = str(parsed.get("category") or "").strip()
+            if aspect_ratio:
+                sidecar_meta["aspect_ratio"] = aspect_ratio
+            if category:
+                sidecar_meta["category"] = category
+            return payload, sidecar_meta
+
+    return _coerce_dam_points_to_zones(parsed), sidecar_meta
+
+
 def _base_status_options() -> List[tuple[str, str]]:
     return [
         ("live_catalog", "Live Catalog"),
@@ -959,9 +1012,23 @@ def upload_bases():
             legacy_single = request.files.get("base_image")
             if legacy_single and legacy_single.filename:
                 base_files = [legacy_single]
+        coords_upload = request.files.get("coords_json")
 
         if wants_json and len(base_files) > 1:
             return jsonify({"status": "error", "message": "Upload expects one base PNG per request."}), 400
+
+        if coords_upload and coords_upload.filename and len(base_files) != 1:
+            message = "Coordinate JSON can only be uploaded when exactly one base PNG is provided."
+            flash(message, "danger")
+            if wants_json:
+                return jsonify({"status": "error", "message": message}), 400
+            return render_template(
+                "mockups/upload_bases.html",
+                categories=_category_options(svc),
+                category_counts=svc.physical_category_counts(),
+                aspects=_aspect_options(svc),
+                form_data=form_data,
+            ), 400
 
         if not base_files:
             flash("At least one base PNG is required.", "danger")
@@ -1006,15 +1073,17 @@ def upload_bases():
         planned = []
         planned_slugs: Set[str] = set()
         errors: List[str] = []
+        coords_upload_bytes = None
+        coords_payload_value = None
+        sidecar_meta: dict[str, str] = {}
+        if coords_upload and coords_upload.filename:
+            coords_upload_bytes = coords_upload.read()
+            coords_payload_value, sidecar_meta = _extract_upload_coordinates_payload(coords_upload_bytes)
 
         category_raw = (form_data["category"] or "").strip()
         aspect_raw = (form_data["aspect_ratio"] or "").strip()
-        if not category_raw or not aspect_raw:
-            category_value = DEFAULT_MOCKUP_CATEGORY
-            aspect_value = DEFAULT_MOCKUP_ASPECT
-        else:
-            category_value = category_raw
-            aspect_value = aspect_raw
+        category_value = category_raw or str(sidecar_meta.get("category") or "").strip() or DEFAULT_MOCKUP_CATEGORY
+        aspect_value = aspect_raw or str(sidecar_meta.get("aspect_ratio") or "").strip() or DEFAULT_MOCKUP_ASPECT
 
         for upload in base_files:
             raw_bytes = upload.read()
@@ -1036,6 +1105,7 @@ def upload_bases():
                 "slug": unique_slug,
                 "base_bytes": raw_bytes,
                 "filename": upload.filename,
+                "coords_payload": coords_payload_value if len(base_files) == 1 else None,
             })
 
         if errors:
@@ -1071,6 +1141,7 @@ def upload_bases():
                     category=category_value,
                     aspect_ratio=aspect_value,
                     base_image_bytes=item["base_bytes"],
+                    coords_payload=item.get("coords_payload"),
                 )
                 added_slugs.append(record.slug)
         except ValidationError as exc:

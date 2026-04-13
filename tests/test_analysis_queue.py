@@ -282,6 +282,7 @@ def test_worker_stage2_failure_marks_failed_without_moving_folder(db_session, mo
     with (
         patch("application.analysis.worker.analysis_worker.get_config") as mock_cfg,
         patch("application.analysis.worker.analysis_worker.run_openai_analysis_for_slug") as mock_openai,
+            patch("application.analysis.worker.analysis_worker._cfg_bool", return_value=False),
     ):
         cfg_mock = MagicMock()
         cfg_mock.LAB_PROCESSED_DIR = mock_processed_dir
@@ -432,6 +433,7 @@ def test_provider_selection_persists_into_stage2_execution(db_session, mock_proc
         patch("application.analysis.worker.analysis_worker.get_config") as mock_cfg,
         patch("application.analysis.worker.analysis_worker.run_gemini_analysis_for_slug") as mock_gemini,
         patch("application.analysis.worker.analysis_worker.run_openai_analysis_for_slug") as mock_openai,
+            patch("application.analysis.worker.analysis_worker._cfg_bool", return_value=False),
     ):
         cfg_mock = MagicMock()
         cfg_mock.LAB_PROCESSED_DIR = mock_processed_dir

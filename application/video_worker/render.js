@@ -138,7 +138,39 @@ function findZoneJsonPath(templateSlug, coordinatesRoot) {
   return null;
 }
 
-function extractZoneTarget(zonePayload) {
+/**
+ * Read PNG image dimensions by parsing the IHDR chunk header (first 24 bytes).
+ * This avoids spawning an external process or requiring an image library.
+ * @param {string} pngPath - Absolute path to the PNG file
+ * @returns {{ width: number, height: number } | null}
+ */
+function readPngDimensions(pngPath) {
+  if (!pngPath) return null;
+  try {
+    const PNG_SIGNATURE_LEN = 8;
+    const IHDR_DATA_OFFSET = PNG_SIGNATURE_LEN + 4 + 4; // sig + length + "IHDR"
+    const buf = Buffer.alloc(24);
+    const fd = fs.openSync(pngPath, "r");
+    const bytesRead = fs.readSync(fd, buf, 0, 24, 0);
+    fs.closeSync(fd);
+    if (bytesRead < 24) return null;
+    // Verify PNG signature: first 8 bytes
+    if (
+      buf[0] !== 0x89 || buf[1] !== 0x50 || buf[2] !== 0x4e || buf[3] !== 0x47 ||
+      buf[4] !== 0x0d || buf[5] !== 0x0a || buf[6] !== 0x1a || buf[7] !== 0x0a
+    ) {
+      return null;
+    }
+    const width = buf.readUInt32BE(IHDR_DATA_OFFSET);
+    const height = buf.readUInt32BE(IHDR_DATA_OFFSET + 4);
+    if (width > 0 && height > 0) return { width, height };
+    return null;
+  } catch (_err) {
+    return null;
+  }
+}
+
+function extractZoneTarget(zonePayload, canvasDims) {
   const zones = zonePayload && zonePayload.zones;
   if (!Array.isArray(zones) || zones.length === 0) return null;
   const first = zones[0];
@@ -162,8 +194,19 @@ function extractZoneTarget(zonePayload) {
   const centerY = (Math.min(...ys) + Math.max(...ys)) / 2;
 
   const dims = zonePayload.dimensions || {};
-  const sourceW = Number(dims.canvas_width_px) || Math.max(...xs) || 1;
-  const sourceH = Number(dims.canvas_height_px) || Math.max(...ys) || 1;
+  // Priority: zone JSON dimensions > companion PNG dimensions > max(xs)/max(ys) fallback.
+  // max(xs) fallback is inaccurate when zone points don't reach the canvas edge (common
+  // for 2048px templates where zone points max out at ~1434px).
+  const sourceW =
+    Number(dims.canvas_width_px) ||
+    (canvasDims && canvasDims.width) ||
+    Math.max(...xs) ||
+    1;
+  const sourceH =
+    Number(dims.canvas_height_px) ||
+    (canvasDims && canvasDims.height) ||
+    Math.max(...ys) ||
+    1;
 
   if (sourceW <= 0 || sourceH <= 0) return null;
 
@@ -202,7 +245,11 @@ function resolveMockupTargets(payload) {
 
     const zonePath = findZoneJsonPath(templateSlug, coordinatesRoot);
     const zonePayload = zonePath ? safeReadJson(zonePath) : null;
-    const target = zonePayload ? extractZoneTarget(zonePayload) : null;
+    // Read companion PNG for accurate canvas dimensions; zone JSON format_version 2.0
+    // does not embed dimensions, causing max(xs) fallback to give wrong normalization.
+    const pngPath = zonePath ? zonePath.replace(/\.json$/, ".png") : null;
+    const canvasDims = pngPath && fs.existsSync(pngPath) ? readPngDimensions(pngPath) : null;
+    const target = zonePayload ? extractZoneTarget(zonePayload, canvasDims) : null;
 
     return {
       path: mockupPath,
@@ -310,6 +357,10 @@ function buildPanExpressions(targetX, targetY, direction, frames, clampTarget) {
   const targetYPos = `${ty.toFixed(6)}*${rangeY}`;
   const centerXPos = `0.5*${rangeX}`;
   const centerYPos = `0.5*${rangeY}`;
+  const leftXPos = `0`;
+  const rightXPos = `${rangeX}`;
+  const topYPos = `0`;
+  const bottomYPos = `${rangeY}`;
   
   let xExpr, yExpr;
   
@@ -323,6 +374,26 @@ function buildPanExpressions(targetX, targetY, direction, frames, clampTarget) {
       yExpr = `max(0,min(${rangeY},${blendY}))`;
       break;
     }
+    case "center":
+      xExpr = `max(0,min(${rangeX},${centerXPos}))`;
+      yExpr = `max(0,min(${rangeY},${centerYPos}))`;
+      break;
+    case "top-left":
+      xExpr = `max(0,min(${rangeX},${leftXPos}+(${rightXPos}-${leftXPos})*(1-${progress})))`;
+      yExpr = `max(0,min(${rangeY},${topYPos}+(${bottomYPos}-${topYPos})*(1-${progress})))`;
+      break;
+    case "top-right":
+      xExpr = `max(0,min(${rangeX},${leftXPos}+(${rightXPos}-${leftXPos})*${progress}))`;
+      yExpr = `max(0,min(${rangeY},${topYPos}+(${bottomYPos}-${topYPos})*(1-${progress})))`;
+      break;
+    case "bottom-right":
+      xExpr = `max(0,min(${rangeX},${leftXPos}+(${rightXPos}-${leftXPos})*${progress}))`;
+      yExpr = `max(0,min(${rangeY},${topYPos}+(${bottomYPos}-${topYPos})*${progress}))`;
+      break;
+    case "bottom-left":
+      xExpr = `max(0,min(${rangeX},${leftXPos}+(${rightXPos}-${leftXPos})*(1-${progress})))`;
+      yExpr = `max(0,min(${rangeY},${topYPos}+(${bottomYPos}-${topYPos})*${progress}))`;
+      break;
     case "up":
       // Strong directional pan: move upward across available vertical range.
       xExpr = `max(0,min(${rangeX},${centerXPos}))`;
@@ -361,6 +432,36 @@ function buildMasterExpressions(masterMode, frames, panDirection = null) {
   // If explicit pan direction provided, use it
   if (panDirection && typeof panDirection === 'string') {
     const dir = panDirection.toLowerCase();
+    if (dir === 'center') {
+      return {
+        x: "(iw-iw/zoom)/2",
+        y: "(ih-ih/zoom)/2",
+      };
+    }
+    if (dir === 'top-left') {
+      return {
+        x: `max(0,min(iw-iw/zoom,(iw-iw/zoom)*(1-${progress})))`,
+        y: `max(0,min(ih-ih/zoom,(ih-ih/zoom)*(1-${progress})))`,
+      };
+    }
+    if (dir === 'top-right') {
+      return {
+        x: `max(0,min(iw-iw/zoom,(iw-iw/zoom)*(${progress})))`,
+        y: `max(0,min(ih-ih/zoom,(ih-ih/zoom)*(1-${progress})))`,
+      };
+    }
+    if (dir === 'bottom-right') {
+      return {
+        x: `max(0,min(iw-iw/zoom,(iw-iw/zoom)*(${progress})))`,
+        y: `max(0,min(ih-ih/zoom,(ih-ih/zoom)*(${progress})))`,
+      };
+    }
+    if (dir === 'bottom-left') {
+      return {
+        x: `max(0,min(iw-iw/zoom,(iw-iw/zoom)*(1-${progress})))`,
+        y: `max(0,min(ih-ih/zoom,(ih-ih/zoom)*(${progress})))`,
+      };
+    }
     if (dir === 'left') {
       return {
         x: `max(0,min(iw-iw/zoom,(iw-iw/zoom)*(1-${progress})))`,
@@ -638,7 +739,7 @@ function buildFilter(slides, video, masterMode) {
         : String(mockupPanDirection || "up").trim().toLowerCase();
       
       // Validate manualDirection
-      const validDirections = ["up", "down", "left", "right", "none", "aim"];
+      const validDirections = ["center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right", "none", "aim"];
       if (!validDirections.includes(manualDirection)) {
         manualDirection = "up";
       }
@@ -652,7 +753,7 @@ function buildFilter(slides, video, masterMode) {
       } else if (manualDirection === "aim") {
         autoAim = true;
         panEnabled = true;
-        manualDirection = "right"; // Fallback only (won't be used if hasTarget)
+        manualDirection = "none"; // Normalize; won't be used unless hasTarget is false
       }
       
       // Backward compatibility: read legacy auto_target/pan_to_artwork_center fields
@@ -662,19 +763,20 @@ function buildFilter(slides, video, masterMode) {
       
       const aimWeight = Number(shotData?.aim_weight ?? 1.0); // Default: full aim
 
+      // When aim is requested but no target coordinates are available (e.g. assets.json
+      // has no template_slug for this slot), disable panning for this slide.
+      // This prevents a misleading directional pan that points away from the artwork.
+      if (autoAim && !hasTarget) {
+        panEnabled = false;
+        console.warn("[PAN] Aim requested but no target coordinates for", mockupId, "- disabling pan for this slide");
+      }
+
       // If pan is enabled but zoom animation is off, force a tiny constant zoom
       // so there is room to pan even when zoom is otherwise disabled.
       if (panEnabled && zoomExpr === "1") {
         zoomExpr = String(PAN_ONLY_ZOOM);
       }
       
-      // Log warning if aim requested but no target available
-      if (autoAim && !hasTarget && DEBUG_PAN) {
-        console.log("[PAN] Aim requested but no target coordinates; falling back to manual direction", {
-          mockupId,
-          manualDirection
-        });
-      }
       
       // STEP 4: Resolve final direction using clean pan engine
       // If auto-aim is active and we have a target, prefer smooth aim interpolation

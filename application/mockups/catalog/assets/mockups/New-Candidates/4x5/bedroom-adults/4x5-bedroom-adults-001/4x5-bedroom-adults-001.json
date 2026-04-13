@@ -1,0 +1,218 @@
+{
+  "aspect_ratio": "4x5",
+  "asset_slug": "4x5-bedroom-adults-001",
+  "batch_context": {
+    "batch_id": "2bf0c338dee7419b873fac1dce3affd6",
+    "batch_index": 1,
+    "batch_size": 8
+  },
+  "category": "Bedroom Adults",
+  "coordinates": {
+    "available": true,
+    "data": {
+      "confidence_score": 0.913,
+      "height": 2048,
+      "normalized_points": [
+        {
+          "x": 0.55353,
+          "y": 0.130393
+        },
+        {
+          "x": 0.884381,
+          "y": 0.130422
+        },
+        {
+          "x": 0.884494,
+          "y": 0.524267
+        },
+        {
+          "x": 0.553693,
+          "y": 0.524221
+        }
+      ],
+      "point_order": [
+        "TL",
+        "TR",
+        "BR",
+        "BL"
+      ],
+      "points": [
+        {
+          "x": 1133.6294,
+          "y": 267.0444
+        },
+        {
+          "x": 1811.2131,
+          "y": 267.1039
+        },
+        {
+          "x": 1811.4435,
+          "y": 1073.6991
+        },
+        {
+          "x": 1133.9634,
+          "y": 1073.6038
+        }
+      ],
+      "width": 2048
+    },
+    "source_path": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/coordinates.json"
+  },
+  "exported_asset_id": "01fb8eda-1599-4fdc-854f-3469dd020dc9",
+  "file_metadata": {
+    "exported_at_utc": "2026-03-28T05:02:20.838541+00:00",
+    "exported_png_filename": "4x5-bedroom-adults-001.png",
+    "exported_png_path": "/srv/dreamartmachine/var/exports/bases/4x5/bedroom-adults/4x5-bedroom-adults-001/4x5-bedroom-adults-001.png",
+    "file_size_bytes": 8523326,
+    "has_alpha": true,
+    "png_checksum": "sha256:e87f48174e8731ec1040dd30f0c8f1f1a0c0d522ca969e0c60f6ec676786e167"
+  },
+  "generation_source": {
+    "model": "gemini-3.1-flash-image-preview"
+  },
+  "import_contract": {
+    "import_ready": true,
+    "import_source": "export_bases",
+    "import_timestamp_utc": null,
+    "imported": false
+  },
+  "job_id": "17cd5c83df9b430282f46ca715a55896",
+  "management_readiness": {
+    "management_status": "exported",
+    "qa_status": "pending",
+    "review_required": false
+  },
+  "metadata_snapshot": {
+    "artwork_region_method": "cyan_border",
+    "aspect_ratio": "4x5",
+    "asset_state": {
+      "cleaned_production_base": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/production_base_cleaned.png",
+      "finished_composite_output": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/composite_preview.jpg",
+      "raw_generated_candidate": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/candidate_raw.jpg"
+    },
+    "auto_preview_composite": true,
+    "batch_id": "2bf0c338dee7419b873fac1dce3affd6",
+    "batch_index": 1,
+    "batch_size": 8,
+    "candidate_expect_artwork_visible": false,
+    "candidate_expect_blank_placeholder_visible": false,
+    "candidate_expect_cyan_visible": true,
+    "candidate_observed_signals": {
+      "artwork_visible": true,
+      "blank_placeholder_visible": false,
+      "blank_ratio": 0.034805,
+      "cyan_ratio": 0.01123,
+      "cyan_visible": true,
+      "vivid_ratio": 0.343582
+    },
+    "candidate_sanity_check": {
+      "expected": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "cyan_visible": true
+      },
+      "mismatch": true,
+      "mismatch_fields": [
+        "artwork_visible"
+      ],
+      "observed": {
+        "artwork_visible": true,
+        "blank_placeholder_visible": false,
+        "blank_ratio": 0.034805,
+        "cyan_ratio": 0.01123,
+        "cyan_visible": true,
+        "vivid_ratio": 0.343582
+      },
+      "preview_artwork_source": "internal_placeholder",
+      "prompt_strategy_used": "cyan_border_v1",
+      "selected_method": "cyan_border"
+    },
+    "category": "Bedroom Adults",
+    "category_item_number": 1,
+    "colour_mood": "dark-luxury",
+    "composite_edge_expansion_px": 2,
+    "composite_generated": true,
+    "composite_generated_at": "2026-03-28T01:23:07.576221Z",
+    "composite_path": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/composite_preview.jpg",
+    "composite_thumbnail_path": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/composite_thumbnail.jpg",
+    "coordinate_confidence": 0.9130485809367703,
+    "coordinates_debug_mask_path": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/coordinates_debug_mask.png",
+    "coordinates_json_path": "/srv/dreamartmachine/var/jobs/17cd5c83df9b430282f46ca715a55896/coordinates.json",
+    "frame_label": "Classic Ornate Gold",
+    "frame_style": "ornate_gold",
+    "frame_style_requested": "ornate_gold",
+    "frame_style_source": "manual-frame-style",
+    "generated_image_actual_height": 2048,
+    "generated_image_actual_width": 2048,
+    "generated_image_dimensions": {
+      "actual_height": 2048,
+      "actual_width": 2048,
+      "contract_status": "matched",
+      "enforcement_mode": "normalize",
+      "final_height": 2048,
+      "final_width": 2048,
+      "normalized": false,
+      "requested_aspect_ratio": "1:1",
+      "requested_image_size": "2K",
+      "target_height": 2048,
+      "target_width": 2048
+    },
+    "generated_image_final_height": 2048,
+    "generated_image_final_width": 2048,
+    "generation_scope": "selected",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "luxury-contemporary",
+    "jobs_per_category": 1,
+    "mat_label": "Double White / Gold Inner",
+    "mat_style": "double_white_gold_inner",
+    "mat_style_requested": "double_white_gold_inner",
+    "mat_style_source": "manual-mat-style",
+    "model": "gemini-3.1-flash-image-preview",
+    "presentation_phrase": "Display the artwork as a fine art print in a classic ornate carved gold picture frame with a double white mat with a gold inner border.",
+    "preview_artwork_aspect_ratio": "4x5",
+    "preview_artwork_path": "/srv/dreamartmachine/artworks/4x5-artwork-placeholder.png",
+    "preview_artwork_source": "internal_placeholder",
+    "prompt_input_display": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "prompt_strategy_used": "cyan_border_v1",
+    "raw_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "room_feel": "lived-in",
+    "selected_categories": [
+      "Bedroom Adults",
+      "Closeup",
+      "Gallery",
+      "Kitchen",
+      "Meeting Room",
+      "Stairs",
+      "Study",
+      "Waiting Room"
+    ],
+    "source": "studio",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual",
+    "visual_direction_value_origin": "manual"
+  },
+  "prompt": {
+    "compiled_prompt": null,
+    "display_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "raw_prompt": "Create a high-quality, photorealistic Bedroom Adults scene for an artwork mockup. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "strategy": "cyan_border_v1"
+  },
+  "render": {
+    "aspect_ratio": "4x5",
+    "colour_mood": "dark-luxury",
+    "frame_label": "Classic Ornate Gold",
+    "frame_style": "ornate_gold",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "luxury-contemporary",
+    "mat_label": "Double White / Gold Inner",
+    "mat_style": "double_white_gold_inner",
+    "room_feel": "lived-in",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual"
+  },
+  "schema_version": "2.0",
+  "source_job": {
+    "finished_at": "2026-03-28T01:23:06.931711Z",
+    "state": "base_ready"
+  }
+}

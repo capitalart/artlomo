@@ -1,8 +1,11 @@
 from pathlib import Path
 
 
+APP_ROOT = Path(__file__).resolve().parents[1] / "application"
+
+
 def test_unprocessed_template_actions_and_delete_only():
-    tpl = Path("/srv/artlomo/application/common/ui/templates/artworks/unprocessed.html").read_text()
+    tpl = (APP_ROOT / "common/ui/templates/artworks/unprocessed.html").read_text()
     assert "Generate Mockups" not in tpl
     assert "data-upload-delete-trigger" in tpl
     assert "url_for('artwork.review'" not in tpl
@@ -10,7 +13,7 @@ def test_unprocessed_template_actions_and_delete_only():
 
 
 def test_processed_template_only_shows_review():
-    tpl = Path("/srv/artlomo/application/common/ui/templates/artworks/processed.html").read_text()
+    tpl = (APP_ROOT / "common/ui/templates/artworks/processed.html").read_text()
     assert "Manual Analysis" not in tpl
     assert "OpenAI Analysis" not in tpl
     assert "Gemini Analysis" not in tpl
@@ -20,7 +23,7 @@ def test_processed_template_only_shows_review():
 
 
 def test_upload_page_is_metadata_free():
-    tpl = Path("/srv/artlomo/application/common/ui/templates/artworks/upload.html").read_text()
+    tpl = (APP_ROOT / "common/ui/templates/artworks/upload.html").read_text()
     assert "name=\"artist_name\"" not in tpl
     assert "name=\"title\"" not in tpl
     assert "data-upload-dropzone" in tpl
@@ -31,7 +34,7 @@ def test_upload_page_is_metadata_free():
 
 
 def test_upload_js_polling_and_spinner_contract():
-    js = Path("/srv/artlomo/application/common/ui/static/js/upload.js").read_text()
+    js = (APP_ROOT / "common/ui/static/js/upload.js").read_text()
     assert "UploadController" in js
     assert "uploadDropzone" in js and "uploadFileInput" in js
     assert "XMLHttpRequest" in js
@@ -46,7 +49,7 @@ def test_upload_js_polling_and_spinner_contract():
 
 
 def test_upload_processing_modal_structure():
-    tpl = Path("/srv/artlomo/application/common/ui/templates/artworks/upload.html").read_text()
+    tpl = (APP_ROOT / "common/ui/templates/artworks/upload.html").read_text()
     assert "processing-modal" in tpl
     assert "processing-list" in tpl
     assert "processingBackgroundBtn" in tpl
@@ -57,32 +60,32 @@ def test_upload_processing_modal_structure():
 
 
 def test_modal_opens_immediately_and_auto_closes_on_done():
-    js = Path("/srv/artlomo/application/common/ui/static/js/upload.js").read_text()
+    js = (APP_ROOT / "common/ui/static/js/upload.js").read_text()
     assert "showProcessingOverlay();" in js
     assert "hideProcessingOverlay(true);" in js
     assert "All artworks processed" in js
 
 
 def test_no_progress_bars_rendered():
-    tpl = Path("/srv/artlomo/application/common/ui/templates/artworks/upload.html").read_text()
+    tpl = (APP_ROOT / "common/ui/templates/artworks/upload.html").read_text()
     assert "progress-bar" not in tpl
     assert "progress" not in tpl.lower()
 
 
 def test_error_state_stops_polling():
-    js = Path("/srv/artlomo/application/common/ui/static/js/upload.js").read_text()
+    js = (APP_ROOT / "common/ui/static/js/upload.js").read_text()
     # Error handling uses state.error and hasError pattern, not a named handleError function
     assert "state.error" in js or "hasError" in js
     assert "clearInterval" in js and "error" in js
 
 
 def test_delete_modal_global_disabled_for_artworks_pages():
-    js = Path("/srv/artlomo/application/common/ui/static/js/delete-modal.js").read_text()
+    js = (APP_ROOT / "common/ui/static/js/delete-modal.js").read_text()
     assert "pathname.startsWith('/artworks')" in js
 
 
 def test_status_endpoint_uses_unprocessed_status_file():
-    py = Path("/srv/artlomo/application/upload/routes/upload_routes.py").read_text()
+    py = (APP_ROOT / "upload/routes/upload_routes.py").read_text()
     assert "LAB_UNPROCESSED_DIR" in py
     assert "processing_status" in py
     assert "processing_status(slug" in py
@@ -90,23 +93,23 @@ def test_status_endpoint_uses_unprocessed_status_file():
 
 
 def test_review_routes_and_targets_exist():
-    py = Path("/srv/artlomo/application/artwork/routes/artwork_routes.py").read_text()
+    py = (APP_ROOT / "artwork/routes/artwork_routes.py").read_text()
     assert "review_openai" in py
     assert "review_gemini" in py
     assert "manual.workspace" in py
 
 
 def test_manual_workspace_lock_and_title_save_hooks():
-    tpl = Path("/srv/artlomo/application/common/ui/templates/analysis_workspace.html").read_text()
+    tpl = (APP_ROOT / "common/ui/templates/analysis_workspace.html").read_text()
     assert "data-analysis-lock" in tpl
-    py_service = Path("/srv/artlomo/application/analysis/manual/services/manual_service.py").read_text()
+    py_service = (APP_ROOT / "analysis/manual/services/manual_service.py").read_text()
     assert "meta_path" in py_service and "metadata.json" in py_service
-    py_routes = Path("/srv/artlomo/application/analysis/manual/routes/manual_routes.py").read_text()
+    py_routes = (APP_ROOT / "analysis/manual/routes/manual_routes.py").read_text()
     assert "locked and cannot be edited" in py_routes
 
 
 def test_upload_gallery_poll_status_uses_slug_not_sku():
-    js = Path("/srv/artlomo/application/common/ui/static/js/upload_gallery.js").read_text()
+    js = (APP_ROOT / "common/ui/static/js/upload_gallery.js").read_text()
     assert "pollStatus = async ({ slug" in js
     assert "/api/analysis/status/${encodeURIComponent(slug)}" in js
     assert "/api/analysis/status/${encodeURIComponent(sku)}" not in js

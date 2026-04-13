@@ -137,6 +137,7 @@ def create_app(config_obj: AppConfig | None = None) -> Flask:
     app.config["ADMIN_PASSWORD"] = os.getenv("ADMIN_PASSWORD", app.config.get("ADMIN_PASSWORD", ""))
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY") or os.getenv("SECRET_KEY") or app.config.get("SECRET_KEY")
     app.config["MAX_ADMIN_SESSIONS"] = int(os.getenv("MAX_ADMIN_SESSIONS", app.config.get("MAX_ADMIN_SESSIONS", 5) or 5))
+    app.config["ARTLOMO_SSO_SHARED_SECRET"] = os.getenv("ARTLOMO_SSO_SHARED_SECRET", "").strip()
 
     app.register_blueprint(upload_bp, url_prefix="/artworks")
     # Shared UI/static blueprint (exposes endpoint `common.static` used by templates)
@@ -351,7 +352,9 @@ def create_app(config_obj: AppConfig | None = None) -> Flask:
     def handle_large_file(_: RequestEntityTooLarge):
         max_mb = int((app.config.get("MAX_CONTENT_LENGTH") or 0) / (1024 * 1024)) or 500
         flash(f"File too large. Maximum allowed size is {max_mb} MB.", "danger")
-        if request.path.startswith("/admin/mockups") or (request.referrer or "").startswith("https://artlomo.com/admin/mockups") or (request.referrer or "").startswith("/admin/mockups"):
+        base_url = str(app.config.get("BASE_URL") or "").rstrip("/")
+        mockup_ref = f"{base_url}/admin/mockups" if base_url else ""
+        if request.path.startswith("/admin/mockups") or (mockup_ref and (request.referrer or "").startswith(mockup_ref)) or (request.referrer or "").startswith("/admin/mockups"):
             return redirect(url_for("mockups_admin.upload_bases")), 413
         return redirect(url_for("upload.upload_page")), 413
 

@@ -191,7 +191,7 @@ PRIORITY 1 (THE SCENE):
 - Keep the first paragraph art-led: what you see, what it feels like, what the collector will experience.
 
 PRIORITY 2 (THE TECHNICALS):
-- After the narrative opening, bring the value forward: 14,400px long edge, 300 DPI, up to 48 inches (121.9 cm).
+- After the narrative opening, bring the value forward: 7,200–14,400px long edge, 300 DPI, up to 24–48 inches (61–121.9 cm).
 - Integrate technical specs naturally into the story flow.
 
 PRIORITY 3 (THE HERITAGE):
@@ -205,7 +205,7 @@ Return ONLY a JSON object with the following fields (no labelled sections, no ma
 - etsy_title: string, MUST be <= 140 characters and use pipe separators exactly like: Subject | Keyword | Keyword | Robin Custance
   - **Etsy Tip: Aim for ~13–14 words for best SEO balance and search visibility.**
   - Prefer 130–140 characters when possible, but never exceed 140.
-  - Include the phrases 'Digital Download' and 'Large 48 Inch Print'.
+  - Include the phrases 'Digital Download' and 'Large 48 Inch Print' (or 'Large 24 Inch Print' for 7,200px artworks).
   - **FORBIDDEN CHARACTERS: NO colons (:), semicolons (;), dashes except hyphens (-), or other special punctuation in titles. Use ONLY: letters, numbers, spaces, hyphens (-), ampersands (&), and pipes (|).**
   - If a specific location is explicit (e.g., Bool Lagoon), prefer it early in the title.
 - etsy_description: string, formatted with line breaks (\n)
@@ -231,7 +231,7 @@ Return ONLY a JSON object with the following fields (no labelled sections, no ma
 CONSTRAINTS:
 - Use single quotes (') not double quotes (") in descriptions
 - Never include SKU in public descriptions
-- Museum-quality print size: 14,400px long edge = up to 48 inches (121.9 cm)
+- Museum-quality print size: 7,200px long edge = up to 24 inches (61 cm); 14,400px long edge = up to 48 inches (121.9 cm)
 - Limited edition concept: 25 copies maximum
 PROMPT END"""
 

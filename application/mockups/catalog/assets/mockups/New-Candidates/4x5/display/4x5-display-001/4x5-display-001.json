@@ -1,0 +1,231 @@
+{
+  "aspect_ratio": "4x5",
+  "asset_slug": "4x5-display-001",
+  "batch_context": {
+    "batch_id": "813a0b314b4e475ba041e34609946876",
+    "batch_index": 7,
+    "batch_size": 23
+  },
+  "category": "Display",
+  "coordinates": {
+    "available": true,
+    "data": {
+      "confidence_score": 0.8076,
+      "height": 2048,
+      "normalized_points": [
+        {
+          "x": 0.47692,
+          "y": 0.123919
+        },
+        {
+          "x": 0.828594,
+          "y": 0.08342
+        },
+        {
+          "x": 0.828633,
+          "y": 0.625565
+        },
+        {
+          "x": 0.477969,
+          "y": 0.61146
+        }
+      ],
+      "point_order": [
+        "TL",
+        "TR",
+        "BR",
+        "BL"
+      ],
+      "points": [
+        {
+          "x": 976.7328,
+          "y": 253.7854
+        },
+        {
+          "x": 1696.9597,
+          "y": 170.8446
+        },
+        {
+          "x": 1697.0394,
+          "y": 1281.1565
+        },
+        {
+          "x": 978.8798,
+          "y": 1252.2698
+        }
+      ],
+      "width": 2048
+    },
+    "source_path": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/coordinates.json"
+  },
+  "exported_asset_id": "78675338-d76f-4e36-a479-f2ae63656a6b",
+  "file_metadata": {
+    "exported_at_utc": "2026-03-29T01:02:25.380496+00:00",
+    "exported_png_filename": "4x5-display-001.png",
+    "exported_png_path": "/srv/dreamartmachine/var/exports/bases/4x5/display/4x5-display-001/4x5-display-001.png",
+    "file_size_bytes": 6632870,
+    "has_alpha": true,
+    "png_checksum": "sha256:3fe53fdace0382bf23eff44fd4d7a0ff2e72278ff96332c9dc856b32a271e702"
+  },
+  "generation_source": {
+    "model": "gemini-3.1-flash-image-preview"
+  },
+  "import_contract": {
+    "import_ready": true,
+    "import_source": "export_bases",
+    "import_timestamp_utc": null,
+    "imported": false
+  },
+  "job_id": "8832aa0e1f6849d4a749d98abead923f",
+  "management_readiness": {
+    "management_status": "exported",
+    "qa_status": "pending",
+    "review_required": false
+  },
+  "metadata_snapshot": {
+    "artwork_region_method": "cyan_border",
+    "aspect_ratio": "4x5",
+    "asset_state": {
+      "cleaned_production_base": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/production_base_cleaned.png",
+      "finished_composite_output": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/composite_preview.jpg",
+      "raw_generated_candidate": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/candidate_raw.jpg"
+    },
+    "auto_preview_composite": true,
+    "batch_id": "813a0b314b4e475ba041e34609946876",
+    "batch_index": 7,
+    "batch_size": 23,
+    "candidate_expect_artwork_visible": false,
+    "candidate_expect_blank_placeholder_visible": false,
+    "candidate_expect_cyan_visible": true,
+    "candidate_observed_signals": {
+      "artwork_visible": false,
+      "blank_placeholder_visible": false,
+      "blank_ratio": 0.257324,
+      "cyan_ratio": 0.016098,
+      "cyan_visible": true,
+      "vivid_ratio": 0.074631
+    },
+    "candidate_sanity_check": {
+      "expected": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "cyan_visible": true
+      },
+      "mismatch": false,
+      "mismatch_fields": [],
+      "observed": {
+        "artwork_visible": false,
+        "blank_placeholder_visible": false,
+        "blank_ratio": 0.257324,
+        "cyan_ratio": 0.016098,
+        "cyan_visible": true,
+        "vivid_ratio": 0.074631
+      },
+      "preview_artwork_source": "internal_placeholder",
+      "prompt_strategy_used": "cyan_border_v1",
+      "selected_method": "cyan_border"
+    },
+    "category": "Display",
+    "category_item_number": 1,
+    "colour_mood": "rich-moody-tones",
+    "composite_edge_expansion_px": 3,
+    "composite_generated": true,
+    "composite_generated_at": "2026-03-28T23:57:58.662246Z",
+    "composite_path": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/composite_preview.jpg",
+    "composite_thumbnail_path": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/composite_thumbnail.jpg",
+    "coordinate_confidence": 0.8075532331903451,
+    "coordinates_debug_mask_path": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/coordinates_debug_mask.png",
+    "coordinates_json_path": "/srv/dreamartmachine/var/jobs/8832aa0e1f6849d4a749d98abead923f/coordinates.json",
+    "frame_label": "Black / Modern",
+    "frame_style": "modern_black",
+    "frame_style_requested": "auto-by-category",
+    "frame_style_source": "auto-category-frame-mapping",
+    "generated_image_actual_height": 2048,
+    "generated_image_actual_width": 2048,
+    "generated_image_dimensions": {
+      "actual_height": 2048,
+      "actual_width": 2048,
+      "contract_status": "matched",
+      "enforcement_mode": "normalize",
+      "final_height": 2048,
+      "final_width": 2048,
+      "normalized": false,
+      "requested_aspect_ratio": "1:1",
+      "requested_image_size": "2K",
+      "target_height": 2048,
+      "target_width": 2048
+    },
+    "generated_image_final_height": 2048,
+    "generated_image_final_width": 2048,
+    "generation_scope": "all-categories",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "jobs_per_category": 1,
+    "mat_label": "Single White Mat",
+    "mat_style": "single_white",
+    "mat_style_requested": "auto-by-category",
+    "mat_style_source": "auto-category-mat-mapping",
+    "model": "gemini-3.1-flash-image-preview",
+    "presentation_phrase": "Display the artwork as a fine art print in a thin matte black modern gallery frame with a single white mat.",
+    "preview_artwork_aspect_ratio": "4x5",
+    "preview_artwork_path": "/srv/dreamartmachine/artworks/4x5-artwork-placeholder.png",
+    "preview_artwork_source": "internal_placeholder",
+    "prompt_input_display": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "prompt_strategy_used": "cyan_border_v1",
+    "raw_prompt": "Create a high-quality, photorealistic styled display mockup scene with a clear premium artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "room_feel": "lived-in",
+    "selected_categories": [
+      "Bathroom",
+      "Bedroom Adults",
+      "Bedroom Kids",
+      "Cafe",
+      "Closeup",
+      "Dining",
+      "Display",
+      "Gallery",
+      "Games",
+      "Gift",
+      "Hallway",
+      "Kitchen",
+      "Living Room",
+      "Meeting Room",
+      "Music Room",
+      "Nursery",
+      "Outdoors",
+      "Restaurant",
+      "Sitting-Room",
+      "Stairs",
+      "Study",
+      "Waiting Room",
+      "Workplace"
+    ],
+    "source": "studio",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual",
+    "visual_direction_value_origin": "manual"
+  },
+  "prompt": {
+    "compiled_prompt": null,
+    "display_prompt": "Auto: DreamArtMachine will send an appropriate category-specific prompt for each category in this batch.",
+    "raw_prompt": "Create a high-quality, photorealistic styled display mockup scene with a clear premium artwork display area. Keep the composition clean, commercially useful, and naturally lit. Leave a clear wall area suitable for framed artwork placement. Keep styling modern and broadly appealing.",
+    "strategy": "cyan_border_v1"
+  },
+  "render": {
+    "aspect_ratio": "4x5",
+    "colour_mood": "rich-moody-tones",
+    "frame_label": "Black / Modern",
+    "frame_style": "modern_black",
+    "image_aspect_ratio": "1:1",
+    "interior_style": "contemporary",
+    "mat_label": "Single White Mat",
+    "mat_style": "single_white",
+    "room_feel": "lived-in",
+    "visual_direction_mode": "manual",
+    "visual_direction_source": "manual"
+  },
+  "schema_version": "2.0",
+  "source_job": {
+    "finished_at": "2026-03-28T23:57:57.983073Z",
+    "state": "base_ready"
+  }
+}

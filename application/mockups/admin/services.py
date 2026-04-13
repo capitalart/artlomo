@@ -363,7 +363,8 @@ def _resolve_binary_path(name: str) -> str | None:
     resolved = shutil.which(binary)
     if resolved:
         return resolved
-    for candidate in (f"/usr/bin/{binary}", f"/usr/local/bin/{binary}", f"/srv/artlomo/node_modules/.bin/{binary}"):
+    node_bin = BASE_DIR.parent / "node_modules" / ".bin" / binary
+    for candidate in (f"/usr/bin/{binary}", f"/usr/local/bin/{binary}", str(node_bin)):
         path = Path(candidate)
         if path.exists() and path.is_file():
             return str(path)
@@ -1370,6 +1371,7 @@ class CatalogAdminService:
         category: str | None,
         aspect_ratio: str | None,
         base_image_bytes: bytes,
+        coords_payload: dict | bytes | str | None = None,
     ) -> MockupBase:
         slug_clean = slugify(slug)
         if not slug_clean:
@@ -1413,35 +1415,48 @@ class CatalogAdminService:
             except Exception:
                 pass
 
-        coords_payload = None
-        zones_normalized = _scan_transparent_zones_normalized(base_abs)
-        zones = _normalized_zones_to_pixel_zones(zones_normalized or [], size=base_img.size)
-        if zones:
-            coords_payload = {
-                "template": f"{slug_clean}.png",
-                "zones": zones,
-            }
+        if coords_payload is not None:
+            coords_dict = coords_payload if isinstance(coords_payload, dict) else validate_json_payload(coords_payload)
+            coords_dict = _clamp_coords_payload(coords_dict, size=base_img.size)
+            coords_payload_out, coordinate_type = _normalize_coords_payload_v2(
+                coords_dict,
+                template=f"{slug_clean}.png",
+            )
+            coords_payload_out = _clamp_coords_payload(coords_payload_out, size=base_img.size)
+            placements = validate_coords_payload(coords_payload_out, base_img.size)
         else:
-            corners = _detect_corners_from_alpha(base_abs, size=base_img.size)
-            if not corners:
-                w, h = base_img.size
-                corners = [
-                    {"x": 0, "y": 0},
-                    {"x": int(w), "y": 0},
-                    {"x": 0, "y": int(h)},
-                    {"x": int(w), "y": int(h)},
-                ]
-            coords_payload = {
-                "template": f"{slug_clean}.png",
-                "corners": corners,
-            }
+            zones_normalized = _scan_transparent_zones_normalized(base_abs)
+            zones = _normalized_zones_to_pixel_zones(zones_normalized or [], size=base_img.size)
+            if zones:
+                coords_payload_out = {
+                    "template": f"{slug_clean}.png",
+                    "zones": zones,
+                }
+            else:
+                corners = _detect_corners_from_alpha(base_abs, size=base_img.size)
+                if not corners:
+                    w, h = base_img.size
+                    corners = [
+                        {"x": 0, "y": 0},
+                        {"x": int(w), "y": 0},
+                        {"x": 0, "y": int(h)},
+                        {"x": int(w), "y": int(h)},
+                    ]
+                coords_payload_out = {
+                    "template": f"{slug_clean}.png",
+                    "corners": corners,
+                }
 
-        coords_payload = _clamp_coords_payload(coords_payload, size=base_img.size)
-        coords_payload, coordinate_type = _normalize_coords_payload_v2(coords_payload, template=f"{slug_clean}.png")
-        coords_payload = _clamp_coords_payload(coords_payload, size=base_img.size)
-        placements = validate_coords_payload(coords_payload, base_img.size)
+            coords_payload_out = _clamp_coords_payload(coords_payload_out, size=base_img.size)
+            coords_payload_out, coordinate_type = _normalize_coords_payload_v2(
+                coords_payload_out,
+                template=f"{slug_clean}.png",
+            )
+            coords_payload_out = _clamp_coords_payload(coords_payload_out, size=base_img.size)
+            placements = validate_coords_payload(coords_payload_out, base_img.size)
+
         ensure_dir(coords_abs.parent)
-        write_json_atomic(coords_abs, coords_payload)
+        write_json_atomic(coords_abs, coords_payload_out)
 
         now = _now_iso()
         base_entry = {

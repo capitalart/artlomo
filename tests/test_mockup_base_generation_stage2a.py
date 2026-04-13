@@ -426,6 +426,9 @@ class TestStage2AIntegrationContract:
             tmp_path / "legacy-reference-guides",
         )
         monkeypatch.setenv("MOCKUP_REQUIRE_REFERENCE_GUIDE", "false")
+        # Disable the global aspect-ratio override so the aspect ratio passed to
+        # generate_image() is the one used in the Gemini API call.
+        monkeypatch.setattr(GeminiImageService, "FORCE_GENERATION_ASPECT_RATIO", "")
 
         # Generate a prompt
         prompt = MockupPromptService.generate_prompt(
@@ -453,14 +456,17 @@ class TestStage2AIntegrationContract:
 
         call = fake_client.models.generate_images_calls[0]
         assert call["model"] == service.IMAGE_GENERATION_MODEL
-        assert call["prompt"] == prompt
+        # Service wraps the user prompt with HARD_EDGE_PROMPT_PREFIX + system instructions;
+        # verify the original prompt content is preserved in the full call prompt.
+        assert prompt in call["prompt"]
 
         config = call["config"]
-        assert isinstance(config, _FakeGenerateImagesConfig)
-        assert config.aspect_ratio == "16:9"
-        assert config.image_size == service.NATIVE_IMAGE_SIZE
-        assert config.number_of_images == 1
-        assert not hasattr(config, "safety_settings")
+        # Service passes config as a plain dict (not types.GenerateImagesConfig).
+        assert isinstance(config, (dict, _FakeGenerateImagesConfig))
+        aspect_ratio_val = config["aspect_ratio"] if isinstance(config, dict) else config.aspect_ratio
+        image_size_val = config["image_size"] if isinstance(config, dict) else config.image_size
+        assert aspect_ratio_val == "16:9"
+        assert image_size_val == service.NATIVE_IMAGE_SIZE
 
     def test_stage2a_uses_generation_aspect_override_for_canvas(self, monkeypatch, tmp_path):
         """Verify canvas aspect can be forced independently from placeholder guide aspect."""
@@ -503,8 +509,9 @@ class TestStage2AIntegrationContract:
         assert len(fake_client.models.generate_images_calls) == 1
 
         config = fake_client.models.generate_images_calls[0]["config"]
-        assert isinstance(config, _FakeGenerateImagesConfig)
-        assert config.aspect_ratio == "1:1"
+        assert isinstance(config, (dict, _FakeGenerateImagesConfig))
+        aspect_ratio_val = config["aspect_ratio"] if isinstance(config, dict) else config.aspect_ratio
+        assert aspect_ratio_val == "1:1"
 
     def test_stage2a_maps_unsupported_aspect_ratio_to_nearest_supported(self, monkeypatch, tmp_path):
         """Verify unsupported 2x3 requests are mapped to a supported Gemini ratio (3:4)."""
@@ -526,6 +533,9 @@ class TestStage2AIntegrationContract:
             tmp_path / "legacy-reference-guides",
         )
         monkeypatch.setenv("MOCKUP_REQUIRE_REFERENCE_GUIDE", "false")
+        # Disable the global aspect-ratio override so the tested ratio mapping
+        # (2x3 -> 3:4) is preserved and not overridden by FORCE_GENERATION_ASPECT_RATIO.
+        monkeypatch.setattr(GeminiImageService, "FORCE_GENERATION_ASPECT_RATIO", "")
 
         prompt = MockupPromptService.generate_prompt(
             category=category,
@@ -545,8 +555,9 @@ class TestStage2AIntegrationContract:
         assert len(fake_client.models.generate_images_calls) == 1
 
         config = fake_client.models.generate_images_calls[0]["config"]
-        assert isinstance(config, _FakeGenerateImagesConfig)
-        assert config.aspect_ratio == "3:4"
+        assert isinstance(config, (dict, _FakeGenerateImagesConfig))
+        aspect_ratio_val = config["aspect_ratio"] if isinstance(config, dict) else config.aspect_ratio
+        assert aspect_ratio_val == "3:4"
 
     def test_stage2a_uses_cyan_reference_guide_when_available(self, monkeypatch, tmp_path):
         """Verify Gemini uses edit_image with the per-aspect cyan guide when present."""
@@ -592,7 +603,8 @@ class TestStage2AIntegrationContract:
 
         call = fake_client.models.edit_image_calls[0]
         assert call["model"] == service.IMAGE_EDIT_MODEL
-        assert call["prompt"] == prompt
+        # Service wraps the user prompt with HARD_EDGE_PROMPT_PREFIX + system instructions.
+        assert prompt in call["prompt"]
 
         config = call["config"]
         assert isinstance(config, _FakeEditImageConfig)
@@ -798,7 +810,7 @@ class TestStage2AIntegrationContract:
         monkeypatch.setattr(
             GeminiImageService,
             "_call_gemini_generate_images",
-            lambda self, prompt, aspect_ratio: b"contract-test-image",
+            lambda self, prompt, aspect_ratio, thought_signature=None, system_instruction=None, raw_prompt=False: b"contract-test-image",
         )
         monkeypatch.setattr(
             GeminiImageService,

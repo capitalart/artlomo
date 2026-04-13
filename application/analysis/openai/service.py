@@ -1235,7 +1235,7 @@ def run_openai_analysis_for_slug(
         "Digital Download",
         "High-Res JPG",
         "300 DPI",
-        "14400px File",
+        "7200-14400px File",
         "Museum Quality Digital",
         "Instant Download",
         "Printable Art",
