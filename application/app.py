@@ -247,6 +247,15 @@ def create_app(config_obj: AppConfig | None = None) -> Flask:
         }
 
     @app.context_processor
+    def inject_cross_app_links():
+        raw_url = str(os.getenv("DREAMARTMACHINE_BASE_URL", "http://127.0.0.1:8070") or "").strip()
+        if not raw_url:
+            raw_url = "http://127.0.0.1:8070"
+        return {
+            "dreamartmachine_url": raw_url.rstrip("/") + "/studio",
+        }
+
+    @app.context_processor
     def inject_artist_profile():  # pragma: no cover - template convenience
         profile: dict = {}
         try:

@@ -29,8 +29,8 @@ html[data-theme="dark"] {
 
 /* Backdrop with enhanced blur effect */
 .modal-sheet[data-carousel-modal] {
-  backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
 }
 
 /* Remove container borders and background boxiness */
