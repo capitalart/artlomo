@@ -1386,6 +1386,7 @@
   };
 
   let saveSettingsTimer = null;
+  let saveStatus = null;
   const scheduleSaveSettings = () => {
     if (!settingsUrl) return;
     if (saveSettingsTimer) clearTimeout(saveSettingsTimer);
@@ -1395,7 +1396,7 @@
       });
     }, 600);
     // Show "unsaved changes" indicator
-    saveStatus.style.display = 'none';
+    if (saveStatus) saveStatus.style.display = 'none';
   };
 
   const deleteVideo = async (ignore404) => {
@@ -1654,7 +1655,7 @@
   saveButton.textContent = '💾 Save Settings';
   saveButton.title = 'Save all video suite settings';
   
-  const saveStatus = document.createElement('span');
+  saveStatus = document.createElement('span');
   saveStatus.style.cssText = 'display: none; color: #28a745; font-size: 12px; margin-left: 8px;';
   saveStatus.textContent = '✓ Saved';
   

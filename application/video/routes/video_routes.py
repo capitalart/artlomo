@@ -30,6 +30,13 @@ ARTWORK_ZOOM_DURATION_DEFAULT = 3.0
 SLOT_RE = re.compile(r"^mu-(?P<slug>[a-z0-9-]+)-(?P<slot>\d{2})\.jpg$", re.IGNORECASE)
 
 
+def _logs_dir(config_map) -> Path:
+    configured = config_map.get("LOGS_DIR") if hasattr(config_map, "get") else None
+    if configured:
+        return Path(configured)
+    return Path(app_config.LOGS_DIR)
+
+
 def _read_json_silent(path: Path) -> dict:
     if not path.exists() or not path.is_file():
         return {}
@@ -487,7 +494,7 @@ def video_workspace(slug: str):
     storyboard_entries = _storyboard_entries(slug_clean, processed_dir, list(video_settings.get("selected_mockups") or []))
     storyboard_categories = _storyboard_category_options()
 
-    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))
+    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=_logs_dir(cfg))
     video_path = svc._get_video_output_path(slug_clean)
     has_video = video_path.exists() and video_path.is_file() and video_path.stat().st_size > 0
 

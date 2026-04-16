@@ -14,6 +14,7 @@ from PIL import Image
 from application.artwork.errors import ArtworkProcessingError, IndexValidationError, RequiredAssetMissingError
 from application.artwork.services.processing_service import ProcessingService
 from application.artwork.services.admin_export_service import AdminExportService, AdminExportError
+from application import config as app_config
 from application.utils.artwork_db import sync_artwork_to_db, update_artwork_status, delete_artwork_from_db
 from application.utils.logger_utils import log_security_event
 from application.common.utilities import slug_sku
@@ -30,6 +31,13 @@ VIDEO_ZOOM_DEFAULT = 1.1
 VIDEO_PANNING_DEFAULT = True
 VIDEO_DURATION_DEFAULT = 15
 ARTWORK_ZOOM_DURATION_DEFAULT = 3.0
+
+
+def _logs_dir() -> Path:
+    configured = current_app.config.get("LOGS_DIR")
+    if configured:
+        return Path(configured)
+    return Path(app_config.LOGS_DIR)
 
 
 def _processing_service() -> ProcessingService:
@@ -1194,7 +1202,7 @@ def _video_generate_worker(app_obj, slug: str) -> None:
 
         try:
             _write_video_status(status="processing", percent=5, stage="initializing", message="Starting render")
-            svc = VideoService(processed_root=processed_root, logs_dir=Path(cfg["LOGS_DIR"]))
+            svc = VideoService(processed_root=processed_root, logs_dir=_logs_dir())
             ok = svc.generate_kinematic_video(slug)
             if ok:
                 _write_video_status(status="success", percent=100, stage="complete", message="Video generation complete")
@@ -1294,7 +1302,7 @@ def video_view(slug: str):
 
     cfg = current_app.config
     processed_dir = Path(cfg["LAB_PROCESSED_DIR"]) / slug
-    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))._get_video_output_path(slug)
+    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=_logs_dir())._get_video_output_path(slug)
 
     if not slug_sku.is_safe_slug(str(slug or "").strip()):
         abort(404)
@@ -1330,7 +1338,7 @@ def video_delete(slug: str):
     if not processed_dir.exists() or not processed_dir.is_dir():
         return {"status": "error", "message": "Artwork not found"}, 404
 
-    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))
+    svc = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=_logs_dir())
     video_path = svc._get_video_output_path(slug_clean)
     if not video_path.exists() or not video_path.is_file():
         return {"status": "error", "message": "Video not found"}, 404
@@ -1378,7 +1386,7 @@ def video_status(slug: str):
                 "message": "Invalid status payload",
             }
 
-    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=Path(cfg["LOGS_DIR"]))._get_video_output_path(slug)
+    video_path = VideoService(processed_root=Path(cfg["LAB_PROCESSED_DIR"]), logs_dir=_logs_dir())._get_video_output_path(slug)
     payload["has_video"] = video_path.exists() and video_path.stat().st_size > 0 if video_path.exists() else False
     payload["video_url"] = url_for("artwork.video_view", slug=slug) if payload["has_video"] else None
     payload["slug"] = slug
