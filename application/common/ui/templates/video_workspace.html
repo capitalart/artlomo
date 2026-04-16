@@ -10,6 +10,8 @@
   data-delete-url="{{ delete_url }}"
   data-settings-url="{{ settings_url }}"
   data-video-suite-json='{{ video_settings | tojson }}'
+  data-video-mockup-order='{{ video_settings.get("video_mockup_order", []) | tojson }}'
+  data-video-mockup-shots='{{ video_settings.get("video_mockup_shots", []) | tojson }}'
   data-auto-mockup-ids='{{ auto_mockup_ids | tojson }}'>
   <header class="suite-header">
     <div>
