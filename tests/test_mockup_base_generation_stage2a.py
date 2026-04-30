@@ -458,7 +458,7 @@ class TestStage2AIntegrationContract:
         assert call["model"] == service.IMAGE_GENERATION_MODEL
         # Service wraps the user prompt with HARD_EDGE_PROMPT_PREFIX + system instructions;
         # verify the original prompt content is preserved in the full call prompt.
-        assert prompt in call["prompt"]
+        assert prompt in str(call["prompt"])
 
         config = call["config"]
         # Service passes config as a plain dict (not types.GenerateImagesConfig).
@@ -604,7 +604,7 @@ class TestStage2AIntegrationContract:
         call = fake_client.models.edit_image_calls[0]
         assert call["model"] == service.IMAGE_EDIT_MODEL
         # Service wraps the user prompt with HARD_EDGE_PROMPT_PREFIX + system instructions.
-        assert prompt in call["prompt"]
+        assert prompt in str(call["prompt"])
 
         config = call["config"]
         assert isinstance(config, _FakeEditImageConfig)

@@ -10,7 +10,7 @@ hub_bp = Blueprint(
     __name__,
     template_folder=str(Path(__file__).resolve().parents[1] / "aui" / "templates"),
     static_folder=str(Path(__file__).resolve().parents[1] / "aui" / "static"),
-    static_url_path="/admin/hub/static",
+    static_url_path="/static",
 )
 
 

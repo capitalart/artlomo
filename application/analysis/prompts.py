@@ -92,20 +92,28 @@ def _load_master_analysis_prompt() -> str:
     Tries v4 first (production), falls back to v2.5 for legacy compatibility.
     """
     # Try v4 first (latest with full quality requirements)
-    prompt_path_v4 = Path(__file__).parent / "instructions" / "master-analysis-prompt-v4.md"
-    try:
-        if prompt_path_v4.exists():
-            return prompt_path_v4.read_text(encoding="utf-8")
-    except Exception:
-        pass
+    prompt_paths_v4 = [
+        Path(__file__).parent / "instructions" / "master-analysis-prompt-v4-CLEAN.md",
+        Path(__file__).parent / "instructions" / "master-analysis-prompt-v4.md",
+    ]
+    for prompt_path_v4 in prompt_paths_v4:
+        try:
+            if prompt_path_v4.exists():
+                return prompt_path_v4.read_text(encoding="utf-8")
+        except Exception:
+            continue
     
     # Fallback to v2.5
-    prompt_path = Path(__file__).parent / "instructions" / "master-analysis-prompt.md"
-    try:
-        if prompt_path.exists():
-            return prompt_path.read_text(encoding="utf-8")
-    except Exception:
-        pass
+    prompt_paths_v25 = [
+        Path(__file__).parent / "instructions" / "master-analysis-prompt-CLEAN.md",
+        Path(__file__).parent / "instructions" / "master-analysis-prompt.md",
+    ]
+    for prompt_path in prompt_paths_v25:
+        try:
+            if prompt_path.exists():
+                return prompt_path.read_text(encoding="utf-8")
+        except Exception:
+            continue
     
     # Fallback to hardcoded prompt if neither file found
     return ""
@@ -248,11 +256,27 @@ def _read_text_silent(path: Path) -> str:
 
 
 def _merchant_mode_instructions() -> str:
-    return _read_text_silent(_instructions_root() / "MASTER_ETSY_DESCRIPTION_ENGINE.md").strip()
+    paths = [
+        _instructions_root() / "MASTER_ETSY_DESCRIPTION_ENGINE-CLEAN.md",
+        _instructions_root() / "MASTER_ETSY_DESCRIPTION_ENGINE.md",
+    ]
+    for path in paths:
+        content = _read_text_silent(path).strip()
+        if content:
+            return content
+    return ""
 
 
 def _merchant_mode_example() -> str:
-    return _read_text_silent(_instructions_root() / "MASTER-ARTWORK-ANALYSIS-LISTING-DESCRIPTION-EXAMPLE.md").strip()
+    paths = [
+        _instructions_root() / "MASTER-ARTWORK-ANALYSIS-LISTING-DESCRIPTION-EXAMPLE-CLEAN.md",
+        _instructions_root() / "MASTER-ARTWORK-ANALYSIS-LISTING-DESCRIPTION-EXAMPLE.md",
+    ]
+    for path in paths:
+        content = _read_text_silent(path).strip()
+        if content:
+            return content
+    return ""
 
 
 def _profile_path() -> Path:

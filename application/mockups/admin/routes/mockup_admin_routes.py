@@ -230,8 +230,8 @@ def _coerce_dam_points_to_zones(payload: dict) -> dict:
         if not isinstance(point, dict):
             return payload
         try:
-            x_val = float(point.get("x"))
-            y_val = float(point.get("y"))
+            x_val = float(point.get("x") or 0)
+            y_val = float(point.get("y") or 0)
         except (TypeError, ValueError):
             return payload
         normalized_points.append({"x": x_val, "y": y_val})

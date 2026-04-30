@@ -24,7 +24,6 @@ utility_bp = Blueprint(
     "utility",
     __name__,
     template_folder="../ui/templates",
-    static_folder="../ui/static",
 )
 
 

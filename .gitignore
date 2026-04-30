@@ -11,11 +11,14 @@ __pycache__/
 
 # Logs (keep directories, ignore log files)
 logs/*.log
+logs/security_audit_report.md
 
 # Environment & Configuration
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 config/*.secret.*
 secrets/
 *.key
@@ -42,6 +45,12 @@ application/lab/
 application/mockups/mockup-templates/
 application/tools/app-stacks/stacks/
 application/tools/app-stacks/backups/
+
+# Mockup catalog binary assets (2.4 GB+ of PNGs — too large for git)
+application/mockups/catalog/assets/
+
+# User-uploaded content (runtime data, not source)
+application/common/ui/static/uploads/
 
 # Node modules (development dependencies)
 node_modules/

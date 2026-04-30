@@ -114,6 +114,15 @@ def create_app(config_obj: AppConfig | None = None) -> Flask:
 
     environment = (os.getenv("ENVIRONMENT") or str(app.config.get("ENVIRONMENT") or "")).strip().lower() or "dev"
     session_cookie_secure = environment == "prod"
+
+    # Guard: warn loudly if running production with a weak/default secret key
+    _secret = os.getenv("FLASK_SECRET_KEY") or os.getenv("SECRET_KEY") or ""
+    if environment == "prod" and (not _secret or _secret in {"dev-secret", "secret", "changeme", ""}):
+        startup_logger.warning(
+            "[STARTUP] SECURITY WARNING: FLASK_SECRET_KEY is weak or unset in production. "
+            "Sessions are not secure. Set FLASK_SECRET_KEY to a strong random value."
+        )
+
     app.config.update(
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
