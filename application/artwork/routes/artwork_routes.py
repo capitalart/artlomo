@@ -126,6 +126,22 @@ def _resolve_artwork_dir(slug: str) -> Path | None:
 def _normalize_video_settings(raw: dict[str, Any] | None) -> dict[str, Any]:
     payload = raw if isinstance(raw, dict) else {}
 
+    ffmpeg_profile_raw = str(payload.get("video_ffmpeg_profile", "default") or "default").strip().lower()
+    if ffmpeg_profile_raw not in {"default", "ffmpeg5", "ffmpeg8"}:
+        ffmpeg_profile_raw = "default"
+
+    compositor_raw = str(payload.get("video_compositor", "auto") or "auto").strip().lower()
+    if compositor_raw not in {"auto", "xfade", "fade_concat", "concat"}:
+        compositor_raw = "auto"
+
+    timing_mode_raw = str(payload.get("video_timing_mode", "frame_quantized") or "frame_quantized").strip().lower()
+    if timing_mode_raw not in {"frame_quantized", "time_continuous"}:
+        timing_mode_raw = "frame_quantized"
+
+    motion_profile_raw = str(payload.get("video_motion_profile", "distance_normalized") or "distance_normalized").strip().lower()
+    if motion_profile_raw not in {"legacy", "distance_normalized"}:
+        motion_profile_raw = "distance_normalized"
+
     zoom_raw = payload.get("video_zoom_intensity", VIDEO_ZOOM_DEFAULT)
     try:
         zoom = float(zoom_raw)
@@ -308,12 +324,20 @@ def _normalize_video_settings(raw: dict[str, Any] | None) -> dict[str, Any]:
             "size": int(video_output_size),
             "encoder_preset": preset_raw,
             "artwork_source": source_raw,
+            "ffmpeg_profile": ffmpeg_profile_raw,
+            "compositor": compositor_raw,
+            "timing_mode": timing_mode_raw,
+            "motion_profile": motion_profile_raw,
         },
         "video_mockup_order": video_mockup_order,
         "video_mockup_shots": video_mockup_shots,
         "video_mockup_timings": video_mockup_timings,
         # Keep top-level for backward compatibility
         "selected_mockups": selected_mockups,
+        "video_ffmpeg_profile": ffmpeg_profile_raw,
+        "video_compositor": compositor_raw,
+        "video_timing_mode": timing_mode_raw,
+        "video_motion_profile": motion_profile_raw,
     }
 
 

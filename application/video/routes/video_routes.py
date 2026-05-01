@@ -141,6 +141,22 @@ def _normalize_mockup_shots(raw) -> list:
 def _normalize_video_settings(raw: dict | None) -> dict:
     payload = raw if isinstance(raw, dict) else {}
 
+    ffmpeg_profile_raw = str(payload.get("video_ffmpeg_profile", "default") or "default").strip().lower()
+    if ffmpeg_profile_raw not in {"default", "ffmpeg5", "ffmpeg8"}:
+        ffmpeg_profile_raw = "default"
+
+    compositor_raw = str(payload.get("video_compositor", "auto") or "auto").strip().lower()
+    if compositor_raw not in {"auto", "xfade", "fade_concat", "concat"}:
+        compositor_raw = "auto"
+
+    timing_mode_raw = str(payload.get("video_timing_mode", "frame_quantized") or "frame_quantized").strip().lower()
+    if timing_mode_raw not in {"frame_quantized", "time_continuous"}:
+        timing_mode_raw = "frame_quantized"
+
+    motion_profile_raw = str(payload.get("video_motion_profile", "distance_normalized") or "distance_normalized").strip().lower()
+    if motion_profile_raw not in {"legacy", "distance_normalized"}:
+        motion_profile_raw = "distance_normalized"
+
     # Duration (only 10, 15, 20 allowed)
     duration_raw = payload.get("video_duration", VIDEO_DURATION_DEFAULT)
     try:
@@ -182,7 +198,7 @@ def _normalize_video_settings(raw: dict | None) -> dict:
         artwork_pan_enabled = bool(artwork_pan_raw)
 
     artwork_pan_direction = str(payload.get("artwork_pan_direction", "up") or "up").strip().lower()
-    if artwork_pan_direction not in {"up", "down", "left", "right"}:
+    if artwork_pan_direction not in {"center", "top-left", "top-right", "bottom-right", "bottom-left", "up", "down", "left", "right"}:
         artwork_pan_direction = "up"
 
     # Mockup settings
@@ -306,6 +322,10 @@ def _normalize_video_settings(raw: dict | None) -> dict:
         "video_output_size": int(video_output_size),
         "video_encoder_preset": preset_raw,
         "video_artwork_source": source_raw,
+        "video_ffmpeg_profile": ffmpeg_profile_raw,
+        "video_compositor": compositor_raw,
+        "video_timing_mode": timing_mode_raw,
+        "video_motion_profile": motion_profile_raw,
         "artwork_zoom_intensity": round(artwork_zoom_intensity, 2),
         "artwork_pan_enabled": bool(artwork_pan_enabled),
         "artwork_pan_direction": artwork_pan_direction,
@@ -407,7 +427,19 @@ def _flatten_nested_suite(suite: dict) -> dict:
     flat = {}
     
     # Copy top-level keys
-    for key in ["duration_seconds", "video_duration", "main_artwork_seconds", "video_mockup_order", "video_mockup_shots", "video_mockup_timings", "selected_mockups"]:
+    for key in [
+        "duration_seconds",
+        "video_duration",
+        "main_artwork_seconds",
+        "video_mockup_order",
+        "video_mockup_shots",
+        "video_mockup_timings",
+        "selected_mockups",
+        "video_ffmpeg_profile",
+        "video_compositor",
+        "video_timing_mode",
+        "video_motion_profile",
+    ]:
         if key in suite:
             if key == "duration_seconds":
                 flat["video_duration"] = suite[key]
@@ -451,7 +483,24 @@ def _flatten_nested_suite(suite: dict) -> dict:
             flat["video_encoder_preset"] = output["encoder_preset"]
         if "artwork_source" in output:
             flat["video_artwork_source"] = output["artwork_source"]
-    
+        if "ffmpeg_profile" in output:
+            flat["video_ffmpeg_profile"] = output["ffmpeg_profile"]
+        if "compositor" in output:
+            flat["video_compositor"] = output["compositor"]
+        if "timing_mode" in output:
+            flat["video_timing_mode"] = output["timing_mode"]
+        if "motion_profile" in output:
+            flat["video_motion_profile"] = output["motion_profile"]
+
+    render = suite.get("render", {})
+    if isinstance(render, dict):
+        if "compositor" in render:
+            flat["video_compositor"] = render["compositor"]
+        if "timing_mode" in render:
+            flat["video_timing_mode"] = render["timing_mode"]
+        if "motion_profile" in render:
+            flat["video_motion_profile"] = render["motion_profile"]
+
     return flat
 
 

@@ -23,11 +23,27 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
 
+from application.config import ARTLOMO_FFMPEG_BIN, ARTLOMO_FFPROBE_BIN
+
 logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 APPLICATION_ROOT = PROJECT_ROOT / "application"
 NODE_BIN_DIR = PROJECT_ROOT / "node_modules" / ".bin"
 VIDEO_WORKER_DIR = Path(__file__).resolve().parents[2] / "video_worker"
+BIN_OVERRIDES = {
+    "ffmpeg": ARTLOMO_FFMPEG_BIN,
+    "ffprobe": ARTLOMO_FFPROBE_BIN,
+}
+RENDER_BINARY_PROFILES = {
+    "ffmpeg5": {
+        "ffmpeg": "/usr/local/opt/ffmpeg@5/bin/ffmpeg",
+        "ffprobe": "/usr/local/opt/ffmpeg@5/bin/ffprobe",
+    },
+    "ffmpeg8": {
+        "ffmpeg": "/usr/local/bin/ffmpeg",
+        "ffprobe": "/usr/local/bin/ffprobe",
+    },
+}
 
 # Video configuration (per .clinerules)
 VIDEO_OUTPUT_SIZE = (1024, 1024)
@@ -63,6 +79,25 @@ class VideoService:
     def _get_artwork_dir(self, slug: str) -> Path:
         """Get the processed artwork directory for a slug."""
         return self.processed_root / slug
+
+    def _normalize_ffmpeg_profile(self, value: object) -> str:
+        profile = str(value or "default").strip().lower()
+        return profile if profile in {"default", *RENDER_BINARY_PROFILES.keys()} else "default"
+
+    def _resolve_render_binary_path(self, name: str, ffmpeg_profile: str = "default") -> Optional[str]:
+        binary = str(name or "").strip()
+        if not binary:
+            return None
+
+        profile = self._normalize_ffmpeg_profile(ffmpeg_profile)
+        if profile != "default":
+            profile_path = Path(RENDER_BINARY_PROFILES.get(profile, {}).get(binary, "")).expanduser()
+            if profile_path.exists() and profile_path.is_file() and os.access(profile_path, os.X_OK):
+                return str(profile_path)
+            logger.error("Configured render profile %s is not executable for %s: %s", profile, binary, profile_path)
+            return None
+
+        return self._resolve_binary_path(binary)
 
     def _compute_mockup_durations(
         self,
@@ -627,6 +662,34 @@ class VideoService:
         if source_raw not in {"auto", "closeup_proxy", "master"}:
             source_raw = "auto"
 
+        compositor_raw = str(
+            output_settings.get("compositor")
+            or suite.get("video_compositor", "auto")
+            or "auto"
+        ).strip().lower()
+        if compositor_raw not in {"auto", "xfade", "fade_concat", "concat"}:
+            compositor_raw = "auto"
+
+        timing_mode_raw = str(
+            output_settings.get("timing_mode")
+            or suite.get("video_timing_mode", "frame_quantized")
+            or "frame_quantized"
+        ).strip().lower()
+        if timing_mode_raw not in {"frame_quantized", "time_continuous"}:
+            timing_mode_raw = "frame_quantized"
+
+        motion_profile_raw = str(
+            output_settings.get("motion_profile")
+            or suite.get("video_motion_profile", "distance_normalized")
+            or "distance_normalized"
+        ).strip().lower()
+        if motion_profile_raw not in {"legacy", "distance_normalized"}:
+            motion_profile_raw = "distance_normalized"
+
+        ffmpeg_profile = self._normalize_ffmpeg_profile(
+            output_settings.get("ffmpeg_profile") or suite.get("video_ffmpeg_profile", "default") or "default"
+        )
+
         order_raw = suite.get("video_mockup_order")
         video_mockup_order: list[str] = []
         if isinstance(order_raw, list):
@@ -690,6 +753,9 @@ class VideoService:
             "video_output_size": int(video_output_size),
             "video_encoder_preset": preset_raw,
             "video_artwork_source": source_raw,
+            "video_compositor": compositor_raw,
+            "video_timing_mode": timing_mode_raw,
+            "video_motion_profile": motion_profile_raw,
             "artwork": {
                 "zoom_intensity": round(artwork_zoom_intensity, 2),
                 "zoom_duration": float(artwork_zoom_duration),
@@ -708,7 +774,12 @@ class VideoService:
                 "size": int(video_output_size),
                 "encoder_preset": preset_raw,
                 "artwork_source": source_raw,
+                "ffmpeg_profile": ffmpeg_profile,
+                "compositor": compositor_raw,
+                "timing_mode": timing_mode_raw,
+                "motion_profile": motion_profile_raw,
             },
+            "video_ffmpeg_profile": ffmpeg_profile,
         }
 
     def _load_mockup_coordinates(self, slug: str, mockup_id: str) -> Optional[dict]:
@@ -1202,11 +1273,36 @@ class VideoService:
             logger.error("%s", self.last_error)
             return False
 
-        ffmpeg_bin = self._resolve_binary_path("ffmpeg")
+        ffmpeg_profile = self._normalize_ffmpeg_profile(
+            (cinematic_settings.get("output") or {}).get("ffmpeg_profile")
+            or cinematic_settings.get("video_ffmpeg_profile")
+            or "default"
+        )
+
+        ffmpeg_bin = self._resolve_render_binary_path("ffmpeg", ffmpeg_profile)
         if not ffmpeg_bin:
             self.last_error = f"FFmpeg runtime not found (tried PATH, /usr/bin, /usr/local/bin, and {NODE_BIN_DIR})"
             logger.error("%s", self.last_error)
             return False
+
+        ffmpeg_version_line = "unknown"
+        try:
+            version_proc = subprocess.run(
+                [str(ffmpeg_bin), "-hide_banner", "-version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+            version_text = (version_proc.stdout or version_proc.stderr or "").splitlines()
+            if version_text:
+                ffmpeg_version_line = version_text[0].strip()
+        except Exception as exc:
+            ffmpeg_version_line = f"unavailable ({exc})"
+
+        logger.info("[VIDEO] Requested ffmpeg profile: %s", ffmpeg_profile)
+        logger.info("[VIDEO] Resolved ffmpeg path: %s", ffmpeg_bin)
+        logger.info("[VIDEO] Resolved ffmpeg version: %s", ffmpeg_version_line)
 
         output_size = int(cinematic_settings.get("video_output_size") or VIDEO_OUTPUT_SIZE[0])
         fps = int(cinematic_settings.get("video_fps") or VIDEO_FRAMERATE)
@@ -1322,6 +1418,27 @@ class VideoService:
         artwork_settings = dict(cinematic_settings.get("artwork") or {})
         mockups_settings = dict(cinematic_settings.get("mockups") or {})
         output_settings = dict(cinematic_settings.get("output") or {})
+        compositor_mode = str(
+            output_settings.get("compositor")
+            or cinematic_settings.get("video_compositor")
+            or "auto"
+        ).strip().lower()
+        if compositor_mode not in {"auto", "xfade", "fade_concat", "concat"}:
+            compositor_mode = "auto"
+        timing_mode = str(
+            output_settings.get("timing_mode")
+            or cinematic_settings.get("video_timing_mode")
+            or "frame_quantized"
+        ).strip().lower()
+        if timing_mode not in {"frame_quantized", "time_continuous"}:
+            timing_mode = "frame_quantized"
+        motion_profile = str(
+            output_settings.get("motion_profile")
+            or cinematic_settings.get("video_motion_profile")
+            or "distance_normalized"
+        ).strip().lower()
+        if motion_profile not in {"legacy", "distance_normalized"}:
+            motion_profile = "distance_normalized"
         
         # DEBUG: Log what settings were extracted
         logger.info("[VIDEO] Cinematic settings structure:")
@@ -1384,6 +1501,9 @@ class VideoService:
                 "output_size": int(output_size),
                 "encoder_preset": encoder_preset,
                 "artwork_source": artwork_source,
+                "compositor": compositor_mode,
+                "timing_mode": timing_mode,
+                "motion_profile": motion_profile,
                 "mockup_shots": mockup_shots,
                 "mockup_timings": locked_mockup_timings,
                 "computed_mockup_durations": computed_mockup_durations,
@@ -1393,6 +1513,9 @@ class VideoService:
                 "output": output_settings,
             },
         }
+
+        logger.info("[VIDEO] Worker payload ffmpeg_bin: %s", payload.get("ffmpeg_bin"))
+        logger.info("[VIDEO] Worker payload output_path: %s", payload.get("output_path"))
 
         render_status_path = Path(payload["render_status_path"])
         render_status_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1454,6 +1577,14 @@ class VideoService:
         """Resolve executable path in restricted service PATH environments."""
         binary = str(name or "").strip()
         if not binary:
+            return None
+
+        override = str(BIN_OVERRIDES.get(binary, "") or "").strip()
+        if override:
+            override_path = Path(override).expanduser()
+            if override_path.exists() and override_path.is_file() and os.access(override_path, os.X_OK):
+                return str(override_path)
+            logger.error("Configured %s override is not executable: %s", binary, override_path)
             return None
 
         resolved = shutil.which(binary)

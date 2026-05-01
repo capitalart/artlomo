@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
@@ -13,18 +14,34 @@ def ensure_dir(path: Path) -> None:
 
 def write_bytes_atomic(path: Path, data: bytes) -> None:
     ensure_dir(path.parent)
-    tmp_path = path.with_suffix(path.suffix + ".tmp")
-    with open(tmp_path, "wb") as tmp:
-        tmp.write(data)
-    os.replace(tmp_path, path)
+    fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    tmp_path = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "wb") as tmp:
+            tmp.write(data)
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
 
 
 def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
     ensure_dir(path.parent)
-    tmp_path = path.with_suffix(path.suffix + ".tmp")
-    with open(tmp_path, "w", encoding="utf-8") as tmp:
-        safe_json_dump(payload, tmp, indent=2, sort_keys=True)
-    os.replace(tmp_path, path)
+    fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    tmp_path = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as tmp:
+            safe_json_dump(payload, tmp, indent=2, sort_keys=True)
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
 
 
 def file_hash(data: bytes) -> str:

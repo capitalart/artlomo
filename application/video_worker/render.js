@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
+const { spawnSync } = require("child_process");
 
 function clamp01(value) {
   const n = Number(value);
@@ -14,6 +15,46 @@ function clampRange(value, min, max, fallback) {
   const n = Number(value);
   if (!Number.isFinite(n)) return fallback;
   return Math.max(min, Math.min(max, n));
+}
+
+function finiteOr(value, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function summarizeFfmpegError(stderrText) {
+  const text = String(stderrText || "");
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!lines.length) return "ffmpeg failed with empty stderr";
+
+  const interesting = lines.filter((line) => {
+    const l = line.toLowerCase();
+    return (
+      l.includes("xfade") ||
+      l.includes("error") ||
+      l.includes("invalid") ||
+      l.includes("failed") ||
+      l.includes("constant frame rate") ||
+      l.includes("timebase") ||
+      l.includes("pix_fmt")
+    );
+  });
+
+  const xfadeFocused = interesting.filter((line) => {
+    const l = line.toLowerCase();
+    return (
+      l.includes("xfade") ||
+      l.includes("constant frame rate") ||
+      l.includes("failed to configure output pad") ||
+      l.includes("error reinitializing filters")
+    );
+  });
+
+  const source = xfadeFocused.length ? xfadeFocused : (interesting.length ? interesting : lines);
+  return source.slice(-3).join(" | ").slice(0, 1200);
 }
 
 /**
@@ -68,6 +109,7 @@ function computeCoverTransform(imgW, imgH, outW, outH, zoomScale = 1.0, panX01 =
 }
 
 const SUBPIXEL_OVERSCAN_FACTOR = 1.002;
+const INTERNAL_MOTION_CANVAS_SCALE = 2;
 
 function parsePayload(rawArg) {
   if (!rawArg || typeof rawArg !== "string") {
@@ -333,12 +375,14 @@ function resolveFinalDirection({
   return aimWeight > 0.5 ? aimDirection : manualDirection;
 }
 
-function buildPanExpressions(targetX, targetY, direction, frames, clampTarget) {
+function buildPanExpressions(targetX, targetY, direction, frames, clampTarget, options = {}) {
   const rawX = clamp01(targetX);
   const rawY = clamp01(targetY);
   const edgeBuffer = clampTarget ? 0.2 : 0;
   const tx = clamp01(Math.min(1 - edgeBuffer, Math.max(edgeBuffer, rawX)));
   const ty = clamp01(Math.min(1 - edgeBuffer, Math.max(edgeBuffer, rawY)));
+  const motionProfile = String(options.motionProfile || "legacy").trim().toLowerCase();
+  const maxTravelNorm = clampRange(options.maxTravelNorm, 0.05, 0.5, 0.18);
   const denom = Math.max(1, Number(frames || 1) - 1);
   const linearProgress = `on/${denom}`;
   
@@ -353,8 +397,21 @@ function buildPanExpressions(targetX, targetY, direction, frames, clampTarget) {
   const rangeY = "(ih-ih/zoom)";
   
   // Target position within the available pan range
-  const targetXPos = `${tx.toFixed(6)}*${rangeX}`;
-  const targetYPos = `${ty.toFixed(6)}*${rangeY}`;
+  let aimTargetX = tx;
+  let aimTargetY = ty;
+  if (motionProfile === "distance_normalized") {
+    const dx = tx - 0.5;
+    const dy = ty - 0.5;
+    const dist = Math.sqrt((dx * dx) + (dy * dy));
+    if (dist > 1e-9) {
+      const scale = Math.min(1, maxTravelNorm / dist);
+      aimTargetX = clamp01(0.5 + (dx * scale));
+      aimTargetY = clamp01(0.5 + (dy * scale));
+    }
+  }
+
+  const targetXPos = `${aimTargetX.toFixed(6)}*${rangeX}`;
+  const targetYPos = `${aimTargetY.toFixed(6)}*${rangeY}`;
   const centerXPos = `0.5*${rangeX}`;
   const centerYPos = `0.5*${rangeY}`;
   const leftXPos = `0`;
@@ -395,7 +452,6 @@ function buildPanExpressions(targetX, targetY, direction, frames, clampTarget) {
       yExpr = `max(0,min(${rangeY},${topYPos}+(${bottomYPos}-${topYPos})*${progress}))`;
       break;
     case "up":
-      // Strong directional pan: move upward across available vertical range.
       xExpr = `max(0,min(${rangeX},${centerXPos}))`;
       yExpr = `max(0,min(${rangeY},${rangeY}*(1-${progress})))`;
       break;
@@ -507,16 +563,27 @@ function buildMasterExpressions(masterMode, frames, panDirection = null) {
   };
 }
 
-function buildFilter(slides, video, masterMode) {
+function buildFilter(slides, video, masterMode, compositorMode = "concat") {
   const outputSize = Number(video.output_size || video.width || 1024);
   const width = outputSize;
   const height = outputSize;
-  const fps = Number(video.fps || 24);
-  const crossfadeSeconds = Number(video.crossfade_seconds || 0.5);
+  const motionWidth = Math.max(width, Math.round(width * INTERNAL_MOTION_CANVAS_SCALE));
+  const motionHeight = Math.max(height, Math.round(height * INTERNAL_MOTION_CANVAS_SCALE));
+  const fps = clampRange(video.fps, 1, 120, 24);
+  const crossfadeSeconds = clampRange(video.crossfade_seconds, 0, 5, 0.5);
+  const crossfadeFrames = crossfadeSeconds > 0 ? Math.max(1, Math.round(crossfadeSeconds * fps)) : 0;
   const requestedDuration = Number(video.duration_seconds);
-  const mainArtworkSeconds = Number(video.main_artwork_seconds || 4.0);
+  const mainArtworkSeconds = clampRange(video.main_artwork_seconds, 0.5, 120, 4.0);
   const minSlideSeconds = Math.max(0.35, crossfadeSeconds + 0.15);
-  let slideSeconds = Number(video.slide_seconds || 2.5);
+  let slideSeconds = clampRange(video.slide_seconds, minSlideSeconds, 120, 2.5);
+  const motionProfile = ["legacy", "distance_normalized"].includes(String(video.motion_profile || "").trim().toLowerCase())
+    ? String(video.motion_profile || "legacy").trim().toLowerCase()
+    : "distance_normalized";
+  const timingMode = ["time_continuous", "frame_quantized"].includes(String(video.timing_mode || "").trim().toLowerCase())
+    ? String(video.timing_mode || "time_continuous").trim().toLowerCase()
+    : "frame_quantized";
+  const useFrameQuantizedTiming = timingMode === "frame_quantized";
+  const crossfadeUsed = useFrameQuantizedTiming ? (crossfadeFrames / fps) : crossfadeSeconds;
   const includeMasterSlide = slides.length > 0 && slides[0].role === "master";
   const remainingSlides = includeMasterSlide ? Math.max(0, slides.length - 1) : slides.length;
   
@@ -528,12 +595,17 @@ function buildFilter(slides, video, masterMode) {
   const legacyPanning = Boolean(video.panning_enabled);
   
   const artworkZoomIntensity = clampRange(artworkSettings.zoom_intensity || legacyZoom, 1.0, 2.25, 1.1);
-  const artworkZoomDuration = Number(artworkSettings.zoom_duration || video.artwork_zoom_duration || 3.0);
+  const artworkZoomDuration = clampRange(
+    finiteOr(artworkSettings.zoom_duration, finiteOr(video.artwork_zoom_duration, 3.0)),
+    0,
+    120,
+    3.0
+  );
   const artworkPanEnabled = artworkSettings.pan_enabled !== undefined ? Boolean(artworkSettings.pan_enabled) : legacyPanning;
   const artworkPanDirection = String(artworkSettings.pan_direction || "up");
   
   const mockupZoomIntensity = clampRange(mockupsSettings.zoom_intensity || legacyZoom, 1.0, 2.25, 1.1);
-  const mockupZoomDuration = Number(mockupsSettings.zoom_duration || 2.0);
+  const mockupZoomDuration = clampRange(mockupsSettings.zoom_duration, 0, 120, 2.0);
   const mockupPanEnabled = mockupsSettings.pan_enabled !== undefined ? Boolean(mockupsSettings.pan_enabled) : false;
   const mockupPanDirection = String(mockupsSettings.pan_direction || "up");
   
@@ -581,7 +653,10 @@ function buildFilter(slides, video, masterMode) {
       masterSeconds = clampRange(masterSeconds, minSlideSeconds, maxMaster, Math.max(mainArtworkSeconds, 3.0));
       if (remainingSlides > 0) {
         const remainingDuration = Math.max(minSlideSeconds, requestedDuration - masterSeconds);
-        mockupSeconds = (remainingDuration + (remainingSlides - 1) * crossfadeSeconds) / remainingSlides;
+          // xfade overlap is applied at every master/mockup boundary, so the
+          // fallback math needs one crossfade per remaining slide to hit the
+          // requested total duration when computed_mockup_durations is absent.
+          mockupSeconds = (remainingDuration + (remainingSlides * crossfadeUsed)) / remainingSlides;
         mockupSeconds = Math.max(minSlideSeconds, mockupSeconds);
       }
     } else {
@@ -616,9 +691,16 @@ function buildFilter(slides, video, masterMode) {
         duration = mockupSeconds;
       }
     }
+
+    if (!Number.isFinite(duration) || duration <= 0) {
+      duration = mockupSeconds;
+    }
+    duration = Math.max(minSlideSeconds, Number(duration));
     
     const frames = Math.max(1, Math.round(duration * fps));
-    return { ...slide, duration, frames };
+    const quantizedDuration = frames / fps;
+    const durationUsed = useFrameQuantizedTiming ? quantizedDuration : duration;
+    return { ...slide, duration, durationUsed, quantizedDuration, frames };
   });
 
   const parts = [];
@@ -841,7 +923,10 @@ function buildFilter(slides, video, masterMode) {
           targetY,
           finalDirection,
           slideFrames,
-          false
+          false,
+          {
+            motionProfile,
+          }
         );
         xExpr = panExprs.x;
         yExpr = panExprs.y;
@@ -852,35 +937,110 @@ function buildFilter(slides, video, masterMode) {
       `[${i}:v]setsar=1:1,` +
       // Fill square by scaling up, then crop excess from top/bottom or sides
       // This preserves aspect ratio while filling entire output without letterbox bars
-      `scale=${width}:${height}:force_original_aspect_ratio=increase,` +
-      `crop=${width}:${height}:(in_w-${width})/2:(in_h-${height})/2,` +
+      `scale=${motionWidth}:${motionHeight}:force_original_aspect_ratio=increase,` +
+      `crop=${motionWidth}:${motionHeight}:(in_w-${motionWidth})/2:(in_h-${motionHeight})/2,` +
       `scale=w='trunc(iw*${SUBPIXEL_OVERSCAN_FACTOR}/2)*2':h='trunc(ih*${SUBPIXEL_OVERSCAN_FACTOR}/2)*2',` +
       "zoompan=" +
       `z='${zoomExpr}':` +
       `x='${xExpr}':` +
       `y='${yExpr}':` +
-      `d=${slideFrames}:s=${width}x${height}:fps=${fps},` +
-      `trim=duration=${slide.duration},setpts=PTS-STARTPTS[v${i}]`
+      `d=${slideFrames}:s=${motionWidth}x${motionHeight}:fps=${fps},` +
+      `scale=${width}:${height},` +
+      `trim=duration=${slide.durationUsed}[raw${i}]`
     );
   }
 
-  let current = "v0";
-  let timeline = slideConfigs[0].duration;
-  for (let i = 1; i < slideConfigs.length; i += 1) {
-    const out = `x${i}`;
-    const offset = Math.max(0, timeline - crossfadeSeconds);
-    parts.push(`[${current}][v${i}]xfade=transition=fade:duration=${crossfadeSeconds}:offset=${offset.toFixed(3)}[${out}]`);
-    current = out;
-    timeline += slideConfigs[i].duration - crossfadeSeconds;
+  // Normalize each segment to identical stream characteristics before composition.
+  // FFmpeg 7 xfade is stricter about matching fps/timebase/pixel format inputs.
+  for (let i = 0; i < slideConfigs.length; i += 1) {
+    parts.push(
+      `[raw${i}]fps=${fps},format=yuv420p,settb=AVTB,setpts=N/(${fps}*TB),setsar=1:1[v${i}]`
+    );
   }
 
-  parts.push(`[${current}]format=yuv420p[vout]`);
+  // Compose slides. xfade gives smooth transitions; fade_concat is a smoother
+  // fallback than hard cuts when xfade fails in stricter environments.
+  const mode = String(compositorMode || "concat").trim().toLowerCase();
+  if (mode === "xfade") {
+    let current = "v0";
+    const xfadeDuration = Math.max(1 / fps, crossfadeUsed);
+    if (useFrameQuantizedTiming) {
+      let timelineFrames = slideConfigs[0].frames;
+      for (let i = 1; i < slideConfigs.length; i += 1) {
+        const out = `x${i}`;
+        const offsetFrames = Math.max(0, timelineFrames - crossfadeFrames);
+        const offset = offsetFrames / fps;
+        parts.push(`[${current}][v${i}]xfade=transition=fade:duration=${xfadeDuration.toFixed(6)}:offset=${offset.toFixed(6)}[${out}]`);
+        current = out;
+        timelineFrames += slideConfigs[i].frames - crossfadeFrames;
+      }
+    } else {
+      let timeline = slideConfigs[0].durationUsed;
+      for (let i = 1; i < slideConfigs.length; i += 1) {
+        const out = `x${i}`;
+        const offset = Math.max(0, timeline - crossfadeUsed);
+        parts.push(`[${current}][v${i}]xfade=transition=fade:duration=${xfadeDuration.toFixed(6)}:offset=${offset.toFixed(6)}[${out}]`);
+        current = out;
+        timeline += slideConfigs[i].durationUsed - crossfadeUsed;
+      }
+    }
+    parts.push(`[${current}]format=yuv420p[vout]`);
+  } else if (mode === "fade_concat") {
+    const labels = [];
+    for (let i = 0; i < slideConfigs.length; i += 1) {
+      const isFirst = i === 0;
+      const isLast = i === (slideConfigs.length - 1);
+      const fadeDur = Math.max(0, Math.min(crossfadeUsed / 2, slideConfigs[i].durationUsed / 3));
+      let current = `v${i}`;
+      if (!isFirst && fadeDur > 0) {
+        const withIn = `vin${i}`;
+        parts.push(`[${current}]fade=t=in:st=0:d=${fadeDur.toFixed(6)}[${withIn}]`);
+        current = withIn;
+      }
+      if (!isLast && fadeDur > 0) {
+        const withOut = `vfade${i}`;
+        const outStart = Math.max(0, slideConfigs[i].durationUsed - fadeDur);
+        parts.push(`[${current}]fade=t=out:st=${outStart.toFixed(6)}:d=${fadeDur.toFixed(6)}[${withOut}]`);
+        current = withOut;
+      }
+      labels.push(`[${current}]`);
+    }
+    if (labels.length === 1) {
+      parts.push(`${labels[0]}format=yuv420p[vout]`);
+    } else {
+      parts.push(`${labels.join("")}concat=n=${labels.length}:v=1:a=0[vcat]`);
+      parts.push("[vcat]format=yuv420p[vout]");
+    }
+  } else {
+    if (slideConfigs.length === 1) {
+      parts.push("[v0]format=yuv420p[vout]");
+    } else {
+      const concatInputs = slideConfigs.map((_, idx) => `[v${idx}]`).join("");
+      parts.push(`${concatInputs}concat=n=${slideConfigs.length}:v=1:a=0[vcat]`);
+      parts.push("[vcat]format=yuv420p[vout]");
+    }
+  }
 
-  const computedDuration = slideConfigs.reduce((acc, slide) => acc + slide.duration, 0) - (slideConfigs.length - 1) * crossfadeSeconds;
+  let computedDuration;
+  if (mode === "xfade") {
+    if (useFrameQuantizedTiming) {
+      const totalFrames = slideConfigs.reduce((acc, slide) => acc + slide.frames, 0);
+      computedDuration = (totalFrames - ((slideConfigs.length - 1) * crossfadeFrames)) / fps;
+    } else {
+      computedDuration = slideConfigs.reduce((acc, slide) => acc + slide.durationUsed, 0) - (slideConfigs.length - 1) * crossfadeUsed;
+    }
+  } else {
+    if (useFrameQuantizedTiming) {
+      const totalFrames = slideConfigs.reduce((acc, slide) => acc + slide.frames, 0);
+      computedDuration = totalFrames / fps;
+    } else {
+      computedDuration = slideConfigs.reduce((acc, slide) => acc + slide.durationUsed, 0);
+    }
+  }
   const totalDuration = Number.isFinite(requestedDuration) && requestedDuration > 0
     ? requestedDuration
     : computedDuration;
-  return { filterComplex: parts.join(";"), totalDuration, fps };
+  return { filterComplex: parts.join(";"), totalDuration, fps, compositorUsed: mode };
 }
 
 function writeRenderStatus(statusPath, payload) {
@@ -943,6 +1103,18 @@ async function run() {
     throw new Error("Missing required payload values: slug/master_path/output_path");
   }
 
+  // Runtime diagnostics for parity investigations.
+  process.stdout.write(`render.js ffmpeg_path=${ffmpegBin}\n`);
+  if (process.env.RENDER_DEBUG || process.env.ARTLOMO_VIDEO_LOG_FFMPEG_VERSION === "1") {
+    try {
+      const v = spawnSync(ffmpegBin, ["-hide_banner", "-version"], { encoding: "utf8" });
+      const line = String((v && v.stdout) || "").split("\n").find(Boolean) || String((v && v.stderr) || "").split("\n").find(Boolean) || "unknown";
+      process.stdout.write(`render.js ffmpeg_version=${line.trim()}\n`);
+    } catch (_err) {
+      process.stdout.write("render.js ffmpeg_version=unavailable\n");
+    }
+  }
+
   const targets = resolveMockupTargets(payload);
   if (!targets.length) {
     throw new Error("No mockup_paths provided to Node worker");
@@ -958,120 +1130,142 @@ async function run() {
     throw new Error("No renderable slides available after storyboard filtering");
   }
 
-  const frameGenerationStart = Date.now();
-  const { filterComplex, totalDuration, fps } = buildFilter(slides, video, masterMode);
-  const frameGenerationEnd = Date.now();
-  process.stdout.write(`render.js timing frame_generation_ms=${frameGenerationEnd - frameGenerationStart}\n`);
-  const totalFrames = Math.max(1, Math.round(Number(fps || 24) * Number(totalDuration || 0)));
-  const startedAt = new Date().toISOString();
+  const requestedModeRaw = String(video.compositor || process.env.ARTLOMO_VIDEO_COMPOSITOR || "auto").trim().toLowerCase();
+  const requestedMode = ["auto", "xfade", "fade_concat", "concat"].includes(requestedModeRaw) ? requestedModeRaw : "auto";
+  const modeAttempts = requestedMode === "auto"
+    ? ["xfade", "fade_concat", "concat"]
+    : requestedMode === "xfade"
+      ? ["xfade"]
+      : requestedMode === "fade_concat"
+        ? ["fade_concat"]
+      : ["concat"];
 
-  writeRenderStatus(renderStatusPath, {
-    slug,
-    frames_completed: 0,
-    total_frames: totalFrames,
-    started_at: startedAt,
-  });
+  let lastErr = null;
+  for (let idx = 0; idx < modeAttempts.length; idx += 1) {
+    const mode = modeAttempts[idx];
+    const frameGenerationStart = Date.now();
+    const { filterComplex, totalDuration, fps, compositorUsed } = buildFilter(slides, video, masterMode, mode);
+    const frameGenerationEnd = Date.now();
 
-  const cmdArgs = ["-y"];
-  for (const slide of slides) {
-    cmdArgs.push("-loop", "1", "-i", slide.path);
-  }
-  cmdArgs.push(
-    "-filter_complex",
-    filterComplex,
-    "-map",
-    "[vout]",
-    "-r",
-    String(fps),
-    "-t",
-    totalDuration.toFixed(3),
-    "-progress",
-    "pipe:1",
-    "-nostats",
-    "-c:v",
-    String(video.codec || "libx264"),
-    "-preset",
-    String(video.encoder_preset || video.preset || "fast"),
-    "-crf",
-    String(Number(video.crf || 20)),
-    "-threads",
-    "0",
-    "-pix_fmt",
-    "yuv420p",
-    "-movflags",
-    "+faststart",
-    outputPath
-  );
+    process.stdout.write(`render.js compositor=${compositorUsed} requested=${requestedMode} attempt=${idx + 1}/${modeAttempts.length}\n`);
+    process.stdout.write(`render.js output_path=${outputPath} fps=${fps}\n`);
+    if (process.env.RENDER_DEBUG) {
+      console.log("[DEBUG] filter_complex:", filterComplex);
+    }
+    process.stdout.write(`render.js timing frame_generation_ms=${frameGenerationEnd - frameGenerationStart}\n`);
 
-  const ffmpegEncodeStart = Date.now();
-  const ffmpeg = spawn(ffmpegBin, cmdArgs, { stdio: ["ignore", "pipe", "pipe"] });
-  let stderr = "";
-  let buffer = "";
-  let lastFrame = 0;
-  let lastWrite = 0;
-
-  const flushStatus = (frame) => {
-    const now = Date.now();
-    if (now - lastWrite < 250) return;
-    lastWrite = now;
+    const totalFrames = Math.max(1, Math.round(Number(fps || 24) * Number(totalDuration || 0)));
+    const startedAt = new Date().toISOString();
     writeRenderStatus(renderStatusPath, {
       slug,
-      frames_completed: frame,
+      frames_completed: 0,
       total_frames: totalFrames,
       started_at: startedAt,
     });
-  };
 
-  if (ffmpeg.stdout) {
-    ffmpeg.stdout.on("data", (chunk) => {
-      buffer += chunk.toString();
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-      for (const line of lines) {
-        const [key, value] = line.trim().split("=");
-        if (key === "frame") {
-          const frameVal = Number(value || 0);
-          if (Number.isFinite(frameVal) && frameVal > lastFrame) {
-            lastFrame = Math.min(totalFrames, Math.floor(frameVal));
+    const cmdArgs = ["-y"];
+    for (const slide of slides) {
+      cmdArgs.push("-loop", "1", "-i", slide.path);
+    }
+    cmdArgs.push(
+      "-filter_complex",
+      filterComplex,
+      "-map",
+      "[vout]",
+      "-r",
+      String(fps),
+      "-t",
+      totalDuration.toFixed(3),
+      "-progress",
+      "pipe:1",
+      "-nostats",
+      "-c:v",
+      String(video.codec || "libx264"),
+      "-preset",
+      String(video.encoder_preset || video.preset || "fast"),
+      "-crf",
+      String(Number(video.crf || 20)),
+      "-threads",
+      "0",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      outputPath
+    );
+
+    const ffmpegEncodeStart = Date.now();
+    const ffmpeg = spawn(ffmpegBin, cmdArgs, { stdio: ["ignore", "pipe", "pipe"] });
+    let stderr = "";
+    let buffer = "";
+    let lastFrame = 0;
+    let lastWrite = 0;
+
+    const flushStatus = (frame) => {
+      const now = Date.now();
+      if (now - lastWrite < 250) return;
+      lastWrite = now;
+      writeRenderStatus(renderStatusPath, {
+        slug,
+        frames_completed: frame,
+        total_frames: totalFrames,
+        started_at: startedAt,
+      });
+    };
+
+    if (ffmpeg.stdout) {
+      ffmpeg.stdout.on("data", (chunk) => {
+        buffer += chunk.toString();
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          const [key, value] = line.trim().split("=");
+          if (key === "frame") {
+            const frameVal = Number(value || 0);
+            if (Number.isFinite(frameVal) && frameVal > lastFrame) {
+              lastFrame = Math.min(totalFrames, Math.floor(frameVal));
+              flushStatus(lastFrame);
+            }
+          }
+          if (key === "progress" && value === "end") {
+            lastFrame = totalFrames;
             flushStatus(lastFrame);
           }
         }
-        if (key === "progress" && value === "end") {
-          lastFrame = totalFrames;
-          flushStatus(lastFrame);
-        }
-      }
+      });
+    }
+
+    if (ffmpeg.stderr) {
+      ffmpeg.stderr.on("data", (chunk) => {
+        stderr += chunk.toString();
+      });
+    }
+
+    const exitCode = await new Promise((resolve) => {
+      ffmpeg.on("close", resolve);
     });
+    const ffmpegEncodeEnd = Date.now();
+    process.stdout.write(`render.js timing ffmpeg_encode_ms=${ffmpegEncodeEnd - ffmpegEncodeStart}\n`);
+
+    if (exitCode === 0 && fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
+      writeRenderStatus(renderStatusPath, {
+        slug,
+        frames_completed: totalFrames,
+        total_frames: totalFrames,
+        started_at: startedAt,
+      });
+      process.stdout.write(JSON.stringify({ ok: true, slug, output_path: outputPath, compositor: compositorUsed }));
+      return;
+    }
+
+    lastErr = (stderr || "ffmpeg failed").slice(-4000);
+    process.stderr.write(`render.js compositor attempt failed: ${compositorUsed}; reason=${summarizeFfmpegError(stderr)}\n`);
+    if (idx < modeAttempts.length - 1) {
+      process.stderr.write("render.js falling back to alternate compositor\n");
+    }
   }
 
-  if (ffmpeg.stderr) {
-    ffmpeg.stderr.on("data", (chunk) => {
-      stderr += chunk.toString();
-    });
-  }
-
-  const exitCode = await new Promise((resolve) => {
-    ffmpeg.on("close", resolve);
-  });
-  const ffmpegEncodeEnd = Date.now();
-  process.stdout.write(`render.js timing ffmpeg_encode_ms=${ffmpegEncodeEnd - ffmpegEncodeStart}\n`);
-
-  if (exitCode !== 0) {
-    throw new Error((stderr || "ffmpeg failed").slice(-4000));
-  }
-
-  if (!fs.existsSync(outputPath) || fs.statSync(outputPath).size <= 0) {
-    throw new Error("Output video missing or empty");
-  }
-
-  writeRenderStatus(renderStatusPath, {
-    slug,
-    frames_completed: totalFrames,
-    total_frames: totalFrames,
-    started_at: startedAt,
-  });
-
-  process.stdout.write(JSON.stringify({ ok: true, slug, output_path: outputPath }));
+  throw new Error(lastErr || "Output video missing or empty");
 }
 
 run().catch((err) => {

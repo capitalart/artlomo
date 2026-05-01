@@ -55,7 +55,7 @@
         <div class="chosen-panel" data-chosen-panel>
           <div class="chosen-panel__header">
             <h4 data-chosen-title>Chosen Mockups (Video Order)</h4>
-            <span class="chosen-subtitle" data-chosen-subtitle>Drag to reorder</span>
+              <span class="chosen-subtitle" data-chosen-subtitle>Use arrows to reorder</span>
           </div>
           
           <!-- Timing Summary Bar -->
@@ -185,6 +185,37 @@
                 <option value="master" {% if video_settings.get('video_artwork_source', 'auto') == 'master' %}selected{% endif %}>Master</option>
               </select>
             </div>
+            <div class="output-field">
+              <label for="output-ffmpeg-profile" class="suite-control-title">FFmpeg</label>
+              <select id="output-ffmpeg-profile" class="form-select form-select-sm" data-output-ffmpeg-profile>
+                <option value="default" {% if video_settings.get('video_ffmpeg_profile', 'default') == 'default' %}selected{% endif %}>Default</option>
+                <option value="ffmpeg5" {% if video_settings.get('video_ffmpeg_profile', 'default') == 'ffmpeg5' %}selected{% endif %}>FFmpeg 5.1.8</option>
+                <option value="ffmpeg8" {% if video_settings.get('video_ffmpeg_profile', 'default') == 'ffmpeg8' %}selected{% endif %}>FFmpeg 8.1</option>
+              </select>
+            </div>
+            <div class="output-field">
+              <label for="output-compositor" class="suite-control-title">Transitions</label>
+              <select id="output-compositor" class="form-select form-select-sm" data-output-compositor>
+                <option value="auto" {% if video_settings.get('video_compositor', 'auto') == 'auto' %}selected{% endif %}>Auto (xfade -> smooth fallback)</option>
+                <option value="xfade" {% if video_settings.get('video_compositor', 'auto') == 'xfade' %}selected{% endif %}>xfade</option>
+                <option value="fade_concat" {% if video_settings.get('video_compositor', 'auto') == 'fade_concat' %}selected{% endif %}>Smooth fallback (fade concat)</option>
+                <option value="concat" {% if video_settings.get('video_compositor', 'auto') == 'concat' %}selected{% endif %}>Hard cuts (concat)</option>
+              </select>
+            </div>
+            <div class="output-field">
+              <label for="output-timing-mode" class="suite-control-title">Timing Mode</label>
+              <select id="output-timing-mode" class="form-select form-select-sm" data-output-timing-mode>
+                <option value="frame_quantized" {% if video_settings.get('video_timing_mode', 'frame_quantized') == 'frame_quantized' %}selected{% endif %}>Frame Quantized</option>
+                <option value="time_continuous" {% if video_settings.get('video_timing_mode', 'frame_quantized') == 'time_continuous' %}selected{% endif %}>Time Continuous</option>
+              </select>
+            </div>
+            <div class="output-field">
+              <label for="output-motion-profile" class="suite-control-title">Motion Profile</label>
+              <select id="output-motion-profile" class="form-select form-select-sm" data-output-motion-profile>
+                <option value="distance_normalized" {% if video_settings.get('video_motion_profile', 'distance_normalized') == 'distance_normalized' %}selected{% endif %}>Distance Normalized</option>
+                <option value="legacy" {% if video_settings.get('video_motion_profile', 'distance_normalized') == 'legacy' %}selected{% endif %}>Legacy</option>
+              </select>
+            </div>
           </div>
           <div class="output-warning" data-output-warning hidden>Warning: 60 FPS at 1920px or higher can render slowly.</div>
         </div>
@@ -213,8 +244,12 @@
             <span>Duration (Seconds)</span>
             <strong data-artwork-seconds-value>{{ "%.1f"|format(video_settings.get("main_artwork_seconds", 4.0)) }}s</strong>
           </label>
-          <input id="artwork-seconds" type="range" min="1.0" max="10.0" step="0.5"
-            value="{{ '%.1f'|format(video_settings.get('main_artwork_seconds', 4.0)) }}" data-artwork-seconds>
+            <div class="suite-slider-row">
+              <input id="artwork-seconds" type="range" min="1.0" max="10.0" step="0.5"
+                value="{{ '%.1f'|format(video_settings.get('main_artwork_seconds', 4.0)) }}" data-artwork-seconds>
+              <input type="number" class="suite-slider-number" min="1.0" max="10.0" step="0.5"
+                value="{{ '%.1f'|format(video_settings.get('main_artwork_seconds', 4.0)) }}" data-artwork-seconds-number aria-label="Main artwork duration seconds">
+            </div>
         </div>
 
         <div class="suite-control-block">
@@ -222,8 +257,12 @@
             <span>Zoom Intensity</span>
             <strong data-artwork-zoom-intensity-value>{{ "%.2f"|format(video_settings.get("artwork_zoom_intensity", 1.1)) }}x</strong>
           </label>
-          <input id="artwork-zoom-intensity" type="range" min="1.00" max="2.25" step="0.01"
-            value="{{ '%.2f'|format(video_settings.get('artwork_zoom_intensity', 1.1)) }}" data-artwork-zoom-intensity>
+            <div class="suite-slider-row">
+              <input id="artwork-zoom-intensity" type="range" min="1.00" max="2.25" step="0.01"
+                value="{{ '%.2f'|format(video_settings.get('artwork_zoom_intensity', 1.1)) }}" data-artwork-zoom-intensity>
+              <input type="number" class="suite-slider-number" min="1.00" max="2.25" step="0.01"
+                value="{{ '%.2f'|format(video_settings.get('artwork_zoom_intensity', 1.1)) }}" data-artwork-zoom-intensity-number aria-label="Main artwork zoom intensity">
+            </div>
         </div>
 
         <div class="suite-control-block">
@@ -231,8 +270,12 @@
             <span>Zoom Duration (Seconds)</span>
             <strong data-artwork-zoom-duration-value>{{ "%.1f"|format(video_settings.get('artwork_zoom_duration', 3.0)) }}s</strong>
           </label>
-          <input id="artwork-zoom-duration" type="range" min="0.0" max="8.0" step="0.1"
-            value="{{ '%.1f'|format(video_settings.get('artwork_zoom_duration', 3.0)) }}" data-artwork-zoom-duration>
+            <div class="suite-slider-row">
+              <input id="artwork-zoom-duration" type="range" min="0.0" max="8.0" step="0.1"
+                value="{{ '%.1f'|format(video_settings.get('artwork_zoom_duration', 3.0)) }}" data-artwork-zoom-duration>
+              <input type="number" class="suite-slider-number" min="0.0" max="8.0" step="0.1"
+                value="{{ '%.1f'|format(video_settings.get('artwork_zoom_duration', 3.0)) }}" data-artwork-zoom-duration-number aria-label="Main artwork zoom duration seconds">
+            </div>
         </div>
 
         <div class="suite-control-block">

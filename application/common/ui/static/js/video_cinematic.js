@@ -25,9 +25,12 @@
   const durationLabel = root.querySelector('[data-duration-label]');
 
   //Artwork controls
+  const artworkSecondsNumberInput = root.querySelector('[data-artwork-seconds-number]');
   const artworkZoomIntensityInput = root.querySelector('[data-artwork-zoom-intensity]');
+  const artworkZoomIntensityNumberInput = root.querySelector('[data-artwork-zoom-intensity-number]');
   const artworkZoomIntensityValue = root.querySelector('[data-artwork-zoom-intensity-value]');
   const artworkZoomDurationInput = root.querySelector('[data-artwork-zoom-duration]');
+  const artworkZoomDurationNumberInput = root.querySelector('[data-artwork-zoom-duration-number]');
   const artworkZoomDurationValue = root.querySelector('[data-artwork-zoom-duration-value]');
   const artworkPanToggle = root.querySelector('[data-artwork-pan-toggle]');
   const artworkPanDirectionBlock = root.querySelector('[data-artwork-direction-block]');
@@ -60,6 +63,10 @@
   const outputSizeSelect = root.querySelector('[data-output-size]');
   const outputPresetSelect = root.querySelector('[data-output-preset]');
   const outputSourceSelect = root.querySelector('[data-output-source]');
+  const outputFfmpegProfileSelect = root.querySelector('[data-output-ffmpeg-profile]');
+  const outputCompositorSelect = root.querySelector('[data-output-compositor]');
+  const outputTimingModeSelect = root.querySelector('[data-output-timing-mode]');
+  const outputMotionProfileSelect = root.querySelector('[data-output-motion-profile]');
   const outputWarning = root.querySelector('[data-output-warning]');
 
   // Load persisted video suite settings from template
@@ -302,6 +309,26 @@
   const getMockupTiming = (mockupId) => {
     return videoMockupTimings[mockupId] || null;
   };
+
+  const normalizeSuiteShots = (rawShots) => {
+    if (!Array.isArray(rawShots)) return [];
+    return rawShots
+      .map((shot) => {
+        const id = String((shot && shot.id) || '').trim();
+        if (!id) return null;
+        return {
+          id,
+          pan_enabled: shot.pan_enabled !== undefined ? Boolean(shot.pan_enabled) : true,
+          pan_direction: shot.pan_direction || 'up',
+          zoom_enabled: shot.zoom_enabled !== undefined ? Boolean(shot.zoom_enabled) : true,
+          zoom_intensity: shot.zoom_intensity !== undefined ? Number(shot.zoom_intensity) : 1.1,
+          pan_to_artwork_center: Boolean(shot.pan_to_artwork_center),
+          auto_target: Boolean(shot.auto_target),
+          order: shot.order,
+        };
+      })
+      .filter((shot) => shot !== null);
+  };
   
   // Auto-math calculation
   // Returns: {
@@ -398,6 +425,10 @@
     video_output_size: safeNumber(persistedVideoSuite.video_output_size || (outputSizeSelect && outputSizeSelect.value), 1024),
     video_encoder_preset: persistedVideoSuite.video_encoder_preset || (outputPresetSelect && outputPresetSelect.value ? String(outputPresetSelect.value) : 'fast'),
     video_artwork_source: persistedVideoSuite.video_artwork_source || (outputSourceSelect && outputSourceSelect.value ? String(outputSourceSelect.value) : 'auto'),
+    video_ffmpeg_profile: persistedVideoSuite.video_ffmpeg_profile || (outputFfmpegProfileSelect && outputFfmpegProfileSelect.value ? String(outputFfmpegProfileSelect.value) : 'default'),
+    video_compositor: persistedVideoSuite.video_compositor || (outputCompositorSelect && outputCompositorSelect.value ? String(outputCompositorSelect.value) : 'auto'),
+    video_timing_mode: persistedVideoSuite.video_timing_mode || (outputTimingModeSelect && outputTimingModeSelect.value ? String(outputTimingModeSelect.value) : 'frame_quantized'),
+    video_motion_profile: persistedVideoSuite.video_motion_profile || (outputMotionProfileSelect && outputMotionProfileSelect.value ? String(outputMotionProfileSelect.value) : 'distance_normalized'),
   };
 
   const postJson = async (url, body) => {
@@ -485,17 +516,25 @@
     updateAllSummaryLines();
   };
 
-  const updateArtworkZoomIntensity = () => {
-    if (!artworkZoomIntensityInput) return;
-    const val = Math.max(1.0, Math.min(2.25, Number(artworkZoomIntensityInput.value) || 1.1));
+  const updateArtworkZoomIntensity = (sourceValue) => {
+    const rawValue = sourceValue !== undefined
+      ? sourceValue
+      : (artworkZoomIntensityNumberInput ? artworkZoomIntensityNumberInput.value : (artworkZoomIntensityInput && artworkZoomIntensityInput.value));
+    const val = Math.max(1.0, Math.min(2.25, Number(rawValue) || 1.1));
     currentSettings.artwork_zoom_intensity = val;
+    if (artworkZoomIntensityInput) artworkZoomIntensityInput.value = val.toFixed(2);
+    if (artworkZoomIntensityNumberInput) artworkZoomIntensityNumberInput.value = val.toFixed(2);
     if (artworkZoomIntensityValue) artworkZoomIntensityValue.textContent = `${val.toFixed(2)}x`;
   };
 
-  const updateArtworkZoomDuration = () => {
-    if (!artworkZoomDurationInput) return;
-    const val = Math.max(0.0, Math.min(8.0, Number(artworkZoomDurationInput.value) || 3.0));
+  const updateArtworkZoomDuration = (sourceValue) => {
+    const rawValue = sourceValue !== undefined
+      ? sourceValue
+      : (artworkZoomDurationNumberInput ? artworkZoomDurationNumberInput.value : (artworkZoomDurationInput && artworkZoomDurationInput.value));
+    const val = Math.max(0.0, Math.min(8.0, Number(rawValue) || 3.0));
     currentSettings.artwork_zoom_duration = val;
+    if (artworkZoomDurationInput) artworkZoomDurationInput.value = val.toFixed(1);
+    if (artworkZoomDurationNumberInput) artworkZoomDurationNumberInput.value = val.toFixed(1);
     if (artworkZoomDurationValue) artworkZoomDurationValue.textContent = `${val.toFixed(1)}s`;
   };
 
@@ -605,6 +644,17 @@
         badge.textContent = String(index + 1);
         log(`  Badge ${index}: set to ${index + 1} for mockup ${item.dataset.mockupId}`);
       }
+    });
+  };
+
+  const applyOrderedIdsToShots = (ids) => {
+    currentOrderIds = normalizeOrderList(ids);
+    const shotMap = new Map(currentShots.map((shot) => [shot.id, shot]));
+    currentShots = currentOrderIds
+      .map((id) => shotMap.get(id))
+      .filter((shot) => shot !== undefined);
+    currentShots.forEach((shot, index) => {
+      shot.order = index + 1;
     });
   };
 
@@ -974,9 +1024,9 @@
     if (chosenTitle) {
       chosenTitle.textContent = `Chosen Mockups (${availableIds.length})`;
     }
-    if (chosenSubtitle) {
-      chosenSubtitle.textContent = 'Drag to reorder. Max 10 mockups.';
-    }
+      if (chosenSubtitle) {
+        chosenSubtitle.textContent = 'Use arrows to reorder. Max 10 mockups.';
+      }
 
     // Handle empty state
     if (!availableIds.length) {
@@ -985,8 +1035,6 @@
       return;
     }
     if (chosenEmpty) chosenEmpty.hidden = true;
-
-    let draggingItem = null;
 
     availableIds.forEach((id, index) => {
       const info = mockupMap.get(id);
@@ -997,7 +1045,6 @@
       
       const item = document.createElement('div');
       item.className = 'chosen-item';
-      item.setAttribute('draggable', 'true');
       item.dataset.mockupId = id;
 
       const thumbWrapper = document.createElement('div');
@@ -1234,6 +1281,39 @@
       // Create actions section for remove button
       const actionsSection = document.createElement('div');
       actionsSection.className = 'chosen-actions';
+        const moveUpBtn = document.createElement('button');
+        moveUpBtn.type = 'button';
+        moveUpBtn.className = 'btn btn-xs btn-outline-secondary chosen-reorder-btn';
+        moveUpBtn.setAttribute('aria-label', 'Move mockup up');
+        moveUpBtn.setAttribute('title', 'Move up');
+        moveUpBtn.textContent = '↑';
+        moveUpBtn.disabled = index === 0;
+
+        const moveDownBtn = document.createElement('button');
+        moveDownBtn.type = 'button';
+        moveDownBtn.className = 'btn btn-xs btn-outline-secondary chosen-reorder-btn';
+        moveDownBtn.setAttribute('aria-label', 'Move mockup down');
+        moveDownBtn.setAttribute('title', 'Move down');
+        moveDownBtn.textContent = '↓';
+        moveDownBtn.disabled = index === (availableIds.length - 1);
+
+        const moveBy = (delta) => {
+          const from = currentOrderIds.indexOf(id);
+          if (from === -1) return;
+          const to = from + delta;
+          if (to < 0 || to >= currentOrderIds.length) return;
+          const reordered = currentOrderIds.slice();
+          const [moved] = reordered.splice(from, 1);
+          reordered.splice(to, 0, moved);
+          applyOrderedIdsToShots(reordered);
+          renderChosenList();
+          persistOrder();
+        };
+        moveUpBtn.addEventListener('click', () => moveBy(-1));
+        moveDownBtn.addEventListener('click', () => moveBy(1));
+
+        actionsSection.appendChild(moveUpBtn);
+        actionsSection.appendChild(moveDownBtn);
       actionsSection.appendChild(removeBtn);
 
       thumbWrapper.appendChild(thumb);
@@ -1243,65 +1323,6 @@
       item.appendChild(actionsSection);
       chosenList.appendChild(item);
 
-      // Track if slider is being interacted with
-      let sliderActive = false;
-      zoomSlider.addEventListener('pointerdown', () => { sliderActive = true; });
-      zoomSlider.addEventListener('pointerup', () => { sliderActive = false; });
-      zoomSlider.addEventListener('pointercancel', () => { sliderActive = false; });
-      
-      item.addEventListener('dragstart', (event) => {
-        // Prevent drag if slider is being interacted with
-        if (sliderActive || event.target.closest('[data-zoom-slider]')) {
-          event.preventDefault();
-          return false;
-        }
-        draggingItem = item;
-        item.classList.add('is-dragging');
-        event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/plain', id);
-      });
-
-      item.addEventListener('dragover', (event) => {
-        event.preventDefault();
-        if (!draggingItem || draggingItem === item) return;
-        const rect = item.getBoundingClientRect();
-        const next = (event.clientY - rect.top) > rect.height / 2;
-        chosenList.insertBefore(draggingItem, next ? item.nextSibling : item);
-      });
-
-      item.addEventListener('drop', (event) => {
-        event.preventDefault();
-        const ids = Array.from(chosenList.querySelectorAll('[data-mockup-id]'))
-          .map((el) => el.dataset.mockupId)
-          .filter(Boolean);
-        currentOrderIds = ids;
-        updateOrderBadges();
-        persistOrder();
-      });
-
-      item.addEventListener('dragend', () => {
-        if (draggingItem) draggingItem.classList.remove('is-dragging');
-        draggingItem = null;
-        const ids = Array.from(chosenList.querySelectorAll('[data-mockup-id]'))
-          .map((el) => el.dataset.mockupId)
-          .filter(Boolean);
-        currentOrderIds = ids;
-        
-        // Reorder shots to match new order
-        const shotMap = new Map(currentShots.map((shot) => [shot.id, shot]));
-        currentShots = ids
-          .map((id) => shotMap.get(id))
-          .filter((shot) => shot !== undefined);
-        
-        // Ensure order property matches index
-        currentShots.forEach((shot, index) => {
-          shot.order = index + 1;
-        });
-        
-        updateOrderBadges();
-        persistOrder();
-        persistShots(); // Also persist shot order
-      });
     });
     
     // Show timing summary bar if there are chosen items
@@ -1350,6 +1371,10 @@
       video_output_size: currentSettings.video_output_size,
       video_encoder_preset: currentSettings.video_encoder_preset,
       video_artwork_source: currentSettings.video_artwork_source,
+      video_ffmpeg_profile: currentSettings.video_ffmpeg_profile,
+      video_compositor: currentSettings.video_compositor,
+      video_timing_mode: currentSettings.video_timing_mode,
+      video_motion_profile: currentSettings.video_motion_profile,
       video_mockup_shots: currentShots,
       main_artwork_seconds: mainArtworkSeconds,
       video_mockup_timings: videoMockupTimings,
@@ -1363,20 +1388,117 @@
       throw new Error(buildErrorMessage('Failed to save settings', resp, data, text));
     }
 
-    // Sync with server-normalized values (response uses nested video_suite contract).
+      // Sync with server-normalized values (response uses nested video_suite contract).
     if (data && data.video_suite && typeof data.video_suite === 'object') {
       Object.assign(persistedVideoSuite, data.video_suite);
-      currentSettings.artwork_pan_enabled = readPersistedMainPanEnabled(
-        data.video_suite,
-        currentSettings.artwork_pan_enabled
-      );
-      currentSettings.artwork_pan_direction = readPersistedMainPanDirection(
-        data.video_suite,
-        currentSettings.artwork_pan_direction
-      );
-      if (artworkPanToggle) artworkPanToggle.checked = currentSettings.artwork_pan_enabled;
+        const suite = data.video_suite;
+
+        if (suite.duration_seconds !== undefined) {
+          setDuration(Number(suite.duration_seconds));
+        }
+
+        if (suite.main_artwork_seconds !== undefined) {
+          mainArtworkSeconds = Math.max(1.0, Math.min(10.0, Number(suite.main_artwork_seconds) || mainArtworkSeconds));
+          mainArtworkSeconds = Math.round(mainArtworkSeconds * 2) / 2;
+          if (artworkSecondsInput) artworkSecondsInput.value = mainArtworkSeconds.toFixed(1);
+          if (artworkSecondsNumberInput) artworkSecondsNumberInput.value = mainArtworkSeconds.toFixed(1);
+          if (timingMainSecondsInput) timingMainSecondsInput.value = mainArtworkSeconds.toFixed(1);
+          if (artworkSecondsValue) artworkSecondsValue.textContent = `${mainArtworkSeconds.toFixed(1)}s`;
+        }
+
+        if (suite.artwork && typeof suite.artwork === 'object') {
+          if (suite.artwork.zoom_intensity !== undefined) {
+            updateArtworkZoomIntensity(suite.artwork.zoom_intensity);
+          }
+          if (suite.artwork.zoom_duration !== undefined) {
+            updateArtworkZoomDuration(suite.artwork.zoom_duration);
+          }
+        }
+
+        currentSettings.artwork_pan_enabled = readPersistedMainPanEnabled(suite, currentSettings.artwork_pan_enabled);
+        currentSettings.artwork_pan_direction = readPersistedMainPanDirection(suite, currentSettings.artwork_pan_direction);
+        if (artworkPanToggle) artworkPanToggle.checked = currentSettings.artwork_pan_enabled;
+
+        if (suite.output && typeof suite.output === 'object') {
+          if (suite.output.fps !== undefined) {
+            currentSettings.video_fps = safeNumber(suite.output.fps, currentSettings.video_fps);
+            if (outputFpsSelect) outputFpsSelect.value = String(currentSettings.video_fps);
+          }
+          if (suite.output.size !== undefined) {
+            currentSettings.video_output_size = safeNumber(suite.output.size, currentSettings.video_output_size);
+            if (outputSizeSelect) outputSizeSelect.value = String(currentSettings.video_output_size);
+          }
+          if (suite.output.encoder_preset !== undefined) {
+            currentSettings.video_encoder_preset = String(suite.output.encoder_preset || currentSettings.video_encoder_preset);
+            if (outputPresetSelect) outputPresetSelect.value = currentSettings.video_encoder_preset;
+          }
+          if (suite.output.artwork_source !== undefined) {
+            currentSettings.video_artwork_source = String(suite.output.artwork_source || currentSettings.video_artwork_source);
+            if (outputSourceSelect) outputSourceSelect.value = currentSettings.video_artwork_source;
+          }
+          if (suite.output.ffmpeg_profile !== undefined) {
+            currentSettings.video_ffmpeg_profile = String(suite.output.ffmpeg_profile || currentSettings.video_ffmpeg_profile);
+            if (outputFfmpegProfileSelect) outputFfmpegProfileSelect.value = currentSettings.video_ffmpeg_profile;
+          }
+          if (suite.output.compositor !== undefined) {
+            currentSettings.video_compositor = String(suite.output.compositor || currentSettings.video_compositor);
+            if (outputCompositorSelect) outputCompositorSelect.value = currentSettings.video_compositor;
+          }
+          if (suite.output.timing_mode !== undefined) {
+            currentSettings.video_timing_mode = String(suite.output.timing_mode || currentSettings.video_timing_mode);
+            if (outputTimingModeSelect) outputTimingModeSelect.value = currentSettings.video_timing_mode;
+          }
+          if (suite.output.motion_profile !== undefined) {
+            currentSettings.video_motion_profile = String(suite.output.motion_profile || currentSettings.video_motion_profile);
+            if (outputMotionProfileSelect) outputMotionProfileSelect.value = currentSettings.video_motion_profile;
+          }
+        }
+
+        if (suite.video_ffmpeg_profile !== undefined) {
+          currentSettings.video_ffmpeg_profile = String(suite.video_ffmpeg_profile || currentSettings.video_ffmpeg_profile);
+          if (outputFfmpegProfileSelect) outputFfmpegProfileSelect.value = currentSettings.video_ffmpeg_profile;
+        }
+        if (suite.video_compositor !== undefined) {
+          currentSettings.video_compositor = String(suite.video_compositor || currentSettings.video_compositor);
+          if (outputCompositorSelect) outputCompositorSelect.value = currentSettings.video_compositor;
+        }
+        if (suite.video_timing_mode !== undefined) {
+          currentSettings.video_timing_mode = String(suite.video_timing_mode || currentSettings.video_timing_mode);
+          if (outputTimingModeSelect) outputTimingModeSelect.value = currentSettings.video_timing_mode;
+        }
+        if (suite.video_motion_profile !== undefined) {
+          currentSettings.video_motion_profile = String(suite.video_motion_profile || currentSettings.video_motion_profile);
+          if (outputMotionProfileSelect) outputMotionProfileSelect.value = currentSettings.video_motion_profile;
+        }
+
+        if (Array.isArray(suite.selected_mockups)) {
+          const selectedSet = new Set(suite.selected_mockups.map((item) => String(item || '').trim()).filter(Boolean));
+          mockupCards.forEach((card) => {
+            const checkbox = card.querySelector('[data-storyboard-checkbox]');
+            if (!checkbox) return;
+            checkbox.checked = selectedSet.has(String(checkbox.value || '').trim());
+          });
+        }
+
+        if (Array.isArray(suite.video_mockup_order)) {
+          currentOrderIds = normalizeOrderList(suite.video_mockup_order);
+        }
+
+        if (Array.isArray(suite.video_mockup_shots)) {
+          currentShots = normalizeSuiteShots(suite.video_mockup_shots);
+        }
+
+        if (suite.video_mockup_timings && typeof suite.video_mockup_timings === 'object') {
+          videoMockupTimings = Object.assign({}, suite.video_mockup_timings);
+        }
+
+        updateStoryboardCounter();
+        updateOutputWarning();
       updateArtworkPanStateButtons();
       updateDirectionButtons(artworkPanDirectionBlock, artworkPanDirectionButtons, currentSettings.artwork_pan_direction);
+        renderChosenList();
+        updateTimingSummary();
+        updateAllSummaryLines();
       log('💾 Server-confirmed pan settings:', {
         pan_enabled: currentSettings.artwork_pan_enabled,
         pan_direction: currentSettings.artwork_pan_direction,
@@ -1522,18 +1644,17 @@
     if (persistedVideoSuite.main_artwork_seconds) {
       mainArtworkSeconds = safeNumber(persistedVideoSuite.main_artwork_seconds, 4.0);
       if (artworkSecondsInput) artworkSecondsInput.value = mainArtworkSeconds;
+        if (artworkSecondsNumberInput) artworkSecondsNumberInput.value = mainArtworkSeconds;
       if (artworkSecondsValue) artworkSecondsValue.textContent = `${mainArtworkSeconds.toFixed(1)}s`;
       if (timingMainSecondsInput) timingMainSecondsInput.value = mainArtworkSeconds;
     }
 
     // Artwork zoom
     if (artworkZoomIntensityInput && persistedVideoSuite.artwork_zoom_intensity) {
-      artworkZoomIntensityInput.value = persistedVideoSuite.artwork_zoom_intensity;
-      updateArtworkZoomIntensity();
+        updateArtworkZoomIntensity(persistedVideoSuite.artwork_zoom_intensity);
     }
     if (artworkZoomDurationInput && persistedVideoSuite.artwork_zoom_duration) {
-      artworkZoomDurationInput.value = persistedVideoSuite.artwork_zoom_duration;
-      updateArtworkZoomDuration();
+        updateArtworkZoomDuration(persistedVideoSuite.artwork_zoom_duration);
     }
 
     // Artwork pan
@@ -1568,6 +1689,18 @@
     if (outputSourceSelect && persistedVideoSuite.video_artwork_source) {
       outputSourceSelect.value = persistedVideoSuite.video_artwork_source;
     }
+    if (outputFfmpegProfileSelect && persistedVideoSuite.video_ffmpeg_profile) {
+      outputFfmpegProfileSelect.value = persistedVideoSuite.video_ffmpeg_profile;
+    }
+    if (outputCompositorSelect && persistedVideoSuite.video_compositor) {
+      outputCompositorSelect.value = persistedVideoSuite.video_compositor;
+    }
+    if (outputTimingModeSelect && persistedVideoSuite.video_timing_mode) {
+      outputTimingModeSelect.value = persistedVideoSuite.video_timing_mode;
+    }
+    if (outputMotionProfileSelect && persistedVideoSuite.video_motion_profile) {
+      outputMotionProfileSelect.value = persistedVideoSuite.video_motion_profile;
+    }
     updateOutputWarning();
 
     // Restore mockup selection from persisted state
@@ -1590,16 +1723,7 @@
 
     // Restore per-mockup shots settings (pan_direction, zoom_enabled, zoom_intensity)
     if (persistedVideoSuite.video_mockup_shots && Array.isArray(persistedVideoSuite.video_mockup_shots)) {
-      currentShots = persistedVideoSuite.video_mockup_shots.map(shot => ({
-        id: shot.id,
-        pan_enabled: shot.pan_enabled !== undefined ? Boolean(shot.pan_enabled) : true,
-        pan_direction: shot.pan_direction || 'up',
-        zoom_enabled: shot.zoom_enabled !== undefined ? Boolean(shot.zoom_enabled) : true,
-        zoom_intensity: shot.zoom_intensity !== undefined ? Number(shot.zoom_intensity) : 1.1,
-        pan_to_artwork_center: Boolean(shot.pan_to_artwork_center),
-        auto_target: Boolean(shot.auto_target),
-        order: shot.order,
-      }));
+        currentShots = normalizeSuiteShots(persistedVideoSuite.video_mockup_shots);
       log('Restored per-mockup shots:', currentShots);
     }
 
@@ -1630,23 +1754,8 @@
     storyboardGrid: !!storyboardGrid,
   });
   
-  updateStoryboardCounter();
-  
-  // DEBUG: Log state before renderChosenList (FIXED: no auto-select)
-  const selectedIds = getSelectedIds();
-  log(`Before renderChosenList:`, {
-    selectedCount: selectedIds.length,
-    maxLimit: MAX_MOCKUPS,
-    willShowEmpty: selectedIds.length === 0,
-  });
-  
-  renderChosenList();
-  
-  // DEBUG: Log state after renderChosenList
-  const chosenItemsCount = chosenList ? chosenList.querySelectorAll('.chosen-item').length : 0;
-  log(`After renderChosenList: ${chosenItemsCount} items rendered, maxLimit=${MAX_MOCKUPS}`);
-  
-  attachStoryboardCheckboxListeners();
+    // Initial render and listener binding are intentionally deferred until
+    // initializeFromPersistedSuite() has restored the authoritative saved state.
 
   // Add Save button to UI
   const saveButton = document.createElement('button');
@@ -1707,13 +1816,25 @@
 
   if (artworkZoomIntensityInput) {
     artworkZoomIntensityInput.addEventListener('input', () => {
-      updateArtworkZoomIntensity();
+      updateArtworkZoomIntensity(artworkZoomIntensityInput.value);
+      scheduleSaveSettings();
+    });
+  }
+  if (artworkZoomIntensityNumberInput) {
+    artworkZoomIntensityNumberInput.addEventListener('input', () => {
+      updateArtworkZoomIntensity(artworkZoomIntensityNumberInput.value);
       scheduleSaveSettings();
     });
   }
   if (artworkZoomDurationInput) {
     artworkZoomDurationInput.addEventListener('input', () => {
-      updateArtworkZoomDuration();
+      updateArtworkZoomDuration(artworkZoomDurationInput.value);
+      scheduleSaveSettings();
+    });
+  }
+  if (artworkZoomDurationNumberInput) {
+    artworkZoomDurationNumberInput.addEventListener('input', () => {
+      updateArtworkZoomDuration(artworkZoomDurationNumberInput.value);
       scheduleSaveSettings();
     });
   }
@@ -1728,6 +1849,8 @@
     const val = Math.max(1.0, Math.min(10.0, Number(artworkSecondsInput.value) || 4.0));
     mainArtworkSeconds = Math.round(val * 2) / 2; // Round to 0.5
     
+      if (artworkSecondsInput) artworkSecondsInput.value = mainArtworkSeconds.toFixed(1);
+      if (artworkSecondsNumberInput) artworkSecondsNumberInput.value = mainArtworkSeconds.toFixed(1);
     if (artworkSecondsValue) artworkSecondsValue.textContent = `${mainArtworkSeconds.toFixed(1)}s`;
     if (timingMainSecondsInput) timingMainSecondsInput.value = mainArtworkSeconds;
     
@@ -1739,16 +1862,34 @@
   if (artworkSecondsInput) {
     artworkSecondsInput.addEventListener('input', updateArtworkSeconds);
   }
+
+  if (artworkSecondsNumberInput) {
+    artworkSecondsNumberInput.addEventListener('input', async () => {
+      const val = Math.max(1.0, Math.min(10.0, Number(artworkSecondsNumberInput.value) || 4.0));
+      mainArtworkSeconds = Math.round(val * 2) / 2;
+
+      if (artworkSecondsInput) artworkSecondsInput.value = mainArtworkSeconds.toFixed(1);
+      if (artworkSecondsNumberInput) artworkSecondsNumberInput.value = mainArtworkSeconds.toFixed(1);
+      if (artworkSecondsValue) artworkSecondsValue.textContent = `${mainArtworkSeconds.toFixed(1)}s`;
+      if (timingMainSecondsInput) timingMainSecondsInput.value = mainArtworkSeconds.toFixed(1);
+
+      updateTimingSummary();
+      updateAllSummaryLines();
+      await persistTimings();
+    });
+  }
   
   if (timingMainSecondsInput) {
     timingMainSecondsInput.addEventListener('change', async () => {
       const val = Math.max(1.0, Math.min(10.0, Number(timingMainSecondsInput.value) || 4.0));
       mainArtworkSeconds = Math.round(val * 2) / 2;
       
-      if (artworkSecondsInput) artworkSecondsInput.value = mainArtworkSeconds;
+      if (artworkSecondsInput) artworkSecondsInput.value = mainArtworkSeconds.toFixed(1);
+      if (artworkSecondsNumberInput) artworkSecondsNumberInput.value = mainArtworkSeconds.toFixed(1);
       if (artworkSecondsValue) artworkSecondsValue.textContent = `${mainArtworkSeconds.toFixed(1)}s`;
       
       updateTimingSummary();
+      updateAllSummaryLines();
       await persistTimings();
     });
   }
@@ -1805,6 +1946,34 @@
   if (outputSourceSelect) {
     outputSourceSelect.addEventListener('change', () => {
       currentSettings.video_artwork_source = outputSourceSelect.value ? String(outputSourceSelect.value) : 'auto';
+      scheduleSaveSettings();
+    });
+  }
+
+  if (outputFfmpegProfileSelect) {
+    outputFfmpegProfileSelect.addEventListener('change', () => {
+      currentSettings.video_ffmpeg_profile = outputFfmpegProfileSelect.value ? String(outputFfmpegProfileSelect.value) : 'default';
+      scheduleSaveSettings();
+    });
+  }
+
+  if (outputCompositorSelect) {
+    outputCompositorSelect.addEventListener('change', () => {
+      currentSettings.video_compositor = outputCompositorSelect.value ? String(outputCompositorSelect.value) : 'auto';
+      scheduleSaveSettings();
+    });
+  }
+
+  if (outputTimingModeSelect) {
+    outputTimingModeSelect.addEventListener('change', () => {
+      currentSettings.video_timing_mode = outputTimingModeSelect.value ? String(outputTimingModeSelect.value) : 'frame_quantized';
+      scheduleSaveSettings();
+    });
+  }
+
+  if (outputMotionProfileSelect) {
+    outputMotionProfileSelect.addEventListener('change', () => {
+      currentSettings.video_motion_profile = outputMotionProfileSelect.value ? String(outputMotionProfileSelect.value) : 'distance_normalized';
       scheduleSaveSettings();
     });
   }

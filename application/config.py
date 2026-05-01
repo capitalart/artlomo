@@ -37,6 +37,13 @@ def _env_float(name: str, default: str) -> float:
         return float(default)
 
 
+def _env_path_str(name: str, default: str = "") -> str:
+    value = (os.getenv(name, default) or "").strip()
+    if not value:
+        return ""
+    return str(Path(value).expanduser())
+
+
 # =============================================================================
 # Core paths (no auto-creation outside application/var)
 # =============================================================================
@@ -198,6 +205,13 @@ LISTING_DEFAULTS = {
 }
 
 HTTP_TIMEOUT = _env_float("HTTP_TIMEOUT", "8.0")
+
+
+# =============================================================================
+# Runtime binary overrides
+# =============================================================================
+ARTLOMO_FFMPEG_BIN = _env_path_str("ARTLOMO_FFMPEG_BIN")
+ARTLOMO_FFPROBE_BIN = _env_path_str("ARTLOMO_FFPROBE_BIN")
 
 
 # =============================================================================
